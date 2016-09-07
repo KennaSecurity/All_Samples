@@ -16,6 +16,8 @@ end
 @asset_api_url = 'https://api.kennasecurity.com/assets'
 @search_url = @asset_api_url + '/search?q='
 @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json'}
+@max_retries = 5
+
 
 tag_columns = []
 tag_list = [] 
@@ -57,9 +59,11 @@ CSV.foreach(@csv_file, :headers => true, :encoding => "UTF-8"){|row|
   if !row['Server Name'].nil?
     asset_identifier = row['Server Name'].downcase
     api_query = "hostname:#{enc_dblquote}#{asset_identifier}#{enc_dblquote}" 
-  else
+  elsif !row['IP Address'].nil?
     asset_identifier = row['IP Address'].downcase
     api_query = "ip:#{enc_dblquote}#{asset_identifier}#{enc_dblquote}"
+  else
+    next
   end
 
   api_query = api_query.gsub(' ',enc_space)
@@ -87,6 +91,19 @@ CSV.foreach(@csv_file, :headers => true, :encoding => "UTF-8"){|row|
       log_output.close
       puts "Unable to get vulns: #{query_url}"
       next
+    rescue RestClient::Exception
+      @retries ||= 0
+      if @retries < @max_retries
+        @retries += 1
+        sleep(15)
+        retry
+      else
+        log_output = File.open(output_filename,'a+')
+        log_output << "General RestClient error #{query_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+        log_output.close
+        puts "Unable to get vulns: #{query_url}"
+        next
+      end
     end 
   query_meta_json = JSON.parse(query_response)["meta"]
   total_found = query_meta_json.fetch("total_count")
@@ -163,6 +180,19 @@ CSV.foreach(@csv_file, :headers => true, :encoding => "UTF-8"){|row|
         log_output << "Unable to update - BadRequest: #{tag_api_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
         log_output.close
         puts "Unable to update: #{tag_api_url}"
+      rescue RestClient::Exception
+        @retries ||= 0
+        if @retries < @max_retries
+          @retries += 1
+          sleep(15)
+          retry
+        else
+          log_output = File.open(output_filename,'a+')
+          log_output << "General RestClient error #{tag_api_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+          log_output.close
+          puts "Unable to get vulns: #{tag_api_url}"
+
+        end
       end
 #}
 }

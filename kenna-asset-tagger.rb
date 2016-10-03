@@ -56,12 +56,14 @@ CSV.foreach(@csv_file, :headers => true, :encoding => "UTF-8"){|row|
   log_output.close
 
   # Get 'asset' identifier and figure out if ip/hostname
-  if !row['Server Name'].nil?
-    asset_identifier = row['Server Name'].downcase
-    api_query = "hostname:#{enc_dblquote}#{asset_identifier}#{enc_dblquote}" 
-  elsif !row['IP Address'].nil?
+
+  
+  if !row['IP Address'].nil?
     asset_identifier = row['IP Address'].downcase
     api_query = "ip:#{enc_dblquote}#{asset_identifier}#{enc_dblquote}"
+  elsif !row['Server Name'].nil?
+    asset_identifier = row['Server Name'].downcase
+    api_query = "hostname:#{enc_dblquote}#{asset_identifier}#{enc_dblquote}" 
   else
     next
   end

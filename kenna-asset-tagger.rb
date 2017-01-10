@@ -145,56 +145,57 @@ CSV.foreach(@csv_file, :headers => true, :encoding => "UTF-8"){|row|
   #   next if tag_list.count == 0
   #     assets_hash[asset_id] = tag_list
 
-   end
+  # end
 
 
 ## Push tags to assets
 
-  tag_api_url = "#{@asset_api_url}/#{asset_id}/tags"
-  tag_string = ""
-  tag_list.each{|t| tag_string << "#{t},"}
-  tag_string = tag_string[0...-1]
-  tag_update_json = {
-    'asset' => {
-      'tags' => "#{tag_string}"
+    tag_api_url = "#{@asset_api_url}/#{asset_id}/tags"
+    tag_string = ""
+    tag_list.each{|t| tag_string << "#{t},"}
+    tag_string = tag_string[0...-1]
+    tag_update_json = {
+      'asset' => {
+        'tags' => "#{tag_string}"
+      }
     }
-  }
 
-    log_output = File.open(output_filename,'a+')
-    log_output << "Post Asset URL...#{tag_api_url}\n"
-    log_output << "Tags...#{tag_string}\n"
-    log_output.close
-  begin
-    update_response = RestClient::Request.execute(
-      method: :put,
-      url: tag_api_url,
-      headers: @headers,
-      payload: tag_update_json
-    )
-      rescue RestClient::UnprocessableEntity 
-        log_output = File.open(output_filename,'a+')
-        log_output << "Unable to update - UnprocessableEntity: #{tag_api_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-        log_output.close
-        puts "Unable to update: #{tag_api_url}"
-
-      rescue RestClient::BadRequest
-        log_output = File.open(output_filename,'a+')
-        log_output << "Unable to update - BadRequest: #{tag_api_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-        log_output.close
-        puts "Unable to update: #{tag_api_url}"
-      rescue RestClient::Exception
-        @retries ||= 0
-        if @retries < @max_retries
-          @retries += 1
-          sleep(15)
-          retry
-        else
+      log_output = File.open(output_filename,'a+')
+      log_output << "Post Asset URL...#{tag_api_url}\n"
+      log_output << "Tags...#{tag_string}\n"
+      log_output.close
+    begin
+      update_response = RestClient::Request.execute(
+        method: :put,
+        url: tag_api_url,
+        headers: @headers,
+        payload: tag_update_json
+      )
+        rescue RestClient::UnprocessableEntity 
           log_output = File.open(output_filename,'a+')
-          log_output << "General RestClient error #{tag_api_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+          log_output << "Unable to update - UnprocessableEntity: #{tag_api_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
           log_output.close
-          puts "Unable to get vulns: #{tag_api_url}"
+          puts "Unable to update: #{tag_api_url}"
 
+        rescue RestClient::BadRequest
+          log_output = File.open(output_filename,'a+')
+          log_output << "Unable to update - BadRequest: #{tag_api_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+          log_output.close
+          puts "Unable to update: #{tag_api_url}"
+        rescue RestClient::Exception
+          @retries ||= 0
+          if @retries < @max_retries
+            @retries += 1
+            sleep(15)
+            retry
+          else
+            log_output = File.open(output_filename,'a+')
+            log_output << "General RestClient error #{tag_api_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+            log_output.close
+            puts "Unable to get vulns: #{tag_api_url}"
+
+          end
         end
-      end
+  end
 #}
 }

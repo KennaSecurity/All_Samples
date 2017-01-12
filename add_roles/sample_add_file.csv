@@ -1,0 +1,20 @@
+role_name,access_level,asset_groups
+All Assets,read,All Assets
+"Baltimore - North/Hunt Valley, MD",write,"Baltimore - North/Hunt Valley, MD"
+CLEAR IQ,read,CLEAR IQ
+CVE_only,write,CVE_only
+fixapitest   ,read,fixapitest
+fp   ,write,fp
+JA is a responsible sysadmin   ,read,JA is a responsible sysadmin   
+java,write,java
+Monkeys could patch this faster   ,write,Monkeys could patch this faster   
+My Groovy - Tmizuki - accepted risk   ,read,My Groovy - Tmizuki - accepted risk   
+not the windows   ,write,not the windows   
+ra   ,read,ra;CLEAR IQ
+Risky   ,write,Risky;CLEAR IQ 
+RM Test   ,read,RM Test;CLEAR IQ 
+servicenow active ticket   ,write,servicenow active ticket;CLEAR IQ 
+tagstoone   ,read,tagstoone;CLEAR IQ
+Tokyo   ,write,Tokyo;CLEAR IQ
+w2kserver-enus9,read,w2kserver-enus9;CLEAR IQ
+You are so compliant ,write,You are so compliant;CLEAR IQ

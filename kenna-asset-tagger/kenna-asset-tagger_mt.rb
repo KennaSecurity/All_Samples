@@ -18,7 +18,7 @@ ARGV.length == 7 ? @priority_column = ARGV[6] : @priority_column = nil #column t
 @asset_api_url = 'https://api.kennasecurity.com/assets'
 @search_url = @asset_api_url + '/search?q='
 @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json'}
-@debug = true
+@debug = false
 @max_retries = 5
 
 # Encoding characters

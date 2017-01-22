@@ -28,7 +28,7 @@ CSV.foreach(@file_name, :headers => true) do |row|
 
   ## Pull from CSV
   tm_record = row['Scan Record ID']
-  platform = row['Platform']
+#  platform = row['Platform']
   archer_status = row['Vulnerability Status']
   #ip_str = row['Qualys IP Address']
   qid_str = row['QID']
@@ -100,8 +100,8 @@ CSV.foreach(@file_name, :headers => true) do |row|
           'notes' => 'updated by Kenna script',
           'custom_fields' => {
           4050 => tm_record,
-          4055 => archer_status,
-          4048 => platform
+          4055 => archer_status
+ #         4048 => platform   # add this row to 
  #test eviron
           # 1199 => tm_record,
           # 4037 => archer_status,

@@ -1,0 +1,24 @@
+tag,prefix
+Business Unit,ASD:
+Application Name,ASD:
+Application Environment,ASD:
+PCI1A,ASD:
+PCI1B,ASD:
+PCI2A,ASD:
+SOX,ASD:
+PII,ASD:
+PHI,ASD:
+SOC1,ASD:
+SOC2,ASD:
+RDC-A,ASD:
+RDC-P,ASD:
+Server Designation,ASD:
+Server Site,ASD:
+Operating System - Version,ASD:
+Exposure Risk Rating,ERR:
+DR Tier,DR:
+"IT Manager First,IT Manager Last",IT MGR:
+"IIT Director First,IIT Director Last",IT DIR:
+"Bus Director First,Bus Director Last",BUS DIR:
+"VP POC First,VP POC Last",VP POC:
+"IT VP First,IT VP Last",IT VP:

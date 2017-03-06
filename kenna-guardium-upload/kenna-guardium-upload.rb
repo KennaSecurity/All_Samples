@@ -5,6 +5,9 @@ require 'nokogiri'
 
 @token = ARGV[0]
 @dir_name = ARGV[1]
+@scanner_field_id = ARGV[2]
+@vendor_field_id = ARGV[3]
+@hostcase = ARGV[4] #upcase, downcase or nochange
 
 @vuln_api_url = 'https://api.kennasecurity.com/vulnerabilities'
 @search_url = @vuln_api_url + '/search?q='
@@ -26,11 +29,17 @@ status = nil
 notes = nil
 serviceName = nil
 
+def directory_exists?(directory)
+  Dir.exists?(directory)
+end
+
 start_time = Time.now
 output_filename = "kenna-archer-sync_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
 
+puts "Directory not found" if !directory_exists?(@dir_name)
+
 Dir.glob("#{@dir_name}/*.xml") do |fname| 
-  puts "#{fname.to_s}" if @debug
+  puts "#{fname}" if @debug
 
   doc = File.open(fname) { |f| Nokogiri::XML(f) }
 
@@ -45,6 +54,11 @@ Dir.glob("#{@dir_name}/*.xml") do |fname|
 
     ip_str = node.xpath("ip/@value").to_s
     dns_hostname = node.xpath("hostName").text()
+    if @hostcase == 'upcase'
+      dns_hostname.upcase!
+    elsif @hostcase == 'downcase'
+      dns_hostname.downcase!
+    end
     puts "ip_str = #{ip_str}" if @debug
     puts "hostname = #{dns_hostname}" if @debug
     if !dns_hostname.nil? then
@@ -59,9 +73,6 @@ Dir.glob("#{@dir_name}/*.xml") do |fname|
 
      begin
   
-      log_output = File.open(output_filename,'a+')
-      log_output << "Kenna asset_id: #{asset_id}\n"
-      log_output.close
       last_seen = DateTime.parse(node.xpath("lastSeen").text())
 
       vendor = node.xpath("port/service/@vendor").text().chomp
@@ -114,26 +125,28 @@ Dir.glob("#{@dir_name}/*.xml") do |fname|
           'vulnerability' => {
             'cve_id' => "CVE-#{cve}",
             'primary_locator' => "#{primary_locator}",
+            'last_seen_time' => last_seen,
             "#{primary_locator}" => key
           }
         }
 #change me----the custome field identifiers need to be changed for each instance
-        date_string = last_seen.strftime("%F")
         vuln_update_json = {
           'vulnerability' => {
             'status' => 'open',
             'notes' => "#{notes}",
+            'last_seen_time' => last_seen,
             'custom_fields' => {
-              4155 => 'Guardium',
-              4158 => "#{vendor}",
-              4156 => date_string
+              "#{@scanner_field_id}" => 'Guardium',
+              "#{@vendor_field_id}" => "#{vendor}"
             }
           }
         }
-        #puts "vuln create json = #{vuln_create_json}" if @debug
-        #puts "vuln update json = #{vuln_update_json}" if @debug
+
         begin
           if vuln_id.nil? then
+            log_output = File.open(output_filename,'a+')
+            log_output << "Kenna Creating Vuln for new asset. #{cve} AND #{key}\n"
+            log_output.close
             puts "creating new vuln" if @debug
             update_response = RestClient::Request.execute(
               method: :post,
@@ -149,6 +162,9 @@ Dir.glob("#{@dir_name}/*.xml") do |fname|
         end
 
           vuln_custom_uri = "#{@vuln_api_url}/#{vuln_id}"
+          log_output = File.open(output_filename,'a+')
+          log_output << "Kenna updating vuln: #{vuln_id} for #{cve} and #{key}\n"
+          log_output.close
           puts "updating vuln" if @debug
           update_response = RestClient::Request.execute(
             method: :put,

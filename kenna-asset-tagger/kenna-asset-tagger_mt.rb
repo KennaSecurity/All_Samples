@@ -26,30 +26,32 @@ ARGV.length == 7 ? @priority_column = ARGV[6] : @priority_column = nil #column t
 @enc_dblquote = "%22"
 @enc_space = "%20"
 
+def is_ip?(str)
+  !!IPAddr.new(str) rescue false
+end
+
 def build_ip_url(ipstring)
   puts "building ip url" if @debug
   url = ""
   if ipstring.index('/').nil? then
     subnet = IPAddr.new(ipstring)
-    url = "ip:#{ @enc_dblquote}#{subnet}#{ @enc_dblquote}"
+    url = "ip:#{@enc_dblquote}#{subnet}#{@enc_dblquote}"
   else 
     subnet = IPAddr.new(locator)
     iprange = subnet.to_range()
     beginip = iprange.begin
     endip = iprange.end
-    url = "ip#{ @enc_colon}" + "[" + "#{beginip}" + " TO " + "#{endip}" + "]"
+    url = "ip#{@enc_colon}" + "[" + "#{beginip}" + " TO " + "#{endip}" + "]"
   end
   return url
 end
 
 def build_hostname_url(hostname)
   puts "building hostname url" if @debug
-  return "hostname#{ @enc_colon}#{ @enc_dblquote}#{hostname}*#{ @enc_dblquote}"
+  return "hostname#{@enc_colon}#{@enc_dblquote}#{hostname}*#{@enc_dblquote}"
 end
 
-def is_ip?(str)
-  !!IPAddr.new(str) rescue false
-end
+
 
 # Set a finite number of simultaneous worker threads that can run
 thread_count = 15
@@ -84,11 +86,6 @@ CSV.foreach(@tag_column_file, :headers => true, :encoding => "UTF-8"){|row|
 
   puts "tag_columns = #{tag_columns.to_s}" if @debug
 
-# tag_columns = CSV.read(@tag_column_file)[0]
-# tag_columns.collect{|x| x.to_s.strip || x }
-
-
-
 start_time = Time.now
 output_filename = "kenna-asset-tagger_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
 
@@ -115,9 +112,8 @@ producer_thread = Thread.new do
     log_output.close
 
     # Get 'asset' identifier and figure out if ip/hostname
-    #locator = row["#{@search_field}"]
     if @search_field == "ip_address" then
-      if !row["#{@ip_address}"].nil? then
+      if !row["#{@ip_address}"].nil? && is_ip?(row["#{@ip_address}"]) then
         api_query = build_ip_url(row["#{@ip_address}"])
       elsif !@hostname == '' && !row["#{@hostname}"].nil? then
           api_query = build_hostname_url(row["#{@hostname}"])
@@ -125,9 +121,10 @@ producer_thread = Thread.new do
         next
       end
     elsif @search_field == "hostname" then
+      puts "#{row["#{@hostname}"]}#{row["#{@ip_address}"]}"
       if !row["#{@hostname}"].nil? then 
         api_query = build_hostname_url(row["#{@hostname}"])
-      elsif !row["#{@ip_address}"].nil? then
+      elsif !row["#{@ip_address}"].nil? && is_ip?(row["#{@ip_address}"]) then
         api_query = build_ip_url(row["#{@ip_address}"])
       else
         next
@@ -152,6 +149,7 @@ producer_thread = Thread.new do
           pull_string << "#{row[col]} "
         } 
         pull_string = pull_string.strip
+        pull_string = pull_string.gsub(/['<','>','\n','\t',':',';','(',')']/,'').chomp
         if !pull_string.nil? && !pull_string.empty? then
           if !item[1].nil? then
             tag_list << "#{item[1]}#{pull_string}"

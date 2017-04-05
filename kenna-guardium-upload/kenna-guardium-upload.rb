@@ -34,7 +34,7 @@ def directory_exists?(directory)
 end
 
 start_time = Time.now
-output_filename = "kenna-archer-sync_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
+output_filename = "kenna-guardium_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
 
 puts "Directory not found" if !directory_exists?(@dir_name)
 

@@ -30,7 +30,7 @@ This script will process a CSV file, retrieve vulnerabilities, then update a cus
 
 Usage:
 
-    custom_field_update.rb <Kenna API token> <Import data CSV file> <meta file for custom fields> <vuln type> <vuln column in data file> <host lookup type> <IP column in data file> <hostname column in data file> 
+    custom_field_update_mt.rb <Kenna API token> <Import data CSV file> <meta file for custom fields> <vuln type> <vuln column in data file> <host lookup type> <IP column in data file> <hostname column in data file> 
     
     
 Tested on:

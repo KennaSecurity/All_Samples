@@ -144,7 +144,6 @@ producer_thread = Thread.new do
       vuln_query = "#{@vuln_type}:#{row[@vuln_column]}&"
     end
 
-    puts vuln_query
 
     custom_field_string = ""
     @custom_field_columns.each{|item| 
@@ -221,19 +220,14 @@ consumer_thread = Thread.new do
       while asset_found == false
 
         if @host_search_field == "ip_address" && ip_address_query.nil? == false && attempted == false then
-          puts "here 1"
           api_query = ip_address_query
         elsif @host_search_field == "ip_address" && !ip_address_query.nil? && !hostname_query.nil? && attempted == true then
-          puts "here 2"
           api_query = hostname_query
         elsif @host_search_field == "hostname" && !hostname_query.nil? && attempted == false then
-          puts "here 3"
           api_query = hostname_query
         elsif @host_search_field == "hostname" && !hostname_query.nil? && !ip_address_query.nil? && attempted == true then
-          puts "here 4"
           api_query = ip_address_query
         elsif hostname_query.nil? && ip_address_query.nil? then
-          puts "here 5"
           attempted = true
           asset_found = true
         end 
@@ -299,20 +293,16 @@ consumer_thread = Thread.new do
         tot_vulns = query_meta_json.fetch("total_count")
         pages = query_meta_json.fetch("pages")
         if tot_vulns == 0 then
-          puts "tot vulns equal 0"
           if attempted == false then
-            puts "changed attempted to true"
             attempted = true
           else
             break
           end
         else
-          puts "tot vulns greater than 0"
           asset_found = true
         end
       end
 
-      puts "pages = #{pages}"
       # Put the row on the work queue
       if pages > 20 then
         async_query = true
@@ -353,7 +343,6 @@ consumer_thread = Thread.new do
 
           endloop = pages + 1
           (1...endloop).step(1) do |i|
-            puts "Currently processing page #{i} of #{pages}"
             #query_url = "#{query_url}&page=#{i}"
             puts "paging url = #{query_url}&page=#{i}" if @debug
 
@@ -448,11 +437,8 @@ consumer_thread = Thread.new do
           searchComplete = false
 
           while searchComplete == false
-            puts "building the search"
             File.open(output_results, 'w') {|f|
-              puts "file opened"
                 block = proc { |response|
-                  puts "in the block"
                   response.read_body do |chunk| 
                     f.write chunk
                   end

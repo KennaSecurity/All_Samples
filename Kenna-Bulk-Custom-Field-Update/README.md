@@ -57,6 +57,12 @@ Expected Parameters:
     @host_search_field = ARGV[5] #field to use first for asset match ip_address or hostname or empty string
     @ip_address = ARGV[6] #column name in source file which holds the ip data or empty string
     @hostname = ARGV[7] #column name in source file which holds the hostname data or empty string
+    @notes_type = ARGV[8] #where status value will come from - static, column or empty string
+    @notes_value = ARGV[9] #set based on previous param - value, column name or empty string 
+    @due_date = ARGV[10] #column with due date or empty string
+    @status_type = ARGV[11] #where status value will come from - static, column or empty string
+    @status_value = ARGV[12] #set based on previous param - value, column name or empty string
+    @vuln_status = ARGV[13] #vuln status all, open or other effects the search params
     
 Available for Modification on the code:
 

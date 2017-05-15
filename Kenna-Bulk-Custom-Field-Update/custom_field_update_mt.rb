@@ -1,4 +1,4 @@
-# kenna-bulk-custom-field-update
+# custom field update multi-threaded
 require 'rest-client'
 require 'json'
 require 'csv'
@@ -15,6 +15,12 @@ require 'monitor'
 @host_search_field = ARGV[5] #field to use first for asset match ip_address or hostname or empty string
 @ip_address = ARGV[6] #column name in source file which holds the search field data or empty string
 @hostname = ARGV[7] #column name in source file which holds the hostname data or empty string
+@notes_type = ARGV[8] #where status value will come from - static, column or empty string
+@notes_value = ARGV[9] #set based on previous param - value, column name or empty string 
+@due_date = ARGV[10] #column with due date or empty string
+@status_type = ARGV[11] #where status value will come from - static, column or empty string
+@status_value = ARGV[12] #set based on previous param - value, column name or empty string
+@vuln_status = ARGV[13] #vuln status all, open or other
 
 @enc_colon = "%3A"
 @enc_dblquote = "%22"
@@ -22,7 +28,7 @@ require 'monitor'
 
 #Variables we'll need later
 @vuln_api_url = 'https://api.kennasecurity.com/vulnerabilities'
-@search_url = "/search?" 
+@search_url = "/search?status%5B%5D=#{@vuln_status}&" 
 @urlquerybit = 'q='
 @async_api_url = 'https://api.kennasecurity.com/vulnerabilities/create_async_search'
 @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json'}
@@ -99,7 +105,7 @@ sysexit = false
 
 ## Set columns to use for tagging, if a @tag_column_file is provided
 
-CSV.foreach(@data_column_file, :headers => true, :encoding => "UTF-8"){|row|
+CSV.foreach(@data_column_file, :headers => true, :encoding => "UTF-8:UTF-8"){|row|
 
   @custom_field_columns << Array[row[0],row[1]]
 
@@ -114,7 +120,6 @@ log_output.close
 producer_thread = Thread.new do
   puts "starting producer loop" if @debug
   
-
   ## Iterate through CSV
   CSV.foreach(@csv_file, :headers => true, :encoding => "UTF-8"){|row|
 
@@ -141,23 +146,44 @@ producer_thread = Thread.new do
     end
 
     if !@vuln_type.nil? then
-      vuln_query = "#{@vuln_type}:#{row[@vuln_column]}&"
+      if @vuln_type == "vuln_id" then
+        vuln_query = "id%5B%5D=#{row[@vuln_column]}"
+      else
+        vuln_query = "#{@vuln_type}:#{row[@vuln_column]}"
+      end
     end
-
 
     custom_field_string = ""
     @custom_field_columns.each{|item| 
-      row_value = row[item[0]]
+      row_value = CGI.escape(row[item[0]])
       if !row_value.nil? then
         custom_field_string << "\"#{item[1]}\":\"#{row[item[0]]}\","
       end
     }
 
     custom_field_string = custom_field_string[0...-1]
+    
+    json_string = nil
 
-    custom_field_string = "{\"vulnerability\": {\"custom_fields\": {#{custom_field_string}}}}"
+    json_string = "{\"vulnerability\": {"
+    if !@notes_type.nil? then
+      if @notes_type == "static" then
+        json_string = "#{json_string}\"notes\": \"#{@notes_value}\", "
+      else
+        json_string = "#{json_string}\"notes\": \"#{row[@notes_value]}\", "
+      end
+    end
+    if !@status_type.nil? then
+      if @status_type == "static" then
+        json_string = "#{json_string}\"status\": \"#{@status_value}\", "
+      else
+        json_string = "#{json_string}\"status\": \"#{row[@status_value]}\", "
+      end
+    end
+    json_string = "#{json_string}\"custom_fields\": {#{custom_field_string}}}}"
 
-    work_queue << Array[hostname_query,ip_address_query,vuln_query,JSON.parse(custom_field_string)]
+
+    work_queue << Array[hostname_query,ip_address_query,vuln_query,JSON.parse(json_string)]
     
     # Tell the consumer to check the thread array so it can attempt to schedule the
     # next job if a free spot exists.
@@ -186,7 +212,7 @@ consumer_thread = Thread.new do
       # First, wait on an available spot in the threads array.  This fires every
       # time a signal is sent to the "threads_available" variable
       threads_available.wait_while do
-        sleep(1.0/5.0)
+        sleep(1.0/3.0)
         threads.select { |thread| thread.nil? || thread.status == false  ||
                                   thread["finished"].nil? == false}.length == 0
       end
@@ -232,14 +258,24 @@ consumer_thread = Thread.new do
           asset_found = true
         end 
 
-        query_url = "#{@vuln_api_url}#{@search_url}#{@urlquerybit}"
+        #query_url = "#{@vuln_api_url}#{@search_url}#{@urlquerybit}"
 
         if !vuln_query.nil? then
-          query_url = "#{query_url}#{vuln_query}"
+          if @vuln_type == "vuln_id" then
+            query_url = "#{@vuln_api_url}#{@search_url}#{query_url}#{vuln_query}"
+          else
+            query_url = "#{@vuln_api_url}#{@search_url}#{@urlquerybit}#{vuln_query}"
+          end
+        else
+          query_url = "#{@vuln_api_url}#{@search_url}#{@urlquerybit}"
         end
 
         if !api_query.nil? then
-          query_url = "#{query_url}#{api_query}"
+          if !vuln_query.nil? then
+            query_url = "#{query_url}+AND+#{api_query}"
+          else
+            query_url = "#{query_url}#{api_query}"
+          end
         end
 
         query_url = query_url.gsub(/\&$/, '')
@@ -314,12 +350,25 @@ consumer_thread = Thread.new do
         query_url = "#{@vuln_api_url}#{@search_url}"
       end
 
-      if vuln_query.nil? then
-        query_url = "#{query_url}#{@urlquerybit}#{api_query}"
-      else
-        query_url = "#{query_url}#{@urlquerybit}#{vuln_query}#{api_query}"
-      end
+        if !vuln_query.nil? then
+          if @vuln_type == "vuln_id" then
+            query_url = "#{@vuln_api_url}#{@search_url}#{query_url}#{vuln_query}"
+          else
+            query_url = "#{@vuln_api_url}#{@search_url}#{@urlquerybit}#{vuln_query}"
+          end
+        else
+          query_url = "#{@vuln_api_url}#{@search_url}#{@urlquerybit}"
+        end
 
+        if !api_query.nil? then
+          if !vuln_query.nil? then
+            query_url = "#{query_url}+AND+#{api_query}"
+          else
+            query_url = "#{query_url}#{api_query}"
+          end
+        end
+
+      
       query_url = query_url.gsub(/\&$/, '')
 
 
@@ -338,12 +387,11 @@ consumer_thread = Thread.new do
           log_output = File.open(output_filename,'a+')
           log_output << "Processing = #{query_url}. Total vulnerabilities = #{tot_vulns}\n"
           log_output.close
-          if @debug then puts "Processing #{query_url} Total vulnerabilities = #{tot_vulns}" end
+          puts "Processing #{query_url} Total vulnerabilities = #{tot_vulns}" if @debug
           pages = meta_response_json.fetch("pages")
 
           endloop = pages + 1
           (1...endloop).step(1) do |i|
-            #query_url = "#{query_url}&page=#{i}"
             puts "paging url = #{query_url}&page=#{i}" if @debug
 
             query_response = RestClient::Request.execute(

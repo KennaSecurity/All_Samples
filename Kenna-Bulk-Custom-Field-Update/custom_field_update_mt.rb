@@ -166,14 +166,14 @@ producer_thread = Thread.new do
     json_string = nil
 
     json_string = "{\"vulnerability\": {"
-    if !@notes_type.nil? then
+    if !@notes_type.nil?  && !@notes_type == "" then
       if @notes_type == "static" then
         json_string = "#{json_string}\"notes\": \"#{@notes_value}\", "
       else
         json_string = "#{json_string}\"notes\": \"#{row[@notes_value]}\", "
       end
     end
-    if !@status_type.nil? then
+    if !@status_type.nil?  && !@status_type == "" then
       if @status_type == "static" then
         json_string = "#{json_string}\"status\": \"#{@status_value}\", "
       else
@@ -181,6 +181,8 @@ producer_thread = Thread.new do
       end
     end
     json_string = "#{json_string}\"custom_fields\": {#{custom_field_string}}}}"
+
+    #puts json_string if @debug
 
 
     work_queue << Array[hostname_query,ip_address_query,vuln_query,JSON.parse(json_string)]
@@ -212,7 +214,7 @@ consumer_thread = Thread.new do
       # First, wait on an available spot in the threads array.  This fires every
       # time a signal is sent to the "threads_available" variable
       threads_available.wait_while do
-        sleep(1.0/3.0)
+        sleep(1.0/2.0)
         threads.select { |thread| thread.nil? || thread.status == false  ||
                                   thread["finished"].nil? == false}.length == 0
       end
@@ -281,6 +283,8 @@ consumer_thread = Thread.new do
         query_url = query_url.gsub(/\&$/, '')
 
         puts "query url = #{query_url}" if @debug
+        puts "json data = #{json_data}" if @debug
+
 
         begin
           query_response = RestClient::Request.execute(
@@ -328,6 +332,7 @@ consumer_thread = Thread.new do
         query_meta_json = JSON.parse(query_response)["meta"]
         tot_vulns = query_meta_json.fetch("total_count")
         pages = query_meta_json.fetch("pages")
+        puts "tot vulns = #{tot_vulns}   and  pages = #{pages}"
         if tot_vulns == 0 then
           if attempted == false then
             attempted = true
@@ -352,12 +357,12 @@ consumer_thread = Thread.new do
 
         if !vuln_query.nil? then
           if @vuln_type == "vuln_id" then
-            query_url = "#{@vuln_api_url}#{@search_url}#{query_url}#{vuln_query}"
+            query_url = "#{query_url}#{vuln_query}"
           else
-            query_url = "#{@vuln_api_url}#{@search_url}#{@urlquerybit}#{vuln_query}"
+            query_url = "#{query_url}#{@urlquerybit}#{vuln_query}"
           end
         else
-          query_url = "#{@vuln_api_url}#{@search_url}#{@urlquerybit}"
+          query_url = "#{query_url}#{@urlquerybit}"
         end
 
         if !api_query.nil? then
@@ -371,9 +376,10 @@ consumer_thread = Thread.new do
       
       query_url = query_url.gsub(/\&$/, '')
 
-
+      puts "before submit #{query_url}"
       if !async_query then 
         puts "starting regular query" if @debug
+
         begin
           query_response = RestClient::Request.execute(
             method: :get,
@@ -381,7 +387,7 @@ consumer_thread = Thread.new do
             headers: @headers
           )
 
-        
+          puts query_response
           meta_response_json = JSON.parse(query_response.body)["meta"]
           tot_vulns = meta_response_json.fetch("total_count")
           log_output = File.open(output_filename,'a+')
@@ -416,7 +422,7 @@ consumer_thread = Thread.new do
                 rescue RestClient::TooManyRequests =>e
                   retry
                 rescue RestClient::UnprocessableEntity => e
-                  #if we got here it worked
+                  #it worked
                 rescue RestClient::BadRequest => e
                   log_output = File.open(output_filename,'a+')
                   log_output << "BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
@@ -437,6 +443,12 @@ consumer_thread = Thread.new do
                     puts "Unable to get vulns: #{e.message}"
                     Thread.exit
                   end
+                rescue Exception => e
+                  log_output = File.open(output_filename,'a+')
+                  log_output << "BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+                  log_output.close
+                  puts "BadRequest: #{e.message}"
+                  Thread.exit
               end
             end
           end
@@ -467,6 +479,12 @@ consumer_thread = Thread.new do
             puts "Unable to get vulns: #{e.message}"
             Thread.exit
           end
+        rescue Exception => e
+            log_output = File.open(output_filename,'a+')
+            log_output << "Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+            log_output.close
+            puts "Unable to get vulns: #{e.backtrace.inspect}"
+            Thread.exit
         end
         threads.synchronize do
           threads_available.signal
@@ -539,6 +557,12 @@ consumer_thread = Thread.new do
                     puts "Async Unable to get vulns: #{e.message}"
                     next
                   end
+                rescue Exception => e
+                  log_output = File.open(output_filename,'a+')
+                  log_output << "Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+                  log_output.close
+                  puts "Unable to get vulns: #{e.backtrace.inspect}"
+                  Thread.exit
                 end
               end
               File.delete(output_results)
@@ -571,6 +595,12 @@ consumer_thread = Thread.new do
             puts "Unable to get vulns: #{e.message}"
             Thread.exit
           end
+        rescue Exception => e
+          log_output = File.open(output_filename,'a+')
+          log_output << "Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+          log_output.close
+          puts "Unable to get vulns: #{e.backtrace.inspect}"
+          Thread.exit
         end
       end
       #Thread.current.exit

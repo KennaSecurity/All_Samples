@@ -5,6 +5,17 @@ require 'csv'
 require 'thread'
 require 'monitor'
 
+
+def usage
+  puts "usage:"
+  puts "#{__FILE__} KennaAPItoken CSVFileName"
+end
+
+unless ARGV[1] then
+  usage
+  exit(1)
+end
+
 @token = ARGV[0]
 @file_name = ARGV[1]
 
@@ -14,13 +25,8 @@ require 'monitor'
 @max_retries = 5
 @debug = true
 
-# Encoding characters
-enc_colon = "%3A"
-enc_dblquote = "%22"
-enc_space = "%20"
-
 start_time = Time.now
-output_filename = "kenna-archer-sync_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
+output_filename = "kenna-sync_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
 
 # Set a finite number of simultaneous worker threads that can run
 thread_count = 3
@@ -118,7 +124,7 @@ consumer_thread = Thread.new do
           url: query_url,
           headers: @headers
         )
- 
+
         query_response_json = JSON.parse(query_response)["vulnerabilities"]
 
         query_response_json.each do |item|
@@ -145,8 +151,8 @@ consumer_thread = Thread.new do
                 url: vuln_url,
                 headers: @headers,
                 payload: vuln_update_json
-              ) 
-          
+              )
+
               rescue RestClient::TooManyRequests =>e
                 retry
 

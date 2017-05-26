@@ -9,6 +9,7 @@ require 'monitor'
 def usage
   puts "usage:"
   puts "#{__FILE__} KennaAPItoken CSVFileName"
+  puts "CSV file should have columns Vulnerability, Type, and Determination, see zero_classifications.csv for an example"
 end
 
 unless ARGV[1] then
@@ -25,7 +26,7 @@ end
 @max_retries = 5
 @debug = true
 
-start_time = Time.now
+Start_time = Time.now
 output_filename = "kenna-sync_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
 
 # Set a finite number of simultaneous worker threads that can run
@@ -46,7 +47,6 @@ threads_available = threads.new_cond
 # Add a variable to tell the consumer that we are done producing work
 sysexit = false
 
-## Set columns to use for tagging, if a @tag_column_file is provided
 
 producer_thread = Thread.new do
   puts "starting producer loop" if @debug
@@ -56,11 +56,11 @@ producer_thread = Thread.new do
     log_output = File.open(output_filename,'a+')
     log_output << "Reading line #{$.}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
     log_output.close
-    ## Pull from CSV
+    ## Pull row from CSV
     vuln_search = row['Vulnerability']
     vuln_type = row['Type']
     determination = row['Determination']
-    work_queue << Array[vuln_search,vuln_type,determination]
+    work_queue << Array[vuln_search, vuln_type, determination]
     # Tell the consumer to check the thread array so it can attempt to schedule the
     # next job if a free spot exists.
     threads.synchronize do
@@ -88,8 +88,9 @@ consumer_thread = Thread.new do
       # time a signal is sent to the "threads_available" variable
       threads_available.wait_while do
         sleep(2)
-        threads.select { |thread| thread.nil? || thread.status == false  ||
-                                  thread["finished"].nil? == false}.length == 0
+        threads.select { |thread|
+          thread.nil? || thread.status == false  || thread["finished"].nil? == false
+        }.length == 0
       end
       # Once an available spot is found, get the index of that spot so we may
       # use it for the new thread
@@ -105,12 +106,8 @@ consumer_thread = Thread.new do
     threads[found_index] = Thread.new(work_to_do) do
       puts "starting the thread loop" if @debug
 
-      ## Pull from CSV
-      vuln_search = work_to_do[0]
-      vuln_type = work_to_do[1]
-      determination = work_to_do[2]
-
-
+      # unpack arguments
+      vuln_search, vuln_type, determination = work_to_do
 
       query_url =  "#{@search_url}vulnerability_score:0+AND+vulnerability_definition.name:%22#{vuln_search.gsub(/ /,'+')}%22"
 

@@ -16,13 +16,6 @@ require 'csv'
 @post_url = 'https://api.kennasecurity.com/users'
 @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token }
 
-# Encoding characters
-enc_colon = "%3A"
-enc_dblquote = "%22"
-enc_space = "%20"
-
-## Set columns to use for tagging, if a @tag_column_file is provided
-
 num_lines = CSV.read(@csv_file).length
 puts "Found #{num_lines} lines."
 
@@ -59,9 +52,8 @@ CSV.foreach(@csv_file, :headers => true){|row|
             )
 
           rescue Exception => e
-              puts e.message  
-              puts e.backtrace.inspect 
+              puts e.message
+              puts e.backtrace.inspect
 
           end
 }
-

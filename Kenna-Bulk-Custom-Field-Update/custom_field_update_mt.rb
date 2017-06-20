@@ -117,6 +117,13 @@ log_output = File.open(output_filename,'a+')
 log_output << "Processing CSV total lines #{num_lines}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
 log_output.close
 
+if @vuln_status.empty then 
+  log_output = File.open(output_filename,'a+')
+  log_output << "Vuln Status Null - Setting Vuln Status to Open\n"
+  log_output.close
+  @vuln_status = "open"
+end if
+
 producer_thread = Thread.new do
   puts "starting producer loop" if @debug
   

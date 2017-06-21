@@ -15,12 +15,12 @@ require 'monitor'
 @host_search_field = ARGV[5] #field to use first for asset match ip_address or hostname or empty string
 @ip_address = ARGV[6] #column name in source file which holds the search field data or empty string
 @hostname = ARGV[7] #column name in source file which holds the hostname data or empty string
-@notes_type = ARGV[8] #where status value will come from - static, column or empty string
-@notes_value = ARGV[9] #set based on previous param - value, column name or empty string 
+@notes_type = ARGV[8] #where notes value will come from - static, column or empty string
+@notes_value = ARGV[9] #set notes based on previous param - value, column name or empty string 
 @due_date = ARGV[10] #column with due date or empty string
-@status_type = ARGV[11] #where status value will come from - static, column or empty string
-@status_value = ARGV[12] #set based on previous param - value, column name or empty string
-@vuln_status = ARGV[13] #vuln status all, open or other
+@status_type = ARGV[11] #where status value will come from - static, column or empty string for setting new data
+@status_value = ARGV[12] #set status based on previous param - value, column name or empty string for setting new data
+@vuln_status = ARGV[13] #vuln status all, open or other for retrieval 
 
 @enc_colon = "%3A"
 @enc_dblquote = "%22"
@@ -117,7 +117,7 @@ log_output = File.open(output_filename,'a+')
 log_output << "Processing CSV total lines #{num_lines}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
 log_output.close
 
-if @vuln_status.empty then 
+if @vuln_status.empty? then 
   log_output = File.open(output_filename,'a+')
   log_output << "Vuln Status Null - Setting Vuln Status to Open\n"
   log_output.close
@@ -189,7 +189,7 @@ producer_thread = Thread.new do
     end
     json_string = "#{json_string}\"custom_fields\": {#{custom_field_string}}}}"
 
-    #puts json_string if @debug
+    puts json_string if @debug
 
 
     work_queue << Array[hostname_query,ip_address_query,vuln_query,JSON.parse(json_string)]

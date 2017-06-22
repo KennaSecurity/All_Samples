@@ -156,7 +156,13 @@ producer_thread = Thread.new do
       if @vuln_type == "vuln_id" then
         vuln_query = "id%5B%5D=#{row[@vuln_column]}"
       else
-        vuln_query = "#{@vuln_type}:#{row[@vuln_column]}"
+        rowdata = row[@vuln_column]
+        if @vuln_type == "cve" then
+          if rowdata.start_with?("CVE-") then
+            rowdata = rowdata[4..-1]
+          end
+        end
+        vuln_query = "#{@vuln_type}:#{rowdata}"
       end
     end
 
@@ -173,14 +179,14 @@ producer_thread = Thread.new do
     json_string = nil
 
     json_string = "{\"vulnerability\": {"
-    if !@notes_type.nil?  && !@notes_type == "" then
+    if !@notes_type.empty? then
       if @notes_type == "static" then
         json_string = "#{json_string}\"notes\": \"#{@notes_value}\", "
       else
         json_string = "#{json_string}\"notes\": \"#{row[@notes_value]}\", "
       end
     end
-    if !@status_type.nil?  && !@status_type == "" then
+    if !@status_type.empty? then
       if @status_type == "static" then
         json_string = "#{json_string}\"status\": \"#{@status_value}\", "
       else
@@ -356,6 +362,8 @@ consumer_thread = Thread.new do
         async_query = true
       end
 
+      puts "async query #{async_query}"
+
       if async_query then
         query_url = "#{@async_api_url}?"
       else
@@ -383,7 +391,8 @@ consumer_thread = Thread.new do
       
       query_url = query_url.gsub(/\&$/, '')
 
-      puts "before submit #{query_url}"
+      puts "before submit #{query_url}" if @debug
+
       if !async_query then 
         puts "starting regular query" if @debug
 
@@ -394,7 +403,7 @@ consumer_thread = Thread.new do
             headers: @headers
           )
 
-          puts query_response
+          #puts query_response
           meta_response_json = JSON.parse(query_response.body)["meta"]
           tot_vulns = meta_response_json.fetch("total_count")
           log_output = File.open(output_filename,'a+')
@@ -419,6 +428,7 @@ consumer_thread = Thread.new do
               vuln_id = item["id"]
               post_url = "#{@vuln_api_url}/#{vuln_id}"
               puts "post_url = #{post_url}" if @debug
+              puts "json = #{json_data}" if @debug
               begin
                 query_post_return = RestClient::Request.execute(
                   method: :put,

@@ -17,7 +17,7 @@ require 'monitor'
 @owner_type = ARGV[8] #where owner value will come from - static, column or empty string for setting new data
 @owner_value = ARGV[9] #set owner based on previous param - value, column name or empty string for setting new data
 @alt_locator = ARGV[10] #column that holds data for either application or netbios
-ARGV.length == 12 ? @priority_column = ARGV[11] : @priority_column = nil #column that holds priority setting
+ARGV.length == 12 ? @priority_column = ARGV[11] : @priority_column = "" #column that holds priority setting
 
 
 @asset_api_url = 'https://api.kennasecurity.com/assets'
@@ -57,7 +57,7 @@ def is_ip?(str)
 end
 
 # Set a finite number of simultaneous worker threads that can run
-thread_count = 15
+thread_count =10
 
 # Create an array to keep track of threads
 threads = Array.new(thread_count)
@@ -223,7 +223,7 @@ producer_thread = Thread.new do
     end
 
   }
-  # Tell the consumer that we are finished downloading currencies
+  # Tell the consumer that we are finished loading the rows
   sysexit = true
 end
 
@@ -235,7 +235,7 @@ consumer_thread = Thread.new do
     # Stop looping when the producer is finished producing work
     work_to_do = []
     work_to_do = work_queue.pop
-    break if sysexit & work_queue.nil?
+    break if sysexit && work_queue.nil?
     found_index = nil
 
     # The MonitorMixin requires us to obtain a lock on the threads array in case
@@ -272,7 +272,7 @@ consumer_thread = Thread.new do
           headers: @headers
         ) 
         rescue RestClient::TooManyRequests =>e
-                  retry
+          retry
         rescue RestClient::UnprocessableEntity => e
           log_output = File.open(output_filename,'a+')
           log_output << "Unable to get Asset - #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
@@ -288,6 +288,7 @@ consumer_thread = Thread.new do
         rescue RestClient::Exception => e
           @retries ||= 0
           if @retries < @max_retries
+            puts "i am retrying"
             @retries += 1
             sleep(15)
             retry
@@ -298,6 +299,12 @@ consumer_thread = Thread.new do
             puts "Unable to get assets: #{e.message}"
             Thread.exit
           end
+        rescue Exception => e
+          log_output = File.open(output_filename,'a+')
+          log_output << "Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+          log_output.close
+          puts "Unable to get vulns: #{e.backtrace.inspect}"
+          Thread.exit
       end 
       query_meta_json = JSON.parse(query_response)["meta"]
       total_found = query_meta_json.fetch("total_count")
@@ -316,123 +323,99 @@ consumer_thread = Thread.new do
 
         query_response_json.each do |item|
           asset_id = item["id"]
-          puts asset_id
+          #puts asset_id
 
-          if !tag_string.empty? then 
-            tag_update_json = {
-              'asset' => {
-                'tags' => "#{tag_string}"
-              }
-            }## Push tags to assets
+          begin
 
-            tag_api_url = "#{@asset_api_url}/#{asset_id}/tags"
-          
+            if !tag_string.empty? then 
+              tag_update_json = {
+                'asset' => {
+                  'tags' => "#{tag_string}"
+                }
+              }## Push tags to assets
 
-            log_output = File.open(output_filename,'a+')
-            log_output << "Post Asset URL...#{tag_api_url}\n"
-            log_output << "Tags...#{tag_string}\n"
-            log_output.close
-            begin
-              update_response = RestClient::Request.execute(
-                method: :put,
-                url: tag_api_url,
-                headers: @headers,
-                payload: tag_update_json
-              )
-                
-                rescue RestClient::TooManyRequests =>e
-                    retry
-                rescue RestClient::UnprocessableEntity => e
-                  log_output = File.open(output_filename,'a+')
-                  log_output << "Unable to update - UnprocessableEntity: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-                  log_output.close
-                  puts "Unable to update: #{e.message}"
-                  Thread.exit
-                rescue RestClient::BadRequest => e
-                  log_output = File.open(output_filename,'a+')
-                  log_output << "Unable to update - BadRequest: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-                  log_output.close
-                  puts "Unable to update: #{e.message}"
-                  Thread.exit
-                rescue RestClient::Exception => e
-                  @retries ||= 0
-                  if @retries < @max_retries
-                    @retries += 1
-                    sleep(15)
-                    retry
-                  else
-                    log_output = File.open(output_filename,'a+')
-                    log_output << "General RestClient error #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-                    log_output.close
-                    puts "Unable to update: #{e.message}"
-                    Thread.exit
-                  end
-                end
+              tag_api_url = "#{@asset_api_url}/#{asset_id}/tags"
+              puts "here 1"
+
+              log_output = File.open(output_filename,'a+')
+              log_output << "Post tag URL...#{tag_api_url}\n"
+              log_output << "tag json...#{tag_update_json.to_s}\n"
+              log_output.close
+
+                puts "here 2"
+                tag_update_response = RestClient::Request.execute(
+                  method: :put,
+                  url: tag_api_url,
+                  headers: @headers,
+                  payload: tag_update_json
+                )
+              end
+              if !asset_string.empty? then 
+                asset_update_json = JSON.parse(asset_string)
+
+                update_api_url = "#{@asset_api_url}/#{asset_id}"
+
+                log_output = File.open(output_filename,'a+')
+                log_output << "Post asset URL...#{update_api_url}\n"
+                log_output << "asset update json...#{asset_update_json.to_s}\n"
+                log_output.close
+                  update_response = RestClient::Request.execute(
+                    method: :put,
+                    url: update_api_url,
+                    headers: @headers,
+                    payload: asset_update_json
+                  )
+              end
+
+
+            rescue RestClient::TooManyRequests =>e
+                retry
+            rescue RestClient::UnprocessableEntity => e
+              log_output = File.open(output_filename,'a+')
+              log_output << "Unable to update - UnprocessableEntity: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+              log_output.close
+              puts "Unable to update: #{e.message}"
+              Thread.exit
+            rescue RestClient::BadRequest => e
+              log_output = File.open(output_filename,'a+')
+              log_output << "Unable to update - BadRequest: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+              log_output.close
+              puts "Unable to update: #{e.message}"
+              Thread.exit
+            rescue RestClient::Exception => e
+              @retries ||= 0
+              if @retries < @max_retries then
+                puts "i am retrying tags"
+                @retries += 1
+                sleep(15)
+                retry
+              else
+                log_output = File.open(output_filename,'a+')
+                log_output << "General RestClient in tag update error #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+                log_output.close
+                puts "Unable to update: #{e.message}"
+                Thread.exit
+              end
+            rescue Exception => e
+              log_output = File.open(output_filename,'a+')
+              log_output << "Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+              log_output.close
+              puts "Unable to get vulns: #{e.backtrace.inspect}"
+              Thread.exit
           end
-          if !asset_string.empty? then 
-            asset_update_json = JSON.parse(asset_string)
-
-            asset_url = "#{@asset_api_url}/#{asset_id}"
-
-            log_output = File.open(output_filename,'a+')
-            log_output << "Post Asset URL...#{asset_url}\n"
-            log_output << "asset json...#{asset_update_json.to_s}\n"
-            log_output.close
-            begin
-              update_response = RestClient::Request.execute(
-                method: :put,
-                url: asset_url,
-                headers: @headers,
-                payload: asset_update_json
-              )
-                
-                rescue RestClient::TooManyRequests =>e
-                    retry
-                rescue RestClient::UnprocessableEntity => e
-                  log_output = File.open(output_filename,'a+')
-                  log_output << "Unable to update - UnprocessableEntity: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-                  log_output.close
-                  puts "Unable to update: #{e.message}"
-                  Thread.exit
-                rescue RestClient::BadRequest => e
-                  log_output = File.open(output_filename,'a+')
-                  log_output << "Unable to update - BadRequest: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-                  log_output.close
-                  puts "Unable to update: #{e.message}"
-                  Thread.exit
-                rescue RestClient::Exception => e
-                  @retries ||= 0
-                  if @retries < @max_retries
-                    @retries += 1
-                    sleep(15)
-                    retry
-                  else
-                    log_output = File.open(output_filename,'a+')
-                    log_output << "General RestClient error #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-                    log_output.close
-                    puts "Unable to update: #{e.message}"
-                    Thread.exit
-                  end
-                end
-            end
-          end
-        end
-        Thread.current["finished"] = true
-        threads.synchronize do
-          threads_available.signal
         end
       end
-      Thread.current["finished"] = true
-
-      # Tell the consumer to check the thread array
       threads.synchronize do
         threads_available.signal
-      end
+      end  
     end
-    Thread.current["finished"] = true
     threads.synchronize do
       threads_available.signal
     end
+  end
+  threads.synchronize do
+    threads_available.signal
+  end
 end
 
 # Join on both the producer and consumer threads so the main thread doesn't exit while

@@ -49,7 +49,7 @@ end
 
 def build_hostname_url(hostname)
   puts "building hostname url" if @debug
-  return "hostname#{ @enc_colon}#{ @enc_dblquote}#{hostname}*#{ @enc_dblquote}"
+  return "hostname#{ @enc_colon}#{ @enc_dblquote}#{hostname.upcase!}*#{ @enc_dblquote}"
 end
 
 def is_ip?(str)
@@ -143,7 +143,7 @@ producer_thread = Thread.new do
       end
     elsif @search_field == "netbios" then
       if !row["#{@alt_locator}"].nil? then 
-        api_query = "netbios#{@enc_colon}#{@enc_dblquote}#{row["#{@alt_locator}"]}*#{@enc_dblquote}"
+        api_query = "netbios#{@enc_colon}#{row["#{@alt_locator}"]}"
       end
     end
     api_query = api_query.gsub(' ', @enc_space)
@@ -175,7 +175,7 @@ producer_thread = Thread.new do
       }
     end
 
-    asset_update_string = nil
+    asset_update_string = ""
 
       if !@notes_type.empty? || !@owner_type.empty? || !@priority_column.empty? then
 
@@ -288,7 +288,6 @@ consumer_thread = Thread.new do
         rescue RestClient::Exception => e
           @retries ||= 0
           if @retries < @max_retries
-            puts "i am retrying"
             @retries += 1
             sleep(15)
             retry
@@ -335,14 +334,12 @@ consumer_thread = Thread.new do
               }## Push tags to assets
 
               tag_api_url = "#{@asset_api_url}/#{asset_id}/tags"
-              puts "here 1"
 
               log_output = File.open(output_filename,'a+')
               log_output << "Post tag URL...#{tag_api_url}\n"
               log_output << "tag json...#{tag_update_json.to_s}\n"
               log_output.close
 
-                puts "here 2"
                 tag_update_response = RestClient::Request.execute(
                   method: :put,
                   url: tag_api_url,
@@ -366,8 +363,6 @@ consumer_thread = Thread.new do
                     payload: asset_update_json
                   )
               end
-
-
             rescue RestClient::TooManyRequests =>e
                 retry
             rescue RestClient::UnprocessableEntity => e
@@ -385,7 +380,6 @@ consumer_thread = Thread.new do
             rescue RestClient::Exception => e
               @retries ||= 0
               if @retries < @max_retries then
-                puts "i am retrying tags"
                 @retries += 1
                 sleep(15)
                 retry

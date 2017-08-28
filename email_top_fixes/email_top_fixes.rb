@@ -11,7 +11,7 @@ require 'mail'
 @port = ARGV[3]
 @user_name = ARGV[4]
 @password = ARGV[5]
-@from_address = ARGV[6]
+from_address = ARGV[6]
 
 
 #Variables we'll need later
@@ -192,14 +192,16 @@ CSV.foreach(@csv_file, :headers => true){|row|
       end
 
       puts "after the csv file generation"
+      puts from_address
 
       Mail.deliver do
         to "#{email_recipients}"
-        from "linda.brown@kennasecurity.com"
+        from "#{from_address}"
         subject "Top Fixes Report for #{risk_meter_name}"
         body "Top Fixes Report for #{risk_meter_name} - #{DateTime.now}"
         add_file :filename => "#{filename}", :content => File.read(filename)
       end
+
 
      File.delete(filename)
 

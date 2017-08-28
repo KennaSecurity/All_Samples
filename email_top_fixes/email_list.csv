@@ -1,0 +1,4 @@
+risk_meter_id,email_recipients
+12345,user@mydomain.com;distro_list@mydomain.com
+23456,another_user@mydomain.com
+34567,third_user@mydomain.com

@@ -2,6 +2,10 @@
 
 This script will email CSV files of Top Fixes for each risk meter listed
 
+Email Top Fixes mimics the report you get the UI today. 
+
+Email Top Fixes Plus addes Patch Published Date and Scanner IDs to the csv file. Extra API calls so report generation will take slightly longer. 
+
 Usage:
 
 email_top_fixes.rb KennaAPItoken email_meta_file smtp_mail_server smtp_port smtp_user smtp_password email_from_address

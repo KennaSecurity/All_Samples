@@ -20,3 +20,7 @@ rest-client
 json
 csv
 mail
+
+# Plus version adds Scanner IDs and fix pubish date
+# Export is the per-Asset report without email
+# Summary Export is a per-Fix report without email

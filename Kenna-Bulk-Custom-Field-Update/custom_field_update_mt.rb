@@ -105,7 +105,7 @@ sysexit = false
 
 ## Set columns to use for tagging, if a @tag_column_file is provided
 
-CSV.foreach(@data_column_file, :headers => true, :encoding => "UTF-8:UTF-8"){|row|
+CSV.foreach(@data_column_file, :headers => true, :encoding => "UTF-8"){|row|
 
   @custom_field_columns << Array[row[0],row[1]]
 
@@ -169,8 +169,8 @@ producer_thread = Thread.new do
     custom_field_string = ""
     @custom_field_columns.each{|item| 
       row_value = CGI.escape(row[item[0]])
-      if !row_value.nil? then
-        custom_field_string << "\"#{item[1]}\":\"#{row[item[0]]}\","
+      if !row_value.empty? then 
+          custom_field_string << "\"#{item[1]}\":\"#{row[item[0]]}\","
       end
     }
 
@@ -193,6 +193,17 @@ producer_thread = Thread.new do
         json_string = "#{json_string}\"status\": \"#{row[@status_value]}\", "
       end
     end
+    if !@due_date.empty? then
+      new_date = row[@due_date]
+      if new_date.nil? then
+        new_date = " "
+      else
+        new_date = DateTime.parse(new_date)
+        new_date = new_date.strftime('%FT%TZ')
+      end
+      json_string = "#{json_string}\"due_date\": \"#{new_date}\", "
+    end
+
     json_string = "#{json_string}\"custom_fields\": {#{custom_field_string}}}}"
 
     puts json_string if @debug
@@ -637,7 +648,7 @@ end
 # Join on both the producer and consumer threads so the main thread doesn't exit while
 # they are doing work.
 producer_thread.join
-consumer_thread.join
+consumer_thread.join 1
 
 # Join on the child processes to allow them to finish (if any are left)
 threads.each do |thread|

@@ -167,11 +167,14 @@ producer_thread = Thread.new do
     end
 
     custom_field_string = ""
-    @custom_field_columns.each{|item| 
-      row_value = CGI.escape(row[item[0]])
-      if !row_value.empty? then 
-          custom_field_string << "\"#{item[1]}\":\"#{row[item[0]]}\","
+    @custom_field_columns.each{|item|
+      row_value = row[item[0]] 
+      if row_value.nil? then
+        row_value = " "
+      else
+        row_value = CGI.escape(row_value)
       end
+      custom_field_string << "\"#{item[1]}\":\"#{row_value}\","
     }
 
     custom_field_string = custom_field_string[0...-1]

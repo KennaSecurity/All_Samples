@@ -4,6 +4,8 @@ Kenna CVS import to custom data fields
 
 This script will process a CSV file, retrieve vulnerabilities, then update a custom field on each vulnerability. 
 
+NEW PROCESSING: CUSTOM FIELD DATA AND DUE DATE WILL BE SET TO NULL IN KENNA IF FIELD IS EMPTY IN CSV
+
 Usage:
 
     custom_field_update.rb <Kenna API token> <Import data CSV file>

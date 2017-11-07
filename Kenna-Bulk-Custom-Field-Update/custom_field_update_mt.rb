@@ -26,6 +26,13 @@ require 'monitor'
 @enc_dblquote = "%22"
 @enc_space = "%20"
 
+if @vuln_status.empty? then 
+  log_output = File.open(output_filename,'a+')
+  log_output << "Vuln Status Null - Setting Vuln Status to Open\n"
+  log_output.close
+  @vuln_status = "open"
+end if
+
 #Variables we'll need later
 @vuln_api_url = 'https://api.kennasecurity.com/vulnerabilities'
 @search_url = "/search?status%5B%5D=#{@vuln_status}&" 
@@ -69,15 +76,6 @@ def Boolean(value)
   case value
   when true, 'true', 1, '1', 't' then true
   when false, 'false', nil, '', 0, '0', 'f' then false
-  end
-end
-
-def find_json_status?(json)
-  begin
-    json.fetch("status") == "incomplete"
-    return true
-  rescue Exception => e
-    return false
   end
 end
 
@@ -139,10 +137,10 @@ producer_thread = Thread.new do
     log_output << "Reading line #{$.}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
     log_output.close
 
-    query_url = nil
-    vuln_query = nil
-    hostname_query = nil
-    ip_address_query = nil
+    query_url = ""
+    vuln_query = ""
+    hostname_query = ""
+    ip_address_query = ""
     if @host_search_field == "ip_address" || @host_search_field == "hostname" then
       if !row["#{@ip_address}"].nil? then
         ip_address_query = build_ip_url(row["#{@ip_address}"])
@@ -152,7 +150,7 @@ producer_thread = Thread.new do
       end
     end
 
-    if !@vuln_type.nil? then
+    if !@vuln_type.empty? then
       if @vuln_type == "vuln_id" then
         vuln_query = "id%5B%5D=#{row[@vuln_column]}"
       else
@@ -262,6 +260,10 @@ consumer_thread = Thread.new do
       vuln_query = work_to_do[2]
       json_data = work_to_do[3]
 
+      puts "hostname query = #{hostname_query}"
+      puts "ip address query = #{ip_address_query}"
+      puts "vuln query = #{vuln_query}"
+
       async_query = false
       query_url = nil
       asset_found = false
@@ -274,22 +276,22 @@ consumer_thread = Thread.new do
 
       while asset_found == false
 
-        if @host_search_field == "ip_address" && ip_address_query.nil? == false && attempted == false then
+        if @host_search_field == "ip_address" && ip_address_query.empty? == false && attempted == false then
           api_query = ip_address_query
-        elsif @host_search_field == "ip_address" && !ip_address_query.nil? && !hostname_query.nil? && attempted == true then
+        elsif @host_search_field == "ip_address" && !ip_address_query.empty? && !hostname_query.empty? && attempted == true then
           api_query = hostname_query
-        elsif @host_search_field == "hostname" && !hostname_query.nil? && attempted == false then
+        elsif @host_search_field == "hostname" && !hostname_query.empty? && attempted == false then
           api_query = hostname_query
-        elsif @host_search_field == "hostname" && !hostname_query.nil? && !ip_address_query.nil? && attempted == true then
+        elsif @host_search_field == "hostname" && !hostname_query.empty? && !ip_address_query.empty? && attempted == true then
           api_query = ip_address_query
-        elsif hostname_query.nil? && ip_address_query.nil? then
+        elsif hostname_query.empty? && ip_address_query.empty? then
           attempted = true
           asset_found = true
         end 
 
-        #query_url = "#{@vuln_api_url}#{@search_url}#{@urlquerybit}"
+        puts "api_query = #{api_query}"
 
-        if !vuln_query.nil? then
+        if !vuln_query.empty? then
           if @vuln_type == "vuln_id" then
             query_url = "#{@vuln_api_url}#{@search_url}#{query_url}#{vuln_query}"
           else
@@ -299,8 +301,8 @@ consumer_thread = Thread.new do
           query_url = "#{@vuln_api_url}#{@search_url}#{@urlquerybit}"
         end
 
-        if !api_query.nil? then
-          if !vuln_query.nil? then
+        if !api_query.empty? then
+          if !vuln_query.empty? then
             query_url = "#{query_url}+AND+#{api_query}"
           else
             query_url = "#{query_url}#{api_query}"
@@ -378,13 +380,15 @@ consumer_thread = Thread.new do
 
       puts "async query #{async_query}"
 
+
+
       if async_query then
         query_url = "#{@async_api_url}?"
       else
         query_url = "#{@vuln_api_url}#{@search_url}"
       end
 
-        if !vuln_query.nil? then
+        if !vuln_query.empty? then
           if @vuln_type == "vuln_id" then
             query_url = "#{query_url}#{vuln_query}"
           else
@@ -394,8 +398,8 @@ consumer_thread = Thread.new do
           query_url = "#{query_url}#{@urlquerybit}"
         end
 
-        if !api_query.nil? then
-          if !vuln_query.nil? then
+        if !api_query.empty? then
+          if !vuln_query.empty? then
             query_url = "#{query_url}+AND+#{api_query}"
           else
             query_url = "#{query_url}#{api_query}"
@@ -436,7 +440,6 @@ consumer_thread = Thread.new do
               headers: @headers
             )
             # Build URL to set the custom field value for each vulnerability
-            #counter = 0
             query_response_json = JSON.parse(query_response.body)["vulnerabilities"]
             query_response_json.each do |item|
               vuln_id = item["id"]
@@ -522,39 +525,61 @@ consumer_thread = Thread.new do
         end
       else
         puts "starting async query" if @debug
+
+
+        bulk_query_json_string = "{\"asset\": {\"status\": [\"active\"]}, \"status\": [\"#{@vuln_status}\"], "
+
+        if !api_query.empty? then
+          if !vuln_query.empty? then
+            q = "\"#{vuln_query}+AND+#{api_query}\""
+          else
+            q = "\"#{api_query}\""
+          end
+        end
+        #q = q.gsub(':', "\:")
+        bulk_query_json_string = bulk_query_json_string + " \"q\": #{q}, \"export_settings\": { \"format\": \"json\", "
+        bulk_query_json_string = bulk_query_json_string + "\"compression\": \"gzip\", \"model\": \"vulnerability\" }}"
+
+        bulk_query_json = JSON.parse(bulk_query_json_string)
+
+        #puts bulk_query_json.to_s
         begin
           query_response = RestClient::Request.execute(
             method: :post,
-            url: query_url,
-            headers: @headers
+            url: "https://api.kennasecurity.com/data_exports",
+            headers: @headers,
+            payload: bulk_query_json
           ) 
           query_response_json = JSON.parse(query_response.body)
           searchID = query_response_json.fetch("search_id")
+          puts "searchID = #{searchID}" if @debug
+          #searchID = "33444"
           output_results = "myoutputfile_#{searchID}.json"
           searchComplete = false
 
           while searchComplete == false
-            File.open(output_results, 'w') {|f|
+            
+            status_code = RestClient.get("https://api.kennasecurity.com/data_exports/status?search_id=#{searchID}", @headers).code
+
+            puts "status code =#{status_code}"
+            if status_code != 200 then 
+              puts "sleeping for async query" if @debug
+              sleep(60)
+              next
+            else
+              puts "ansyc query complete" if @debug
+              searchComplete = true
+              File.open(output_results, 'w') {|f|
                 block = proc { |response|
                   response.read_body do |chunk| 
                     f.write chunk
                   end
                 }
-                RestClient::Request.new(method: :get, url: "https://api.kennasecurity.com/vulnerabilities/async_search?search_id=#{searchID}", headers: @headers, block_response: block).execute
-            }
-
-            results_json = JSON.parse(File.read(output_results))
-
-            if find_json_status?(results_json) then 
-              #results_json.fetch("status") == "incomplete" then
-              puts "sleeping for async query" if @debug
-              sleep(60)
-              next
-            #end
-            else
-              puts "ansyc query complete" if @debug
-              searchComplete = true
-              results_json = JSON.parse(File.read(output_results))["vulnerabilities"]
+                RestClient::Request.new(method: :get, url: "https://api.kennasecurity.com/data_exports?search_id=#{searchID}", headers: @headers, block_response: block).execute
+              }
+              gzfile = open(output_results)
+              gz = Zlib::GzipReader.new(gzfile)
+              results_json = JSON.parse(gz.read)["vulnerabilities"]
               results_json.each do |item|
                 vuln_id = item["id"]
                 post_url = "#{@vuln_api_url}/#{vuln_id}"
@@ -658,4 +683,3 @@ threads.each do |thread|
     thread.join unless thread.nil?
 end
 puts "DONE!"
-

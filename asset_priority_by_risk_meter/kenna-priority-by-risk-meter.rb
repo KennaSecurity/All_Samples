@@ -17,7 +17,7 @@ require 'ipaddr'
 @asset_bulk_url = '/bulk'
 @search_url = "/search?" 
 @async_api_url = 'https://api.kennasecurity.com/assets/create_async_search'
-@headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json'}
+@headers = {'Content-Type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json'}
 
 # Encoding characters
 @enc_colon = "%3A"
@@ -41,6 +41,7 @@ def bulkUpdate(assets,priority)
   post_url = "#{@asset_api_url}#{@asset_bulk_url}"
   puts post_url
   holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"priority\": #{priority}},\"realtime\": true}"
+  puts holder if @debug
 
   begin
     query_post_return = RestClient::Request.execute(
@@ -385,7 +386,7 @@ end
 # Join on both the producer and consumer threads so the main thread doesn't exit while
 # they are doing work.
 producer_thread.join
-consumer_thread.join
+consumer_thread.join 1
 
 # Join on the child processes to allow them to finish (if any are left)
 threads.each do |thread|

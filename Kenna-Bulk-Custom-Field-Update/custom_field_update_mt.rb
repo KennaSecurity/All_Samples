@@ -105,9 +105,12 @@ sysexit = false
 
 CSV.foreach(@data_column_file, :headers => true, :encoding => "UTF-8"){|row|
 
-  @custom_field_columns << Array[row[0],row[1]]
+  CSV.foreach(@data_column_file, :headers => true, :encoding => "UTF-8"){|row|
 
-}
+    @custom_field_columns << Array[row[0],row[1]]
+
+  }
+end
 
 num_lines = CSV.read(@csv_file).length
 
@@ -153,6 +156,7 @@ producer_thread = Thread.new do
     if !@vuln_type.empty? then
       if @vuln_type == "vuln_id" then
         vuln_query = "id%5B%5D=#{row[@vuln_column]}"
+        puts "here #{@vuln_column} = #{row[@vuln_column]}" if @debug
       else
         rowdata = row[@vuln_column]
         if @vuln_type == "cve" then
@@ -165,15 +169,17 @@ producer_thread = Thread.new do
     end
 
     custom_field_string = ""
-    @custom_field_columns.each{|item|
-      row_value = row[item[0]] 
-      if row_value.nil? then
-        row_value = " "
-      else
-        row_value = CGI.escape(row_value)
-      end
-      custom_field_string << "\"#{item[1]}\":\"#{row_value}\","
-    }
+    if !@custom_field_columns.empty? then
+      @custom_field_columns.each{|item|
+        row_value = row[item[0]] 
+        if row_value.nil? then
+          row_value = " "
+        else
+          row_value = CGI.escape(row_value)
+        end
+        custom_field_string << "\"#{item[1]}\":\"#{row_value}\","
+      }
+    end
 
     custom_field_string = custom_field_string[0...-1]
     
@@ -202,13 +208,18 @@ producer_thread = Thread.new do
         new_date = DateTime.parse(new_date)
         new_date = new_date.strftime('%FT%TZ')
       end
-      json_string = "#{json_string}\"due_date\": \"#{new_date}\", "
+      json_string = "#{json_string}\"due_date\": \"#{new_date}\""
     end
 
-    json_string = "#{json_string}\"custom_fields\": {#{custom_field_string}}}}"
+    
+    if !custom_field_string.empty? then
+      json_string = ", #{json_string}\"custom_fields\": {#{custom_field_string}}"
+    end
+
+    json_string = "#{json_string}}}"
 
     puts json_string if @debug
-
+    puts "#{vuln_query} = vuln_query" if @debug
 
     work_queue << Array[hostname_query,ip_address_query,vuln_query,JSON.parse(json_string)]
     
@@ -260,10 +271,6 @@ consumer_thread = Thread.new do
       vuln_query = work_to_do[2]
       json_data = work_to_do[3]
 
-      puts "hostname query = #{hostname_query}"
-      puts "ip address query = #{ip_address_query}"
-      puts "vuln query = #{vuln_query}"
-
       async_query = false
       query_url = nil
       asset_found = false
@@ -272,7 +279,7 @@ consumer_thread = Thread.new do
       tot_vulns = 0
       query_response_json = nil
       query_response = nil
-      api_query = nil
+      api_query = ""
 
       while asset_found == false
 
@@ -289,7 +296,7 @@ consumer_thread = Thread.new do
           asset_found = true
         end 
 
-        puts "api_query = #{api_query}"
+        puts "api_query = #{api_query}" if @debug
 
         if !vuln_query.empty? then
           if @vuln_type == "vuln_id" then
@@ -378,7 +385,7 @@ consumer_thread = Thread.new do
         async_query = true
       end
 
-      puts "async query #{async_query}"
+      puts "async query #{async_query}" if @debug
 
 
 
@@ -561,7 +568,7 @@ consumer_thread = Thread.new do
             
             status_code = RestClient.get("https://api.kennasecurity.com/data_exports/status?search_id=#{searchID}", @headers).code
 
-            puts "status code =#{status_code}"
+            puts "status code =#{status_code}" if @debug
             if status_code != 200 then 
               puts "sleeping for async query" if @debug
               sleep(60)

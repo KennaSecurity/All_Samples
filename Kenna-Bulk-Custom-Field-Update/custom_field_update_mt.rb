@@ -103,7 +103,7 @@ sysexit = false
 
 ## Set columns to use for tagging, if a @tag_column_file is provided
 
-CSV.foreach(@data_column_file, :headers => true, :encoding => "UTF-8"){|row|
+if !@data_column_file.empty? then
 
   CSV.foreach(@data_column_file, :headers => true, :encoding => "UTF-8"){|row|
 

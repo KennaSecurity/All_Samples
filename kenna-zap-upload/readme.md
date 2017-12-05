@@ -1,32 +1,31 @@
-# Kenna - Guardium vuln upload
+# Kenna - Zap Vulnerability Upload
 
-This script will search for a provided directory for Guardium export results and loop through all <host> elements to create vulnerabilities in Kenna. 
+This script will search for a provided directory for zap results and loop through all to create vulnerabilities in Kenna. 
 
-Script requires three custom fields:
+Script requires 4 custom fields:
 
-- scanner (type String)
-- vendor (type String)
+- riskcode = custom field for risk code
+- confidence = custom field for confidence
+- riskdesc = custom field for risk description
+- scandata = custom field for the scanner identification field
 
-Recommended that at least scanner and vendor fields be selected for search capability. 
-
-scanner will always = Guardium, vendor will be populated by the data from the XML
-
-The default "notes" fields will be populated with Port, ServiceName and Version. 
+The default "notes" fields will be populated with Attack, Evidence and Param data. 
 
 Paramters:
 
--Kenna token
--directory which contains the scan files
--custom field ID to hold the Scanner data ("Guardium")
--custom field ID to hold the Vendor data
--case change option for hostname = upcase, downcase or nochange
+- Kenna token
+- directory which contains the scan files
+- custom field ID to hold the risk code
+- custom field ID to hold the confidence
+- custom field ID to hold the risk description
+- custom field ID to hold the scan data
 
 
 
 Usage:
 
 ```
-kenna-guardium-upload.rb <Kenna API token> <folder location where vuln exports are located>
+kenna-guardium-upload.rb <Kenna API token> <folder location where vuln exports are located> cust_field_id1 cust_field_id2 cust_field_id3 cust_field_id4
 ```
 
 Tested on:

@@ -1,0 +1,4 @@
+risk_meter_id,email_recipients,Groups To Send,Due Date Calc,Email_sent
+90909,xxx@ksecurity.com;xxx@gmail.com,8,7,TRUE
+55555,lb@ksecurity.com,3,30,TRUE
+9000,brown@ksecurity.com,6,30,TRUE

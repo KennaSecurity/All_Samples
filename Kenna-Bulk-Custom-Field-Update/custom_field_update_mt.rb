@@ -26,6 +26,9 @@ require 'monitor'
 @enc_dblquote = "%22"
 @enc_space = "%20"
 
+start_time = Time.now
+output_filename = "kenna_bulk_status_update_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
+
 if @vuln_status.empty? then 
   log_output = File.open(output_filename,'a+')
   log_output << "Vuln Status Null - Setting Vuln Status to Open\n"
@@ -41,8 +44,6 @@ end if
 @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json'}
 @custom_field_columns = [] 
 
-start_time = Time.now
-output_filename = "kenna_bulk_status_update_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
 
 @max_retries = 5
 @debug = false

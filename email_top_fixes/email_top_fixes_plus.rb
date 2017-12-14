@@ -23,14 +23,61 @@ require 'mail'
 #Variables we'll need later
 @base_url = 'https://api.kennasecurity.com/asset_groups/'
 @fixes_url = 'https://api.kennasecurity.com/fixes/'
+@vuln_url = 'https://api.kennasecurity.com/vulnerabilities/search?'
 @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token }
 start_time = Time.now
 @output_filename = "email_top_fixes_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
 @custom_field_columns = [] 
 @max_retries = 2
+@debug = false
+
+def checkForDueDate(vulnids)
+  puts "checking if Due Date null" if @debug
+  id_array = []
+  vuln_url = "#{@vuln_url}id%5B%5D="
+  vuln_url = "#{vuln_url}#{vulnids.join("&id%5B%5D=")}&q=-_exists_%3Adue_date"
+  begin
+    vuln_return = RestClient::Request.execute(
+      method: :get,
+      url: vuln_url,
+      headers: @headers
+    ) 
+    vuln_json = JSON.parse(vuln_return.body)["vulnerabilities"]
+    vuln_json.each do |vuln|
+      id_array << vuln.fetch("id") 
+    end
+  rescue RestClient::TooManyRequests => e
+    retry
+  rescue RestClient::UnprocessableEntity => e
+
+  rescue RestClient::BadRequest => e
+    log_output = File.open(@output_filename,'a+')
+    log_output << "vuln BadRequest: #{vuln_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+    log_output.close
+    puts "vuln BadRequest: #{e.message}"
+  rescue RestClient::Exception => e
+    @retries ||= 0
+    if @retries < @max_retries
+      @retries += 1
+      sleep(15)
+      retry
+    else
+      log_output = File.open(@output_filename,'a+')
+      log_output << "vuln General RestClient error #{vuln_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+      log_output.close
+      puts "Unable to get vulns: #{e.message}"
+    end
+  rescue Exception => e
+    log_output = File.open(@output_filename,'a+')
+    log_output << "Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+    log_output.close
+    puts "Unable to get vulns: #{e.backtrace.inspect}"
+  end
+  return id_array
+end
 
 def bulkUpdate(vulnids, newdate, cfstring)
-
+  puts "startin bulk update" if @debug
   json_string = nil
   json_string = "{\"vulnerability_ids\": #{vulnids}, "
   json_string = "#{json_string}\"vulnerability\": {"
@@ -83,7 +130,7 @@ def bulkUpdate(vulnids, newdate, cfstring)
     puts "Unable to get vulns: #{e.backtrace.inspect}"
   end
   log_output = File.open(@output_filename,'a+')
-  log_output << "buln vuln update status: #{JSON.parse(query_post_return.body)}... time: #{Time.now.to_s}\n"
+  log_output << "bulk vuln update status: #{JSON.parse(query_post_return.body)}... time: #{Time.now.to_s}\n"
   log_output.close
 end
 
@@ -350,14 +397,25 @@ CSV.foreach(@csv_file, :headers => true){|row|
 
     if !@due_date_column.empty? || !custom_field_meta.empty? then
       id_array = []
+      request_array = []
       vulnerability_ids.each do |item| 
-        id_array << item
-        if id_array.length == 20000 then
+        
+        request_array << item
+
+        if request_array.length > 450
+          request_array = checkForDueDate(request_array)
+          id_array.concat(request_array)
+          request_array = []
+        end
+        if id_array.length > 1000 then
           bulkUpdate(id_array,new_date,custom_field_string)
           id_array = []
         end
       end
-      bulkUpdate(id_array,new_date,custom_field_string)
+      puts "outside the each loop"
+      request_array = checkForDueDate(request_array)
+      id_array.concat(request_array) if !request_array.empty?
+      bulkUpdate(id_array,new_date,custom_field_string) if !id_array.empty?
     end
 
    end

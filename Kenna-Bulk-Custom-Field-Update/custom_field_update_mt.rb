@@ -34,7 +34,7 @@ if @vuln_status.empty? then
   log_output << "Vuln Status Null - Setting Vuln Status to Open\n"
   log_output.close
   @vuln_status = "open"
-end if
+end
 
 #Variables we'll need later
 @vuln_api_url = 'https://api.kennasecurity.com/vulnerabilities'
@@ -206,15 +206,21 @@ producer_thread = Thread.new do
       if new_date.nil? then
         new_date = " "
       else
-        new_date = DateTime.parse(new_date)
+        new_date = Date.strptime(new_date, '%m/%d/%Y')
         new_date = new_date.strftime('%FT%TZ')
       end
-      json_string = "#{json_string}\"due_date\": \"#{new_date}\""
+      json_string = "#{json_string}\"due_date\": \"#{new_date}\", "
     end
 
     
     if !custom_field_string.empty? then
-      json_string = ", #{json_string}\"custom_fields\": {#{custom_field_string}}"
+      json_string = "#{json_string}\"custom_fields\": {#{custom_field_string}}"
+    end
+
+    if json_string.end_with?(', ') then
+      puts "here"
+      n = json_string.size
+      json_string = json_string[0..-3]
     end
 
     json_string = "#{json_string}}}"

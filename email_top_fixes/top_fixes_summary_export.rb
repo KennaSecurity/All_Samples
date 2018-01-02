@@ -1,17 +1,39 @@
 require 'rest-client'
 require 'json'
 require 'csv'
+require 'mail'
 
 
 #These are the arguments we are expecting to get
 @token = ARGV[0]
 @csv_file = ARGV[1]
+@send_email = ARGV[2] #true or false. if false no other params needed
+@send_email == "true" ? @recipient_column = ARGV[3] : @recipient_column = ""
+@send_email == "true" ? @mail_server = ARGV[4] : @mail_server = "" 
+@send_email == "true" ? @port = ARGV[5] : @port = "" 
+@send_email == "true" ? @user_name = ARGV[6] : @user_name = "" 
+@send_email == "true" ? @password = ARGV[7] : @password = "" 
+@send_email == "true" ? from_address = ARGV[8] : from_address = "" 
 
 
 #Variables we'll need later
 @base_url = 'https://api.kennasecurity.com/asset_groups/'
 @fixes_url = 'https://api.kennasecurity.com/fixes/'
 @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token }
+
+if @send_email == "true" then
+
+  options = { :address              => "#{@mail_server}",
+              :port                 => @port,
+              :user_name            => "#{@user_name}",
+              :password             => "#{@password}",
+              :authentication       => 'plain',
+              :enable_starttls_auto => true  }
+
+  Mail.defaults do
+    delivery_method :smtp, options
+  end
+end
 
 csv_headers = 
       [
@@ -39,8 +61,16 @@ CSV.foreach(@csv_file, :headers => true){|row|
 
   current_line = $.
   risk_meter_id = nil
+  email_recipients = ""
+  risk_meter_name = ""
 
   risk_meter_id = row[0]
+  risk_meter_name = row[1]
+
+  if @send_email == "true" then
+    email_recipients = row["#{@recipient_column}"]
+  end
+
 
   report_url = "#{@base_url}#{risk_meter_id}/top_fixes"
 
@@ -113,12 +143,24 @@ CSV.foreach(@csv_file, :headers => true){|row|
 
         end
       end
-   end
+    end
 
-  # Let's put our code in safe area
+    # Let's put our code in safe area
     rescue Exception => e  
        print "Exception occured: " + e.backtrace.inspect  
     end 
+  if @send_email == "true"
+    Mail.deliver do
+      to "#{email_recipients}"
+      from "#{from_address}"
+      subject "Fixes Report for #{risk_meter_name}"
+      body "Top Fix Summary for #{risk_meter_name} - #{DateTime.now}"
+      add_file :filename => "#{filename}", :content => File.read(filename)
+    end
+
+
+    File.delete(filename)
+  end
 
 }
 

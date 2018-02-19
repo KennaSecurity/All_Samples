@@ -9,7 +9,6 @@ order doesn't matter except the first column should be ip_address:
     hostname
     url
     mac_address
-    database
     netbios
     fqdn
     file

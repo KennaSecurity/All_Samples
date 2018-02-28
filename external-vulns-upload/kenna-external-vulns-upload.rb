@@ -1,4 +1,4 @@
-# kenna-archer-sync
+# kenna-external-vulns
 require 'rest-client'
 require 'json'
 require 'csv'
@@ -15,6 +15,8 @@ require 'csv'
 @last_seen_column = ARGV[9]
 @first_found_column = ARGV[10]
 @due_date_column = ARGV[11]
+@status = ARGV[12]
+@identifier = ARGV[13]
 
 @vuln_api_url = 'https://api.kennasecurity.com/vulnerabilities'
 @search_url = '/search?q='
@@ -72,6 +74,7 @@ end
 def cleanVulnData(vulnData)
   if !vulnData.nil? && @vuln_type == "cve" then
     vulnData = vulnData.sub(/\ACVE-/, '')
+    vulnData[0..7]
   end
   return vulnData
 end  
@@ -90,14 +93,16 @@ CSV.foreach(@notes_meta, :headers => true, :encoding => "UTF-8"){|row|
 CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
 
     locator = row["#{@locator_column}"]
-    locator = locator.gsub(/\?.*/, '')
-    locator = locator.gsub(/\.*/, '')
-    locator = locator.gsub(/\s+/, '')
+    #locator = locator.gsub(/\?.*/, '')
+    #locator = locator.gsub(/\.*/, '')
+    #locator = locator.gsub(/\s+/, '')
     puts locator
     notes = ""
     custom_field_string = ""
     query_url = ""
     temp_uri = ""
+    status = row["#{@status}"]
+    identifier = row["#{@identifier}"]
 
     
     if !row["#{@locator_column}"].nil? then
@@ -146,35 +151,31 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
 
     puts "query url = #{query_url}" if @debug
 
-    begin
-  
-      if !@last_seen_column.nil? && !@last_seen_column == "" then 
-        last_seen = DateTime.parse(row["#{@last_seen_column}"]).strftime("%FT%TZ")
-      else
-        last_seen = Time.now.strftime("%FT%TZ")
+    if !@last_seen_column.nil? && !@last_seen_column == "" then 
+      last_seen = DateTime.parse(row["#{@last_seen_column}"]).strftime("%FT%TZ")
+    else
+      last_seen = Time.now.strftime("%FT%TZ")
+    end
+
+    @notes_fields.each{|item| 
+      row_value = row[item[0]]
+      if !row_value.nil? then
+        row_value = row_value.gsub(/['<','>','_','\n','\t','\r',':','(',')',''',"{","}"]/,'').chomp
+        notes << "#{item[1]}#{row_value}"
       end
+    }
 
-      @notes_fields.each{|item| 
-        row_value = row[item[0]]
-        if !row_value.nil? then
-          row_value = row_value.gsub(/['<','>','_','\n','\t',':','(',')',''',"{","}"]/,'').chomp
-          notes << "#{item[1]}#{row_value}"
-        end
-      }
-      
+    @custom_fields.each{|item| 
+      row_value = row[item[0]]
+      if !row_value.nil? then
+        row_value = row_value.gsub(/['<','>','_','\n','\t','\r',':','(',')',''',"{","}"]/,'').chomp
+        custom_field_string << "\"#{item[1]}\":\"#{row_value}\","
+      end
+    }
 
-      @custom_fields.each{|item| 
-        row_value = row[item[0]]
-        if !row_value.nil? then
-          row_value = row_value.gsub(/['<','>','_','\n','\t',':','(',')',''',"{","}"]/,'').chomp
-          custom_field_string << "\"#{item[1]}\":\"#{row_value}\","
-        end
-      }
+    custom_field_string = custom_field_string[0...-1]
 
-      custom_field_string = custom_field_string[0...-1]
-
-      #custom_field_string = "{\"vulnerability\": {\"custom_fields\": {#{custom_field_string}}}}"
-
+    begin
         vuln_id = nil
         begin
           get_response = RestClient::Request.execute(
@@ -182,23 +183,26 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
             url: query_url,
             headers: @headers,
           )
-
           get_response_json = JSON.parse(get_response)["vulnerabilities"]
           get_response_json.each do |item|
             vuln_id = item["id"]
           end
           puts "vuln_id= #{vuln_id}" if @debug
         end
-
-        vuln_create_json_string = "{\"vulnerability\":{\"#{@vuln_type}_id\":\"#{row[@vuln_column]}\",\"primary_locator\":\"#{@primary_locator}\","\
+        vuln_column_data = row[@vuln_column][0..12]
+        vuln_create_json_string = "{\"vulnerability\":{\"#{@vuln_type}_id\":\"#{vuln_column_data}\",\"primary_locator\":\"#{@primary_locator}\","\
             "\"last_seen_time\":\"#{last_seen}\","
 
-        if !@first_found_column.nil? && !@first_found_column == "" then 
+        if !@first_found_column.empty? then 
           vuln_create_json_string = "#{vuln_create_json_string}\"found_on\":\"#{DateTime.parse(row[@first_found_column]).strftime('%FT%TZ')}\"," 
         end
 
-        if !@due_date_column.nil? && !@due_date_column == "" then
+        if !@due_date_column.empty? then
           vuln_create_json_string = "#{vuln_create_json_string}\"due_date\":\"#{DateTime.parse(row[@due_date_column]).strftime('%FT%TZ')}\"," 
+        end
+
+        if !@identifier.empty? then
+          vuln_create_json_string = "#{vuln_create_json_string}\"identifier\":\"#{identifier}\","
         end
 
            
@@ -206,11 +210,21 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
 
         vuln_create_json = JSON.parse(vuln_create_json_string)
 
-        vuln_update_json_string = "{\"vulnerability\":{\"status\":\"open\",\"notes\":\"#{notes}\",\"last_seen_time\":\"#{last_seen}\",\"custom_fields\":{ #{custom_field_string}}}}"
+        vuln_update_json_string = "{\"vulnerability\":{"
+
+        if status.empty? then
+          vuln_update_json_string = "#{vuln_update_json_string}\"status\":\"open\","
+        else
+          vuln_update_json_string = "#{vuln_update_json_string}\"status\":\"#{status}\","
+        end
+
+        vuln_update_json_string = "#{vuln_update_json_string}\"notes\":\"#{notes}\",\"custom_fields\":{#{custom_field_string}}}}"
+        #vuln_update_json_string = "{\"vulnerability\":{\"status\":\"open\",\"notes\":\"#{notes}\",\"last_seen_time\":\"#{last_seen}\",\"custom_fields\":{ #{custom_field_string}}}}"
 
         vuln_update_json = JSON.parse(vuln_update_json_string)
 
         puts vuln_create_json if @debug
+        puts vuln_update_json if @debug
 
         begin
           if vuln_id.nil? then
@@ -226,12 +240,19 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
             )
 
             update_response_json = JSON.parse(update_response)["vulnerability"]
-            new_json = JSON.parse(update_response_json)
+            puts "here's the response"
+            puts update_response_json
+            if !@some_var.class == Hash then 
+              new_json = JSON.parse(update_response_json)
+            else
+              new_json = update_response_json
+            end
 
             vuln_id = new_json.fetch("id")
         end
 
           vuln_custom_uri = "#{@vuln_api_url}/#{vuln_id}"
+          puts vuln_custom_uri if @debug
           log_output = File.open(output_filename,'a+')
           log_output << "Kenna updating vuln: #{vuln_id} for #{row[@vuln_column]} AND #{row[@locator_column]}\n"
           log_output.close
@@ -260,7 +281,7 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
         log_output.close
         puts "BadRequest: #{e.message}"
       rescue RestClient::Exception => e
-        puts "i hit an exception #{e.backtrace.inspect}"
+        puts "i hit an exception #{e.message} #{e.backtrace.inspect}"
 
         @retries ||= 0
         if @retries < @max_retries

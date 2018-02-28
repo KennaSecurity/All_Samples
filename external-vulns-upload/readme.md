@@ -9,7 +9,7 @@ Usage:
 ```
 kenna-asset-tagger.rb <Kenna API token> <CSV file of vulns> <CSV file with custom field ids> <primary locator type> <primary locator column> 
 <vulnerability type> <vulnerability column> <CVS file with columns for notes field> <preferred case for hostname><last seen column> <first found column> 
-<due date column>
+<due date column> <status column> <scanner vuln identifier column>
 ```
 
 Parameters:
@@ -24,6 +24,8 @@ Parameters:
 - last_seen_column = column in CSV which contains the last seen date of the vulnerability
 - first_found_column = column in CSV which contains the first found data of the vulnerability
 - due_date_column = column in CSV which contains the due date for the vulnerability
+- status_column = column in the CSV which contains the status (open, closed, false_positive or risk_accepted)
+- identifier_column = column in the CSV which contains the unique identifier the scanner uses for the vulnerability
 
 Debug flag available in ruby code to flip on detailed debugging code. 
 

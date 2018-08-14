@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
 import sys, requests, json, os, time, urllib, pycurl
-from xml.etree import ElementTree as ET
 
 token = sys.argv[1]
 folder = sys.argv[2]
 connector_id = sys.argv[3]
+file_extension = sys.argv[4]
 
 
 LOCATOR_DELIMITER = ":"
@@ -17,10 +17,9 @@ headers = {'content-type': 'application/json', 'X-Risk-Token': token}
 for filename in os.listdir(folder):
     abspath = ''
 
-    if filename.endswith('.xml'):
+    if filename.endswith(file_extension):
         pathname = os.path.join(folder, filename)
         abspath = os.path.abspath(pathname)
-        tree = ET.parse(pathname)
         try:
 
             conn_url = API_ENDPOINT_CONNECTOR + "/" + connector_id + "/data_file?run=true"

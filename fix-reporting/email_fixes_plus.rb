@@ -85,9 +85,23 @@ CSV.foreach(@csv_file, :headers => true){|row|
     filename = "fixes#{Time.now}.csv"
 
     CSV.open(filename , 'w') do |csv|
+
     csv << csv_headers
 
       json_data.each do |fix|
+
+        ip_address = nil
+        os = nil
+        hostname = nil
+        netbios = nil
+        url_locator = nil
+        database = nil
+        mac = nil
+        ec2 = nil
+        fqdn = nil
+        file = nil
+        application = nil
+
         fix_title = fix.fetch("title")
         fix_url = fix.fetch("url")
         fix_diagnosis = fix.fetch("diagnosis")
@@ -122,6 +136,7 @@ CSV.foreach(@csv_file, :headers => true){|row|
           )
         
           asset_json = JSON.parse(asset_return.body)["assets"]
+          puts asset_json
           asset_json.each do |asset|
             if asset.fetch("ip_address").nil? then
               ip_address = ''
@@ -178,7 +193,9 @@ CSV.foreach(@csv_file, :headers => true){|row|
             else
               application = asset.fetch("application")
             end
-            csv << [fix_title,
+         end
+        end
+          csv << [fix_title,
               fix_url,
               fix_cves.join(","),
               ip_address,
@@ -196,9 +213,7 @@ CSV.foreach(@csv_file, :headers => true){|row|
               fix_id,
               os,
               patch_publication_date,
-              scanner_ids.join(" ")]
-         end
-        end  
+              scanner_ids.join(" ")]  
       end
 
       if @send_email == "true"

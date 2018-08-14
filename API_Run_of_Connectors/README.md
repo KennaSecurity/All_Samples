@@ -18,7 +18,7 @@ Pass your  Kenna API token on the command line, or alter the script to read @tok
 
 ##  Usage
 ```
-API_run_Connector_multiple_files.rb(or .py) KennaAPItoken folder_name connector_id
+API_run_Connector_multiple_files.rb(or .py) KennaAPItoken folder_name connector_id file_extension
 ```
 
 ## API Docs

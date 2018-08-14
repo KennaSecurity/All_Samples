@@ -1,12 +1,13 @@
 # kenna run connectors
 require 'rest-client'
 require 'json'
-require 'nokogiri'
+
 
 
 @token = ARGV[0]
 @folder = ARGV[1]
 @connector_id = ARGV[2]
+@file_extension = ARGV[3]
 
 
 @LOCATOR_DELIMITER = ":"
@@ -30,11 +31,8 @@ puts "Directory not found" if !directory_exists?(@folder)
 
 Dir.entries("#{@folder}").each do |abspath|
   puts abspath 
-  next if !abspath.end_with? ".xml"
-  fname = File.basename(abspath, ".xml") 
-
-
-  tree = File.open("#{@folder}/"+ abspath) { |f| Nokogiri::XML(f) }
+  next if !abspath.end_with? "#{@file_extension}"
+  fname = File.basename(abspath, "#{@file_extension}") 
 
   conn_url = @API_ENDPOINT_CONNECTOR + "/" + @connector_id + "/data_file?run=true"
   puts conn_url if @debug

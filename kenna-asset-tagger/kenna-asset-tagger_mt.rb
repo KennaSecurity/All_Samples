@@ -9,14 +9,14 @@ require 'monitor'
 @token = ARGV[0]
 @csv_file = ARGV[1] #source data
 @tag_column_file = ARGV[2] #tag meta data - column from source file and tag prefix
-@search_field = ARGV[3] #field to use first for asset match ip_address or hostname or application or netbios
+@search_field = ARGV[3] #field to use first for asset match ip_address or hostname or application or netbios or url
 @ip_address = ARGV[4] #column name in source file which holds the search field data or empty string
 @hostname = ARGV[5] #column name in source file which holds the hostname data or empty string
 @notes_type = ARGV[6] #where notes value will come from - static, column or empty string
 @notes_value = ARGV[7] #set notes based on previous param - value, column name or empty string
 @owner_type = ARGV[8] #where owner value will come from - static, column or empty string for setting new data
 @owner_value = ARGV[9] #set owner based on previous param - value, column name or empty string for setting new data
-@alt_locator = ARGV[10] #column that holds data for either application or netbios
+@alt_locator = ARGV[10] #column that holds data for either application or netbios or url
 ARGV.length == 12 ? @priority_column = ARGV[11] : @priority_column = "" #column that holds priority setting
 
 
@@ -49,7 +49,7 @@ end
 
 def build_hostname_url(hostname)
   puts "building hostname url" if @debug
-  return "hostname#{ @enc_colon}#{ @enc_dblquote}#{hostname.upcase!}*#{ @enc_dblquote}"
+  return "hostname#{@enc_colon}#{@enc_dblquote}#{hostname}*#{@enc_dblquote}"
 end
 
 def is_ip?(str)
@@ -57,7 +57,7 @@ def is_ip?(str)
 end
 
 # Set a finite number of simultaneous worker threads that can run
-thread_count =10
+thread_count = 10
 
 # Create an array to keep track of threads
 threads = Array.new(thread_count)
@@ -130,7 +130,7 @@ producer_thread = Thread.new do
         next
       end
     elsif @search_field == "hostname" then
-      if !row["#{@hostname}"].nil? then 
+      if !row["#{@hostname}"].nil? && !row["#{@hostname}"].empty? then 
         api_query = build_hostname_url(row["#{@hostname}"])
       elsif !row["#{@ip_address}"].nil? && is_ip?(row["#{@ip_address}"]) then
         api_query = build_ip_url(row["#{@ip_address}"])
@@ -144,6 +144,10 @@ producer_thread = Thread.new do
     elsif @search_field == "netbios" then
       if !row["#{@alt_locator}"].nil? then 
         api_query = "netbios#{@enc_colon}#{row["#{@alt_locator}"]}"
+      end
+    elsif @search_field == "url" then
+      if !row["#{@alt_locator}"].nil? then 
+        api_query = "url#{@enc_colon}#{@enc_dblquote}#{row["#{@alt_locator}"]}#{@enc_dblquote}"
       end
     end
     api_query = api_query.gsub(' ', @enc_space)
@@ -212,7 +216,9 @@ producer_thread = Thread.new do
       end
 
     tag_string = ""
-    tag_list.each{|t| tag_string << "#{t},"}
+    tag_list.each{|t| 
+      t = t.gsub(/[\s,]/ ," ")
+      tag_string << "#{t}," }
     tag_string = tag_string[0...-1]
     puts "tag string = #{tag_string}" if @debug
 
@@ -317,7 +323,7 @@ consumer_thread = Thread.new do
             threads_available.signal
           end
       else
-
+        pages = query_meta_json.fetch("pages")
         query_response_json = JSON.parse(query_response)["assets"]
 
         query_response_json.each do |item|
@@ -344,7 +350,8 @@ consumer_thread = Thread.new do
                   method: :put,
                   url: tag_api_url,
                   headers: @headers,
-                  payload: tag_update_json
+                  payload: tag_update_json,
+                  timeout: 10
                 )
               end
               if !asset_string.empty? then 

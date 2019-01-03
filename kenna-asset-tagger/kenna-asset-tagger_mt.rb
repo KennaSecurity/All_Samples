@@ -18,6 +18,7 @@ require 'monitor'
 @owner_value = ARGV[9] #set owner based on previous param - value, column name or empty string for setting new data
 @alt_locator = ARGV[10] #column that holds data for either application or netbios or url
 ARGV.length == 12 ? @priority_column = ARGV[11] : @priority_column = "" #column that holds priority setting
+ARGV.length == 13 ? @proxy_string = ARVG[12] : @proxy_string = "" #proxy string for REST connection if needed
 
 
 @asset_api_url = 'https://api.kennasecurity.com/assets'
@@ -274,6 +275,7 @@ consumer_thread = Thread.new do
       begin
         query_response = RestClient::Request.execute(
           method: :get,
+          proxy: @proxy_string,
           url: query_url,
           headers: @headers
         ) 
@@ -350,6 +352,7 @@ consumer_thread = Thread.new do
                   method: :put,
                   url: tag_api_url,
                   headers: @headers,
+                  proxy: @proxy_string,
                   payload: tag_update_json,
                   timeout: 10
                 )
@@ -367,6 +370,7 @@ consumer_thread = Thread.new do
                     method: :put,
                     url: update_api_url,
                     headers: @headers,
+                    proxy: @proxy_string,
                     payload: asset_update_json
                   )
               end

@@ -5,7 +5,7 @@ require 'csv'
 
 @token = ARGV[0]
 @data_file = ARGV[1]
-@custom_field_meta = ARGV[2] #csv of column names in data and what custom field to put them in 
+@custom_field_meta = ARGV[2] #csv of column names in data and what custom field to put them in
 @primary_locator = ARGV[3] #hostname or ip_address or url or application
 @locator_column = ARGV[4] #column in csv that has primary locator info (actual ip, hostname or url)
 @vuln_type = ARGV[5] # cve or cwe or wasc
@@ -47,7 +47,7 @@ def build_ip_url(ipstring)
   if ipstring.index('/').nil? then
     subnet = IPAddr.new(ipstring)
     url = "ip:#{@enc_dblquote}#{subnet}#{@enc_dblquote}"
-  else 
+  else
     subnet = IPAddr.new(ipstring)
     iprange = subnet.to_range()
     beginip = iprange.begin
@@ -77,7 +77,7 @@ def cleanVulnData(vulnData)
     vulnData[0..7]
   end
   return vulnData
-end  
+end
 
 CSV.foreach(@custom_field_meta, :headers => true, :encoding => "UTF-8"){|row|
 
@@ -92,7 +92,7 @@ CSV.foreach(@notes_meta, :headers => true, :encoding => "UTF-8"){|row|
 
 CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
 
-    locator = row["#{@locator_column}"]
+    locator = row["#{@locator_column}"].strip
     #locator = locator.gsub(/\?.*/, '')
     #locator = locator.gsub(/\.*/, '')
     #locator = locator.gsub(/\s+/, '')
@@ -101,10 +101,9 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
     custom_field_string = ""
     query_url = ""
     temp_uri = ""
-    status = row["#{@status}"]
-    identifier = row["#{@identifier}"]
+    status = row["#{@status}"].strip
+    identifier = row["#{@identifier}"].strip
 
-    
     if !row["#{@locator_column}"].nil? then
       if @primary_locator == "ip_address" then
         api_query = build_ip_url(row["#{@locator_column}"])
@@ -113,7 +112,7 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
       elsif @primary_locator =="url" then
         if !locator.start_with?('http') then
           locator = "http://#{locator}"
-        end 
+        end
         api_query = "url:#{enc_dblquote}#{locator}#{enc_dblquote}"
       elsif @primary_locator == "application" then
         api_query = "application:#{enc_dblquote}#{locator}#{enc_dblquote}"
@@ -144,20 +143,20 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
     end
 
     if !api_query.nil? then
-      query_url = "#{query_url}+AND+#{api_query}"    
+      query_url = "#{query_url}+AND+#{api_query}"
     end
 
     query_url = query_url.gsub(/\&$/, '')
 
     puts "query url = #{query_url}" if @debug
 
-    if !@last_seen_column.nil? && !@last_seen_column == "" then 
+    if !@last_seen_column.nil? && !@last_seen_column == "" then
       last_seen = DateTime.parse(row["#{@last_seen_column}"]).strftime("%FT%TZ")
     else
       last_seen = Time.now.strftime("%FT%TZ")
     end
 
-    @notes_fields.each{|item| 
+    @notes_fields.each{|item|
       row_value = row[item[0]]
       if !row_value.nil? then
         row_value = row_value.gsub(/['<','>','_','\n','\t','\r',':','(',')',''',"{","}"]/,'').chomp
@@ -165,7 +164,7 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
       end
     }
 
-    @custom_fields.each{|item| 
+    @custom_fields.each{|item|
       row_value = row[item[0]]
       if !row_value.nil? then
         row_value = row_value.gsub(/['<','>','_','\n','\t','\r',':','(',')',''',"{","}"]/,'').chomp
@@ -193,19 +192,19 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
         vuln_create_json_string = "{\"vulnerability\":{\"#{@vuln_type}_id\":\"#{vuln_column_data}\",\"primary_locator\":\"#{@primary_locator}\","\
             "\"last_seen_time\":\"#{last_seen}\","
 
-        if !@first_found_column.empty? then 
-          vuln_create_json_string = "#{vuln_create_json_string}\"found_on\":\"#{DateTime.parse(row[@first_found_column]).strftime('%FT%TZ')}\"," 
+        if !@first_found_column.empty? then
+          vuln_create_json_string = "#{vuln_create_json_string}\"found_on\":\"#{DateTime.parse(row[@first_found_column]).strftime('%FT%TZ')}\","
         end
 
         if !@due_date_column.empty? then
-          vuln_create_json_string = "#{vuln_create_json_string}\"due_date\":\"#{DateTime.parse(row[@due_date_column]).strftime('%FT%TZ')}\"," 
+          vuln_create_json_string = "#{vuln_create_json_string}\"due_date\":\"#{DateTime.parse(row[@due_date_column]).strftime('%FT%TZ')}\","
         end
 
         if !@identifier.empty? then
           vuln_create_json_string = "#{vuln_create_json_string}\"identifier\":\"#{identifier}\","
         end
 
-           
+
         vuln_create_json_string = "#{vuln_create_json_string}\"#{@primary_locator}\":\"#{locator}\"}}"
 
         vuln_create_json = JSON.parse(vuln_create_json_string)
@@ -242,7 +241,7 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
             update_response_json = JSON.parse(update_response)["vulnerability"]
             puts "here's the response"
             puts update_response_json
-            if !@some_var.class == Hash then 
+            if !@some_var.class == Hash then
               new_json = JSON.parse(update_response_json)
             else
               new_json = update_response_json
@@ -264,7 +263,7 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
             payload: vuln_update_json
           )
           if update_response.code == 204 then next end
-          
+
         end
 
 

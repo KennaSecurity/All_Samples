@@ -11,3 +11,12 @@ has_header? => defaults to true, does the source csv file have a header row?
 date_format => format of dates in the source file ('%m-%d-%Y %H:%M')
 skip_autoclose? => defaults to false, set to false if processing only assets
 
+
+## Meta Data file
+
+Notes are includes regarding fields that are required. Column can reference the column name if the source data file has headers or the column index if there are no headers. 
+
+locator column is required and is used to deduplicate data in the script itself. Additional deduplication may occur in Kenna after the upload depend on the set locator preference order. 
+
+
+

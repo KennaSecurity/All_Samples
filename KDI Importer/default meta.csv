@@ -1,14 +1,14 @@
 ﻿Kenna Item,Associated Source File Column,Required,Description,Object Type
-locator, row[0]            ,, field used to compare for dupes for this file load only,Asset
+locator, 0            ,, field used to compare for dupes for this file load only,Asset
 file,,one value per Asset is required,(string) path to affected file,Asset
-ip, row[0]                 ,one value per Asset is required,(string) IP of internal facing asset,Asset
+ip, Server IP          ,one value per Asset is required,(string) IP of internal facing asset,Asset
 mac,,one value per Asset is required,(mac format-regex) MAC address asset,Asset
 host,,one value per Asset is required,(string) host name/domain name of affected asset,Asset
 ec2,,one value per Asset is required,(string) Amazon EC2 instance id or name,Asset
-nb, row[2]                 ,one value per Asset is required,(??string) nb name,Asset
+nb, 2                 ,one value per Asset is required,(??string) nb name,Asset
 ext_ip,,no,(string) IP of external facing asset,Asset
 url,,one value per Asset is required,(string) URL pointing to asset,Asset
-fqdn, row[11]              ,one value per Asset is required,(string) fqdn of asset,Asset
+fqdn, fqdn              ,one value per Asset is required,(string) fqdn of asset,Asset
 ext_id,,one value per Asset is required,(string) ExtID of asset-Often used as an int org name for asset,Asset
 db,,one value per Asset is required,(string) Name of db,Asset
 app,,no,(string) ID/app Name,Asset

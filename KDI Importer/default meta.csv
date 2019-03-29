@@ -1,0 +1,35 @@
+﻿Kenna Item,Associated Source File Column,Required,Description,Object Type
+locator, row[0]            ,, field used to compare for dupes for this file load only,Asset
+file,,one value per Asset is required,(string) path to affected file,Asset
+ip, row[0]                 ,one value per Asset is required,(string) IP of internal facing asset,Asset
+mac,,one value per Asset is required,(mac format-regex) MAC address asset,Asset
+host,,one value per Asset is required,(string) host name/domain name of affected asset,Asset
+ec2,,one value per Asset is required,(string) Amazon EC2 instance id or name,Asset
+nb, row[2]                 ,one value per Asset is required,(??string) nb name,Asset
+ext_ip,,no,(string) IP of external facing asset,Asset
+url,,one value per Asset is required,(string) URL pointing to asset,Asset
+fqdn, row[11]              ,one value per Asset is required,(string) fqdn of asset,Asset
+ext_id,,one value per Asset is required,(string) ExtID of asset-Often used as an int org name for asset,Asset
+db,,one value per Asset is required,(string) Name of db,Asset
+app,,no,(string) ID/app Name,Asset
+tags,,no,(string) list of strings that correspond to tags on an asset,Asset Meta
+owner,,no,(string) Some string that identifies an owner of an asset,Asset Meta
+os, row[3]                 ,no,(string) Operating system of asset,Asset Meta
+os_v,,no,(string) OS version,Asset Meta
+pri,,no,(Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score. nil for default to 10,Asset Meta
+scanner," ""Qualys_CSV""     ",yes,(string) - official name of scan type - should be the same across files where appropriate can be static or pulled from column,Vulnerability
+scanner_id, row[5]         ,yes,(string) - Vuln ID defined by the scanner,Vulnerability
+details, row[6]            ,no,(string) - Details about vuln,Vulnerability
+created,,no,(string) - Date vuln created,Vulnerability
+sc_score, row[8].to_i      ,no,(Integer) - scanner score,Vulnerability
+last_fixed,,no,(string) - Last fixed date,Vulnerability
+last_seen,,yes,,Vulnerability
+status," ""open""             ",yes,"(string) default to ""open"" if inbound reports will only include open vulns",Vulnerability
+closed,,required if status is closed,(string) Date it was closed,Vulnerability
+port, row[9].to_i          ,no,(Integer) Port if associated with vuln,Vulnerability
+cve_id, row[13]            ,no,(string) Any CVE(s)?,Vuln Def
+wasc_id,,no,(string) Any WASC?,Vuln Def
+cwe_id,,no,(string) Any CWE?,Vuln Def
+name, row[6]               ,no,(string) Name/title of Vuln,Vuln Def
+descr, row[21]             ,no,(string) Description,Vuln Def
+solution, row[22]          ,no,(string) Solution,Vuln Def

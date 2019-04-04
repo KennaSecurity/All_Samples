@@ -7,6 +7,7 @@ require 'csv'
 @mapping_file = ARGV[2]
 @date_format_in = ARGV[3]#string that represents the date format in the input file '%m-%d-%Y %H:%M'
 @skip_autoclose = ARGV[4] #defaults to false
+@output_filename = ARGV[5] #json filename for converted data
 
 @debug = true
 $map_locator = ''

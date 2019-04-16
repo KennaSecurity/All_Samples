@@ -1,6 +1,5 @@
 require 'json'
 require 'csv'
-#require "ipaddress"
 
 @data_file = ARGV[0]
 @has_header = ARGV[1]
@@ -68,7 +67,7 @@ module KdiHelpers
     tmpassets << {owner: "#{owner}"} unless owner.nil?
     tmpassets << {os: "#{os}"} unless os.nil?
     tmpassets << {os_version: "#{os_version}"} unless os_version.nil?
-    tmpassets << {priority: priority}
+    tmpassets << {priority: priority} unless priority.nil? 
     tmpassets << {vulns: []}
 
 
@@ -76,7 +75,7 @@ module KdiHelpers
 
   end
 
-  def create_asset_vuln(hostname,ip_address,scanner_type,scanner_id,details,created,scanner_score,last_fixed,
+  def create_asset_vuln(hostname,ip_address,file, mac_address,netbios,url,external_ip_address,ec2,fqdn,external_id,database,scanner_type,scanner_id,details,created,scanner_score,last_fixed,
                     last_seen,status,closed,port)
 
     # find the asset
@@ -91,6 +90,8 @@ module KdiHelpers
         asset = $assets.select{|a| a[:mac_address] == mac_address }.first
       when "netbios"
         asset = $assets.select{|a| a[:netbios] == netbios }.first
+      when "url"
+        asset = $assets.select{|a| a[:url] == url }.first
       when "external_ip_address"
         asset = $assets.select{|a| a[:external_ip_address] == external_ip_address }.first
       when "ec2"
@@ -112,7 +113,7 @@ module KdiHelpers
     assetvulns << {scanner_type: "#{scanner_type}",scanner_identifier: "#{scanner_id}",}
     assetvulns << {details: "#{details}"} unless details.nil?
     assetvulns << {created_at: "#{created}"} unless created.nil?
-    assetvulns << {scanner_score: scanner_score} unless scanner_score.nil?
+    assetvulns << {scanner_score: scanner_score} unless scanner_score.nil? || scanner_score == 0
     assetvulns << {last_fixed_on: "#{last_fixed}"} unless last_fixed.nil?
     assetvulns << {last_seen_at: "#{last_seen}"} unless last_seen.nil?
     assetvulns << {closed_at: "#{closed}"} unless closed.nil?
@@ -144,8 +145,6 @@ $assets = []
 $vuln_defs = []
 $mapping_array = []
 
-
-
 CSV.parse(File.open(@mapping_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => true) do |row|
 
   $mapping_array << Array[row[0],row[1]]
@@ -170,7 +169,8 @@ map_tags = "#{$mapping_array.assoc('tags').last}"
 map_owner = "#{$mapping_array.assoc('owner').last}"                 
 map_os = "#{$mapping_array.assoc('os').last}"                
 map_os_version = "#{$mapping_array.assoc('os_version').last}"                  
-map_priority = "#{$mapping_array.assoc('priority').last}"                    
+map_priority = "#{$mapping_array.assoc('priority').last}" 
+map_scanner_source = "#{$mapping_array.assoc('scanner_source').last}"                   
 map_scanner_type = "#{$mapping_array.assoc('scanner_type').last}"    
 map_scanner_id = "#{$mapping_array.assoc('scanner_id').last}"
 map_scanner_id.encode!("utf-8")       
@@ -187,7 +187,11 @@ map_wasc_id = "#{$mapping_array.assoc('wasc_id').last}"
 map_cwe_id = "#{$mapping_array.assoc('cwe_id').last}"                
 map_name = "#{$mapping_array.assoc('name').last}"              
 map_description = "#{$mapping_array.assoc('description').last}"             
-map_solution = "#{$mapping_array.assoc('solution').last}"          
+map_solution = "#{$mapping_array.assoc('solution').last}"  
+score_map_string = "#{$mapping_array.assoc('score_map').last}"
+status_map_string = "#{$mapping_array.assoc('status_map').last}"
+score_map = JSON.parse(score_map_string) unless score_map_string.nil? || score_map_string.empty?
+status_map = JSON.parse(status_map_string) unless status_map_string.nil? || status_map_string.empty?         
 # Configure Date format
 ###########################
 # CUSTOMIZE Date format
@@ -227,23 +231,35 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
     owner = row["#{map_owner}"]                 #(string) Some string that identifies an owner of an asset
     os = row["#{map_os}"]                 #(string) Operating system of asset
     os_version = row["#{map_os_version}"]                  #(string) OS version
-    priority = row["#{map_priority}"].to_i                    #(Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score.
+    priority = row["#{map_priority}"].to_i   unless  row["#{map_priority}"].nil? || row["#{map_priority}"].empty? #(Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score.
 
   #########################
   # Vulnerability Section #
   #########################
-    scanner_type = row["#{map_scanner_type}"]     #(string) - default is freeform if nil from CSV
+    if map_scanner_source == "static" then
+      scanner_type = "#{map_scanner_type}"    #(string) - default is freeform if nil from CSV
+    else
+      scanner_type = row["#{map_scanner_type}"]     #(string) - default is freeform if nil from CSV
+    end
     raise "no scanner type found!" unless !scanner_type.nil? && !scanner_type.empty?
     scanner_id = row["#{map_scanner_id}"]
     raise "no scanner id found!" unless !scanner_id.nil? && !scanner_id.empty?
     details = row["#{map_details}"]            #(string) - Details about vuln
-    created = row["#{map_created}"]              #(string) - Date vuln created
-    scanner_score = row["#{map_scanner_score}"].to_i      #(Integer) - scanner score
+    created = row["#{map_created}"] 
+    if score_map.nil? || score_map.empty? then             #(string) - Date vuln created
+      scanner_score = row["#{map_scanner_score}"].to_i  unless  row["#{map_scanner_score}"].nil? || row["#{map_scanner_score}"].empty?    #(Integer) - scanner score
+    else
+      scanner_score = score_map[row["#{map_scanner_score}"]].to_i  unless  row["#{map_scanner_score}"].nil? || row["#{map_scanner_score}"].empty?    #(Integer) - scanner score
+    end
     last_fixed = row["#{map_last_fixed}"]            #(string) - Last fixed date
     last_seen = row["#{map_last_seen}"]
-    status = row["#{map_status}"]            #(string) #Rqd Def if nil; open status by default if not in import
+    if status_map.nil? || status_map.empty? then
+      status = row["#{map_status}"]            #(string) #Rqd Def if nil; open status by default if not in import
+    else
+      status = status_map[row["#{map_status}"]]
+    end 
     closed = row["#{map_closed}"]                #(string) Date it was closed
-    port = row["#{map_port}"].to_i          #(Integer) Port if associated with vuln
+    port = row["#{map_port}"].to_i  unless row["#{map_port}"].nil? ||row["#{map_port}"].empty? #(Integer) Port if associated with vuln
 
   ############################
   # Vulnerability Definition #
@@ -260,7 +276,7 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
 
 ##call the methods that will build the json now##
 
-  status = "open" if status.nil? || status.empty
+  status = "open" if status.nil? || status.empty?
   # Convert the dates
   created = DateTime.strptime(created,@date_format_in).strftime(date_format_KDI) unless created.nil? || created.empty?
   last_fixed = DateTime.strptime(last_fixed,@date_format_in).strftime(date_format_KDI) unless last_fixed.nil? || last_fixed.empty?
@@ -278,7 +294,8 @@ end
   create_asset(file,ip_address,mac_address,hostname,ec2,netbios,external_ip_address,url,fqdn,external_id,database,application,tags,owner,os,os_version,priority)
 
   ### ASSOCIATE THE ASSET TO THE VULN
-  create_asset_vuln(hostname,ip_address,scanner_type,scanner_id,details,created,scanner_score,last_fixed,
+
+  create_asset_vuln(hostname,ip_address,file, mac_address,netbios,url,external_ip_address,ec2,fqdn,external_id,database,scanner_type,scanner_id,details,created,scanner_score,last_fixed,
                     last_seen,status,closed,port)
 
   # CREATE A VULN DEF THAT HAS THE SAME ID AS OUR VULN
@@ -288,4 +305,9 @@ end
 
 kdi_output = generate_kdi_file
 
-puts JSON.pretty_generate kdi_output
+#puts JSON.pretty_generate kdi_output
+
+f = File.new(@output_filename, 'w')
+f.write(JSON.pretty_generate kdi_output)
+f.close     
+

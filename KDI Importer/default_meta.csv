@@ -1,5 +1,6 @@
 Kenna Item - DON'T EDIT THESE VALUES,Associated Source File Column,Required,Description,Object Type
-locator,url,, field used to compare for dupes for this file load only,Asset
+date_format,%m/%d/%y %H:%M,yes,Uses standard date format string syntax to describe dates in the incoming data file,
+locator,url,yes,field used to compare for dupes for this file load only,Asset
 file,,one value per Asset is required,(string) path to affected file,Asset
 ip_address,,one value per Asset is required,(string) IP of internal facing asset,Asset
 mac_address,,one value per Asset is required,(mac format-regex) MAC address asset,Asset
@@ -12,7 +13,7 @@ fqdn,,one value per Asset is required,(string) fqdn of asset,Asset
 external_id,,one value per Asset is required,(string) ExtID of asset-Often used as an int org name for asset,Asset
 database,,one value per Asset is required,(string) Name of db,Asset
 application,Segment,no,(string) ID/app Name,Asset
-tags,Segment,no,(string) list of strings that correspond to tags on an asset,Asset Meta
+tags,Segment,no,(string) comma separated list of columns from the source data file that should be converted to tags,Asset Meta
 owner,Product Division,no,(string) Some string that identifies an owner of an asset,Asset Meta
 os,,no,(string) Operating system of asset,Asset Meta
 os_version,,no,(string) OS version,Asset Meta

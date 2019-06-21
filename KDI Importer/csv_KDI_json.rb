@@ -232,7 +232,6 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
   # Asset Metadata fields #
   #########################
     tag_list = map_tags.split(',')   #(string) list of strings that correspond to tags on an asset
-    #puts tag_list
     tags = []
     tag_list.each do |col|
       col = col.gsub(/\A['"]+|['"]+\Z/, "")

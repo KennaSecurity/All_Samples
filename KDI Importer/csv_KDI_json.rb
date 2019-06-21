@@ -129,9 +129,9 @@ module KdiHelpers
   def create_vuln_def(scanner_type,scanner_id,cve_id,wasc_id,cwe_id,name,description,solution)
     vuln_def = []
     vuln_def << {scanner_type: "#{scanner_type}",scanner_identifier: "#{scanner_id}",}
-    vuln_def << {cve_identifiers: "#{cve_id}"} unless cve_id.nil?
-    vuln_def << {wasc_identifier: "#{wasc_id}"} unless wasc_id.nil?
-    vuln_def << {cwe_identifier: "#{cwe_id}"} unless cwe_id.nil?
+    vuln_def << {cve_identifiers: "#{cve_id}"} unless cve_id.nil? || cve_id.empty?
+    vuln_def << {wasc_identifier: "#{wasc_id}"} unless wasc_id.nil? || wasc_id.empty?
+    vuln_def << {cwe_identifier: "#{cwe_id}"} unless cwe_id.nil? || cwe_id.empty?
     vuln_def << {name: "#{name}",description: "#{description}",solution: "#{solution}"}
 
     $vuln_defs << vuln_def.reduce(&:merge)
@@ -232,7 +232,6 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
   # Asset Metadata fields #
   #########################
     tag_list = map_tags.split(',')   #(string) list of strings that correspond to tags on an asset
-    puts tag_list
     tags = []
     tag_list.each do |col|
       col = col.gsub(/\A['"]+|['"]+\Z/, "")

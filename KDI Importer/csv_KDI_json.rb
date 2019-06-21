@@ -4,12 +4,13 @@ require 'csv'
 @data_file = ARGV[0]
 @has_header = ARGV[1]
 @mapping_file = ARGV[2]
-@date_format_in = ARGV[3]#string that represents the date format in the input file '%m-%d-%Y %H:%M'
-@skip_autoclose = ARGV[4] #defaults to false
-@output_filename = ARGV[5] #json filename for converted data
+@skip_autoclose = ARGV[3] #defaults to false
+@output_filename = ARGV[4] #json filename for converted data
 
 @debug = true
 $map_locator = ''
+
+@output_filename = "#{@output_filename}.json" unless @output_filename.match(/\.json$/)
 
 #### SAUSAGE MAKING METHODS
 module Kenna
@@ -25,6 +26,7 @@ module KdiHelpers
     tmpassets = []
 
     #this case statement will check for dup assets based on the main locator as declared in the options input file
+    #comment out the entire block if you want all deduplicaton to happen in Kenna
 
     case $map_locator
       when "ip_address"
@@ -63,7 +65,7 @@ module KdiHelpers
     tmpassets << {external_id: "#{external_id}"} unless external_id.nil?
     tmpassets << {database: "#{database}"} unless database.nil?
     tmpassets << {application: "#{application}"} unless application.nil?
-    tmpassets << {tags: ["#{tags}"]} unless tags.nil?
+    tmpassets << {tags: tags} unless tags.empty?
     tmpassets << {owner: "#{owner}"} unless owner.nil?
     tmpassets << {os: "#{os}"} unless os.nil?
     tmpassets << {os_version: "#{os_version}"} unless os_version.nil?
@@ -127,9 +129,9 @@ module KdiHelpers
   def create_vuln_def(scanner_type,scanner_id,cve_id,wasc_id,cwe_id,name,description,solution)
     vuln_def = []
     vuln_def << {scanner_type: "#{scanner_type}",scanner_identifier: "#{scanner_id}",}
-    vuln_def << {cve_identifiers: "#{cve_id}"} unless cve_id.nil?
-    vuln_def << {wasc_identifier: "#{wasc_id}"} unless wasc_id.nil?
-    vuln_def << {cwe_identifier: "#{cwe_id}"} unless cwe_id.nil?
+    vuln_def << {cve_identifiers: "#{cve_id}"} unless cve_id.nil? || cve_id.empty?
+    vuln_def << {wasc_identifier: "#{wasc_id}"} unless wasc_id.nil? || wasc_id.empty?
+    vuln_def << {cwe_identifier: "#{cwe_id}"} unless cwe_id.nil? || cwe_id.empty?
     vuln_def << {name: "#{name}",description: "#{description}",solution: "#{solution}"}
 
     $vuln_defs << vuln_def.reduce(&:merge)
@@ -144,6 +146,7 @@ end
 $assets = []
 $vuln_defs = []
 $mapping_array = []
+$date_format_in = ''
 
 CSV.parse(File.open(@mapping_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => true) do |row|
 
@@ -152,6 +155,7 @@ CSV.parse(File.open(@mapping_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers =
 
 end
 #headers = 
+$date_format_in = "#{$mapping_array.assoc('date_format').last}" 
 $map_locator = "#{$mapping_array.assoc('locator').last}"           
 map_file = "#{$mapping_array.assoc('file').last}"
 map_ip_address = "#{$mapping_array.assoc('ip_address').last}"                
@@ -173,7 +177,7 @@ map_priority = "#{$mapping_array.assoc('priority').last}"
 map_scanner_source = "#{$mapping_array.assoc('scanner_source').last}"                   
 map_scanner_type = "#{$mapping_array.assoc('scanner_type').last}"    
 map_scanner_id = "#{$mapping_array.assoc('scanner_id').last}"
-map_scanner_id.encode!("utf-8")       
+map_scanner_id.encode!("utf-8")      
 map_details = "#{$mapping_array.assoc('details').last}"          
 map_created = "#{$mapping_array.assoc('created').last}"               
 map_scanner_score = "#{$mapping_array.assoc('scanner_score').last}"      
@@ -227,7 +231,13 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
   #########################
   # Asset Metadata fields #
   #########################
-    tags = row["#{map_tags}"]                  #(string) list of strings that correspond to tags on an asset
+    tag_list = map_tags.split(',')   #(string) list of strings that correspond to tags on an asset
+    #puts tag_list
+    tags = []
+    tag_list.each do |col|
+      col = col.gsub(/\A['"]+|['"]+\Z/, "")
+      tags << "#{row[col]}"
+    end
     owner = row["#{map_owner}"]                 #(string) Some string that identifies an owner of an asset
     os = row["#{map_os}"]                 #(string) Operating system of asset
     os_version = row["#{map_os_version}"]                  #(string) OS version
@@ -278,17 +288,17 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
 
   status = "open" if status.nil? || status.empty?
   # Convert the dates
-  created = DateTime.strptime(created,@date_format_in).strftime(date_format_KDI) unless created.nil? || created.empty?
-  last_fixed = DateTime.strptime(last_fixed,@date_format_in).strftime(date_format_KDI) unless last_fixed.nil? || last_fixed.empty?
+  created = DateTime.strptime(created,$date_format_in).strftime(date_format_KDI) unless created.nil? || created.empty?
+  last_fixed = DateTime.strptime(last_fixed,$date_format_in).strftime(date_format_KDI) unless last_fixed.nil? || last_fixed.empty?
 
 if last_seen.nil? || last_seen.empty? then
     #last_seen = "2019-03-01-14:00:00"
    last_seen = DateTime.now.strftime(date_format_KDI)
 else
-  last_seen = DateTime.strptime(last_seen,@date_format_in).strftime(date_format_KDI)
+  last_seen = DateTime.strptime(last_seen,$date_format_in).strftime(date_format_KDI)
 end
 
-  closed = DateTime.strptime(closed,@date_format_in).strftime(date_format_KDI) unless closed.nil?
+  closed = DateTime.strptime(closed,$date_format_in).strftime(date_format_KDI) unless closed.nil?
 
   ### CREATE THE ASSET
   create_asset(file,ip_address,mac_address,hostname,ec2,netbios,external_ip_address,url,fqdn,external_id,database,application,tags,owner,os,os_version,priority)

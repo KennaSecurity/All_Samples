@@ -19,4 +19,6 @@ Most of the scripts written here are in Ruby. You can run ruby from a desktop bu
   * https://rubygems.org
   * https://rubyinstaller.org (for windows)
 
-For additional assistance with running these scripts or to request updates/changes or new scripts, contact [Kenna Customer Success](mailto:customersuccess@kennascurity.com).
+For additional information about how you can use the Kenna API (employed in the sample scripts) to enhance/supplement your Kenna implementation, contact [Kenna Customer Success](mailto:customersuccess@kennascurity.com).
+
+All the code samples in this GitHub repository are offered “as is” and include no warranty of any kind. Use them at your own risk. In no event will Kenna be liable to end user or any other party for damages of any kind arising from the use of these samples.

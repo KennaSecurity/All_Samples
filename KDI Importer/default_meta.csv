@@ -1,39 +1,40 @@
-Kenna Item - DON'T EDIT THESE VALUES,Associated Source File Column,Required,Description,Object Type
-date_format,%m/%d/%y %H:%M,yes,Uses standard date format string syntax to describe dates in the incoming data file,
-locator,url,yes,field used to compare for dupes for this file load only,Asset
+﻿Kenna Item - DON'T EDIT THESE VALUES,Associated Source File Column,Required,Description,Object Type
+date_format,%d%m/%Y,yes if dates in data,Script Only - used to format dates,
+locator,ip_address,yes,Script only - field used to deduplication prior to upload - should match kenna locator syntax,Asset
 file,,one value per Asset is required,(string) path to affected file,Asset
-ip_address,,one value per Asset is required,(string) IP of internal facing asset,Asset
+ip_address,IP Address,one value per Asset is required,(string) IP of internal facing asset,Asset
 mac_address,,one value per Asset is required,(mac format-regex) MAC address asset,Asset
-hostname,,one value per Asset is required,(string) host name/domain name of affected asset,Asset
+hostname,Hostname/Entity,one value per Asset is required,(string) host name/domain name of affected asset,Asset
 ec2,,one value per Asset is required,(string) Amazon EC2 instance id or name,Asset
 netbios,,one value per Asset is required,(string) netbios name,Asset
 external_ip_address,,no,(string) IP of external facing asset,Asset
-url,Affected Version,one value per Asset is required,(string) URL pointing to asset,Asset
+url,,one value per Asset is required,(string) URL pointing to asset,Asset
 fqdn,,one value per Asset is required,(string) fqdn of asset,Asset
 external_id,,one value per Asset is required,(string) ExtID of asset-Often used as an int org name for asset,Asset
 database,,one value per Asset is required,(string) Name of db,Asset
-application,Segment,no,(string) ID/app Name,Asset
-tags,Segment,no,(string) comma separated list of columns from the source data file that should be converted to tags,Asset Meta
-owner,Product Division,no,(string) Some string that identifies an owner of an asset,Asset Meta
+application,Test Name,no,(string) ID/app Name,Asset
+tags,Test Name,no,(string) list of strings that correspond to tags on an asset,Asset Meta
+tag_prefix,,no,comma separated list of prefixes which corresponds to list in tag. Number and order of elements should match tags exactly. ,
+owner,,no,(string) Some string that identifies an owner of an asset,Asset Meta
 os,,no,(string) Operating system of asset,Asset Meta
 os_version,,no,(string) OS version,Asset Meta
 priority,,no,(Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score. nil for default to 10,Asset Meta
 scanner_source,static,yes,declares scanner type data locatin as static (listed in this file) or column (pulled from the source file),
-scanner_type,Jira,yes,(string) - official name of scan type - should be the same across files where appropriate can be static or pulled from column,Vulnerability
-scanner_id,Issue key,yes,(string) - Vuln ID defined by the scanner,Vulnerability
+scanner_type,Pen Test,yes,(string) - official name of scan type - should be the same across files where appropriate can be static or pulled from column,Vulnerability
+scanner_id,Issue ID,yes,(string) - Vuln ID defined by the scanner,Vulnerability
 details,,no,(string) - Details about vuln,Vulnerability
-created,Date Reported,no,(string) - Date vuln created,Vulnerability
-score_map,"{""High"":""8"",""Critical"":""10"",""Medium"":""6"",""Low"":""3""}",no,hash of translation scanner score values to kenna range of 1-10 if needed,
-scanner_score,Severity,no,(Integer) - scanner score,Vulnerability
+created,,no,(string) - Date vuln created,Vulnerability
+scanner_score,CVSS,no,(Integer) - scanner score,Vulnerability
+score_map,,no,hash of translation scanner score values to kenna range of 1-10 if needed,
 last_fixed,,no,(string) - Last fixed date,Vulnerability
-last_seen,,yes,,Vulnerability
-status_map,"{ ""Impact Statement Pending"" : ""open"", ""Closed"" : ""closed"", ""New"" : ""open"", ""Remediation Plan Pending"" : ""open"", ""Remedy in Progress"" : ""open""}",no,hash of translation scanner status to Kenna status mappings if needed,
-status,Status,yes,"(string) default to ""open"" if inbound reports will only include open vulns",Vulnerability
-closed,Date Closed,required if status is closed,(string) Date it was closed,Vulnerability
-port,,no,(Integer) Port if associated with vuln,Vulnerability
-cve_id,,no,(string) Any CVE(s)?,Vuln Def
+last_seen,,yes,(string) Date it was closed,Vulnerability
+status,,yes,"(string) default to ""open"" if inbound reports will only include open vulns",Vulnerability
+status_map,,no,Script Only - hash of translation... scanner status to Kenna status mappings if needed,
+closed,,required if status is closed,(string) Date it was closed,Vulnerability
+port,Port,no,(Integer) Port if associated with vuln,Vulnerability
+cve_id,CVE,no,(string) Any CVE(s)?,Vuln Def
 wasc_id,,no,(string) Any WASC?,Vuln Def
 cwe_id,,no,(string) Any CWE?,Vuln Def
-name,Summary,no,(string) Name/title of Vuln,Vuln Def
-description,Description,no,(string) Description,Vuln Def
-solution,,no,(string) Solution,Vuln Def
+name,Vuln Name,no,(string) Name/title of Vuln,Vuln Def
+description,Vuln Description,no,(string) Description,Vuln Def
+solution,Vuln Recommendation,no,(string) Solution,Vuln Def

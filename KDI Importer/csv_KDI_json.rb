@@ -24,57 +24,65 @@ module KdiHelpers
   def create_asset(file,ip_address,mac_address,hostname,ec2,netbios,external_ip_address,url,fqdn,external_id,database,application,tags,owner,os,os_version,priority)
 
     tmpassets = []
+    success = true
 
     #this case statement will check for dup assets based on the main locator as declared in the options input file
     #comment out the entire block if you want all deduplicaton to happen in Kenna
 
     case $map_locator
       when "ip_address"
-        return unless $assets.select{|a| a[:ip_address] == ip_address}.empty?
+        return success unless $assets.select{|a| a[:ip_address] == ip_address}.empty?
       when "hostname"
-        return unless $assets.select{|a| a[:hostname] == hostname}.empty?
+        return success unless $assets.select{|a| a[:hostname] == hostname}.empty?
       when "file"
-        return unless $assets.select{|a| a[:file] == file}.empty?
+        return success unless $assets.select{|a| a[:file] == file}.empty?
       when "mac_address"
-        return unless $assets.select{|a| a[:mac_address] == mac_address}.empty?
+        return success unless $assets.select{|a| a[:mac_address] == mac_address}.empty?
       when "netbios"
-        return unless $assets.select{|a| a[:netbios] == netbios}.empty?
+        return success unless $assets.select{|a| a[:netbios] == netbios}.empty?
       when "external_ip_address"
-        return unless $assets.select{|a| a[:external_ip_address] == external_ip_address}.empty?
+        return success unless $assets.select{|a| a[:external_ip_address] == external_ip_address}.empty?
       when "ec2"
-        return unless $assets.select{|a| a[:ec2] == ec2}.empty?
+        return success unless $assets.select{|a| a[:ec2] == ec2}.empty?
       when "fqdn"
-        return unless $assets.select{|a| a[:fqdn] == fqdn}.empty?
+        return success unless $assets.select{|a| a[:fqdn] == fqdn}.empty?
       when "external_id"
-        return unless $assets.select{|a| a[:external_id] == external_id}.empty?
+        return success unless $assets.select{|a| a[:external_id] == external_id}.empty?
       when "database"
-        return unless $assets.select{|a| a[:database] == database}.empty?
+        return success unless $assets.select{|a| a[:database] == database}.empty?
+      when "url"
+        return success unless $assets.select{|a| a[:url] == url}.empty?
       else
-        "Error: main locator not provided" if @debug
+        puts "Error: main locator not provided" if @debug
+        success = false
+
     end
 
-    tmpassets << {file: "#{file}"} unless file.nil?
-    tmpassets << {ip_address: ip_address} unless ip_address.nil?
-    tmpassets << {mac_address: mac_address} unless mac_address.nil?
-    tmpassets << {hostname: hostname} unless hostname.nil?
-    tmpassets << {ec2: "#{ec2}"} unless ec2.nil?
-    tmpassets << {netbios: "#{netbios}"} unless netbios.nil?
-    tmpassets << {external_ip_address: "#{external_ip_address}"} unless external_ip_address.nil?
-    tmpassets << {url: "#{url}"} unless url.nil?
-    tmpassets << {fqdn: "#{fqdn}"} unless fqdn.nil?
-    tmpassets << {external_id: "#{external_id}"} unless external_id.nil?
-    tmpassets << {database: "#{database}"} unless database.nil?
-    tmpassets << {application: "#{application}"} unless application.nil?
-    tmpassets << {tags: tags} unless tags.empty?
-    tmpassets << {owner: "#{owner}"} unless owner.nil?
-    tmpassets << {os: "#{os}"} unless os.nil?
-    tmpassets << {os_version: "#{os_version}"} unless os_version.nil?
-    tmpassets << {priority: priority} unless priority.nil? 
+    tmpassets << {file: "#{file}"} unless file.nil? || file.empty?
+    tmpassets << {ip_address: ip_address} unless ip_address.nil? || ip_address.empty?
+    tmpassets << {mac_address: mac_address} unless mac_address.nil? || mac_address.empty?
+    tmpassets << {hostname: hostname} unless hostname.nil? || hostname.empty?
+    tmpassets << {ec2: "#{ec2}"} unless ec2.nil? || ec2.empty?
+    tmpassets << {netbios: "#{netbios}"} unless netbios.nil? || netbios.empty?
+    tmpassets << {external_ip_address: "#{external_ip_address}"} unless external_ip_address.nil? || external_ip_address.empty?
+    tmpassets << {url: "#{url}"} unless url.nil? || url.empty?
+    tmpassets << {fqdn: "#{fqdn}"} unless fqdn.nil? || fqdn.empty?
+    tmpassets << {external_id: "#{external_id}"} unless external_id.nil? || external_id.empty?
+    tmpassets << {database: "#{database}"} unless database.nil? || database.empty?
+    tmpassets << {application: "#{application}"} unless application.nil? || application.empty?
+    tmpassets << {tags: tags} unless tags.nil? || tags.empty?
+    tmpassets << {owner: "#{owner}"} unless owner.nil? || owner.empty?
+    tmpassets << {os: "#{os}"} unless os.nil? || os.empty?
+    tmpassets << {os_version: "#{os_version}"} unless os_version.nil? || os_version.empty?
+    tmpassets << {priority: priority} unless priority.nil? || priority.empty? 
     tmpassets << {vulns: []}
 
+    success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && external_ip_address.to_s.empty? && url.to_s.empty? && database.to_s.empty? 
 
-    $assets << tmpassets.reduce(&:merge)
 
+    $assets << tmpassets.reduce(&:merge) unless !success
+
+    return success
   end
 
   def create_asset_vuln(hostname,ip_address,file, mac_address,netbios,url,external_ip_address,ec2,fqdn,external_id,database,scanner_type,scanner_id,details,created,scanner_score,last_fixed,
@@ -108,7 +116,8 @@ module KdiHelpers
         "Error: main locator not provided" if @debug
     end
 
-    raise "Unknown asset, can't associate a vuln!" unless asset
+    put "Unknown asset, can't associate a vuln!" unless asset
+    returm unless asset
 
     # associate the asset
     assetvulns = []
@@ -169,7 +178,8 @@ map_fqdn = "#{$mapping_array.assoc('fqdn').last}"
 map_external_id = "#{$mapping_array.assoc('external_id').last}"                
 map_database = "#{$mapping_array.assoc('database').last}"                    
 map_application = "#{$mapping_array.assoc('application').last}"                  
-map_tags = "#{$mapping_array.assoc('tags').last}"                  
+map_tags = "#{$mapping_array.assoc('tags').last}" 
+map_tag_prefix = "#{$mapping_array.assoc('tag_prefix').last}"                 
 map_owner = "#{$mapping_array.assoc('owner').last}"                 
 map_os = "#{$mapping_array.assoc('os').last}"                
 map_os_version = "#{$mapping_array.assoc('os_version').last}"                  
@@ -232,10 +242,20 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
   # Asset Metadata fields #
   #########################
     tag_list = map_tags.split(',')   #(string) list of strings that correspond to tags on an asset
+    prefix_list = map_tag_prefix.split(',')
+    #puts tag_list
     tags = []
+    count = 0
     tag_list.each do |col|
       col = col.gsub(/\A['"]+|['"]+\Z/, "")
-      tags << "#{row[col]}"
+      if !row[col].nil? && !row[col].empty? then
+        if prefix_list.empty? then
+          tags << "#{row[col]}"
+        else
+          tags << prefix_list[count] + "#{row[col]}"
+        end
+      end
+      count+=1
     end
     owner = row["#{map_owner}"]                 #(string) Some string that identifies an owner of an asset
     os = row["#{map_os}"]                 #(string) Operating system of asset
@@ -300,8 +320,10 @@ end
   closed = DateTime.strptime(closed,$date_format_in).strftime(date_format_KDI) unless closed.nil?
 
   ### CREATE THE ASSET
-  create_asset(file,ip_address,mac_address,hostname,ec2,netbios,external_ip_address,url,fqdn,external_id,database,application,tags,owner,os,os_version,priority)
-
+  done  = create_asset(file,ip_address,mac_address,hostname,ec2,netbios,external_ip_address,url,fqdn,external_id,database,application,tags,owner,os,os_version,priority)
+  puts "create assset = #{done}"
+  next if !done
+  
   ### ASSOCIATE THE ASSET TO THE VULN
 
   create_asset_vuln(hostname,ip_address,file, mac_address,netbios,url,external_ip_address,ec2,fqdn,external_id,database,scanner_type,scanner_id,details,created,scanner_score,last_fixed,

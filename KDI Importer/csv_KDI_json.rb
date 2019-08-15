@@ -74,7 +74,7 @@ module KdiHelpers
     tmpassets << {owner: "#{owner}"} unless owner.nil? || owner.empty?
     tmpassets << {os: "#{os}"} unless os.nil? || os.empty?
     tmpassets << {os_version: "#{os_version}"} unless os_version.nil? || os_version.empty?
-    tmpassets << {priority: priority} unless priority.nil? || priority.empty? 
+    tmpassets << {priority: priority.to_i} unless priority.nil? || priority.empty? 
     tmpassets << {vulns: []}
 
     success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && external_ip_address.to_s.empty? && url.to_s.empty? && database.to_s.empty? 
@@ -260,8 +260,12 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
     owner = row["#{map_owner}"]                 #(string) Some string that identifies an owner of an asset
     os = row["#{map_os}"]                 #(string) Operating system of asset
     os_version = row["#{map_os_version}"]                  #(string) OS version
-    priority = row["#{map_priority}"].to_i   unless  row["#{map_priority}"].nil? || row["#{map_priority}"].empty? #(Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score.
-
+	  if !( row["#{map_priority}"].nil?  ||  row["#{map_priority}"].empty? )
+		  priority = row["#{map_priority}"]
+	  else
+		  priority = "10"
+	  end
+        
   #########################
   # Vulnerability Section #
   #########################

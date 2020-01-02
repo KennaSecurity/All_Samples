@@ -74,10 +74,10 @@ module KdiHelpers
     tmpassets << {owner: "#{owner}"} unless owner.nil? || owner.empty?
     tmpassets << {os: "#{os}"} unless os.nil? || os.empty?
     tmpassets << {os_version: "#{os_version}"} unless os_version.nil? || os_version.empty?
-    tmpassets << {priority: priority} unless priority.nil? || priority.empty? 
+    tmpassets << {priority: priority} unless priority.nil?
     tmpassets << {vulns: []}
 
-    success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && external_ip_address.to_s.empty? && url.to_s.empty? && database.to_s.empty? 
+    success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && external_ip_address.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty?
 
 
     $assets << tmpassets.reduce(&:merge) unless !success
@@ -139,8 +139,8 @@ module KdiHelpers
     vuln_def = []
     vuln_def << {scanner_type: "#{scanner_type}",scanner_identifier: "#{scanner_id}",}
     vuln_def << {cve_identifiers: "#{cve_id}"} unless cve_id.nil? || cve_id.empty?
-    vuln_def << {wasc_identifier: "#{wasc_id}"} unless wasc_id.nil? || wasc_id.empty?
-    vuln_def << {cwe_identifier: "#{cwe_id}"} unless cwe_id.nil? || cwe_id.empty?
+    vuln_def << {wasc_identifiers: "#{wasc_id}"} unless wasc_id.nil? || wasc_id.empty?
+    vuln_def << {cwe_identifiers: "#{cwe_id}"} unless cwe_id.nil? || cwe_id.empty?
     vuln_def << {name: "#{name}",description: "#{description}",solution: "#{solution}"}
 
     $vuln_defs << vuln_def.reduce(&:merge)

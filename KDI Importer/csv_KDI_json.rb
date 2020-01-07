@@ -1,5 +1,6 @@
 require 'json'
 require 'csv'
+require 'URI'
 
 @data_file = ARGV[0]
 @has_header = ARGV[1]
@@ -21,7 +22,7 @@ module KdiHelpers
     { skip_autoclose: (@skip_autoclose.eql?('true') ? true : false), assets: $assets.uniq, vuln_defs: $vuln_defs.uniq }
   end
 
-  def create_asset(file,ip_address,mac_address,hostname,ec2,netbios,external_ip_address,url,fqdn,external_id,database,application,tags,owner,os,os_version,priority)
+  def create_asset(file,ip_address,mac_address,hostname,ec2,netbios,url,fqdn,external_id,database,application,tags,owner,os,os_version,priority)
 
     tmpassets = []
     success = true
@@ -40,8 +41,6 @@ module KdiHelpers
         return success unless $assets.select{|a| a[:mac_address] == mac_address}.empty?
       when "netbios"
         return success unless $assets.select{|a| a[:netbios] == netbios}.empty?
-      when "external_ip_address"
-        return success unless $assets.select{|a| a[:external_ip_address] == external_ip_address}.empty?
       when "ec2"
         return success unless $assets.select{|a| a[:ec2] == ec2}.empty?
       when "fqdn"
@@ -64,7 +63,6 @@ module KdiHelpers
     tmpassets << {hostname: hostname} unless hostname.nil? || hostname.empty?
     tmpassets << {ec2: "#{ec2}"} unless ec2.nil? || ec2.empty?
     tmpassets << {netbios: "#{netbios}"} unless netbios.nil? || netbios.empty?
-    tmpassets << {external_ip_address: "#{external_ip_address}"} unless external_ip_address.nil? || external_ip_address.empty?
     tmpassets << {url: "#{url}"} unless url.nil? || url.empty?
     tmpassets << {fqdn: "#{fqdn}"} unless fqdn.nil? || fqdn.empty?
     tmpassets << {external_id: "#{external_id}"} unless external_id.nil? || external_id.empty?
@@ -74,10 +72,10 @@ module KdiHelpers
     tmpassets << {owner: "#{owner}"} unless owner.nil? || owner.empty?
     tmpassets << {os: "#{os}"} unless os.nil? || os.empty?
     tmpassets << {os_version: "#{os_version}"} unless os_version.nil? || os_version.empty?
-    tmpassets << {priority: priority} unless priority.nil?
+    tmpassets << {priority: priority} unless priority.nil? || priority.empty? 
     tmpassets << {vulns: []}
 
-    success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && external_ip_address.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty?
+    success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? 
 
 
     $assets << tmpassets.reduce(&:merge) unless !success
@@ -85,7 +83,7 @@ module KdiHelpers
     return success
   end
 
-  def create_asset_vuln(hostname,ip_address,file, mac_address,netbios,url,external_ip_address,ec2,fqdn,external_id,database,scanner_type,scanner_id,details,created,scanner_score,last_fixed,
+  def create_asset_vuln(hostname,ip_address,file, mac_address,netbios,url,ec2,fqdn,external_id,database,scanner_type,scanner_id,details,created,scanner_score,last_fixed,
                     last_seen,status,closed,port)
 
     # find the asset
@@ -102,8 +100,6 @@ module KdiHelpers
         asset = $assets.select{|a| a[:netbios] == netbios }.first
       when "url"
         asset = $assets.select{|a| a[:url] == url }.first
-      when "external_ip_address"
-        asset = $assets.select{|a| a[:external_ip_address] == external_ip_address }.first
       when "ec2"
         asset = $assets.select{|a| a[:ec2] == ec2 }.first
       when "fqdn"
@@ -116,8 +112,8 @@ module KdiHelpers
         "Error: main locator not provided" if @debug
     end
 
-    put "Unknown asset, can't associate a vuln!" unless asset
-    returm unless asset
+    puts "Unknown asset, can't associate a vuln!" unless asset
+    return unless asset
 
     # associate the asset
     assetvulns = []
@@ -171,8 +167,7 @@ map_ip_address = "#{$mapping_array.assoc('ip_address').last}"
 map_mac_address = "#{$mapping_array.assoc('mac_address').last}"                   
 map_hostname = "#{$mapping_array.assoc('hostname').last}"                  
 map_ec2 = "#{$mapping_array.assoc('ec2').last}"                  
-map_netbios = "#{$mapping_array.assoc('netbios').last}"                 
-map_external_ip_address = "#{$mapping_array.assoc('external_ip_address').last}"                
+map_netbios = "#{$mapping_array.assoc('netbios').last}"                                
 map_url = "#{$mapping_array.assoc('url').last}"                   
 map_fqdn = "#{$mapping_array.assoc('fqdn').last}"             
 map_external_id = "#{$mapping_array.assoc('external_id').last}"                
@@ -230,8 +225,8 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
     hostname = row["#{map_hostname}"]                  #(string) hostname name/domain name of affected asset
     ec2 = row["#{map_ec2}"]                    #(string) Amazon EC2 instance id or name
     netbios = row["#{map_netbios}"]                 #(string) netbios name
-    external_ip_address = row["#{map_external_ip_address}"]                #(string) IP of external facing asset
-    url = row["#{map_url}"]                   #(string) URL pointing to asset
+    url = row["#{map_url}"]
+    url = url.strip unless url.nil?                  #(string) URL pointing to asset
     fqdn = row["#{map_fqdn}"]              #(string) fqdn of asset
     external_id = row["#{map_external_id}"]                #(string) ExtID of asset-Often used as an int org name for asset
     database = row["#{map_database}"]                    #(string) Name of database
@@ -319,14 +314,17 @@ end
 
   closed = DateTime.strptime(closed,$date_format_in).strftime(date_format_KDI) unless closed.nil?
 
+
   ### CREATE THE ASSET
-  done  = create_asset(file,ip_address,mac_address,hostname,ec2,netbios,external_ip_address,url,fqdn,external_id,database,application,tags,owner,os,os_version,priority)
-  puts "create assset = #{done}"
+  done  = create_asset(file,ip_address,mac_address,hostname,ec2,netbios,url,fqdn,external_id,database,application,tags,owner,os,os_version,priority)
+  #puts "create assset = #{done}"
   next if !done
   
   ### ASSOCIATE THE ASSET TO THE VULN
 
-  create_asset_vuln(hostname,ip_address,file, mac_address,netbios,url,external_ip_address,ec2,fqdn,external_id,database,scanner_type,scanner_id,details,created,scanner_score,last_fixed,
+
+
+  create_asset_vuln(hostname,ip_address,file, mac_address,netbios,url,ec2,fqdn,external_id,database,scanner_type,scanner_id,details,created,scanner_score,last_fixed,
                     last_seen,status,closed,port)
 
   # CREATE A VULN DEF THAT HAS THE SAME ID AS OUR VULN

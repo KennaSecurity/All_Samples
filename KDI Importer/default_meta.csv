@@ -1,40 +1,39 @@
 ﻿Kenna Item - DON'T EDIT THESE VALUES,Associated Source File Column,Required,Description,Object Type
-date_format,%d%m/%Y,yes if dates in data,Script Only - used to format dates,
+date_format,%d%m/%Y,yes if dates in data,Script Only - used to format dates google ruby strftime for more info on format syntax,
 locator,ip_address,yes,Script only - field used to deduplication prior to upload - should match kenna locator syntax,Asset
-file,,one value per Asset is required,(string) path to affected file,Asset
-ip_address,IP Address,one value per Asset is required,(string) IP of internal facing asset,Asset
-mac_address,,one value per Asset is required,(mac format-regex) MAC address asset,Asset
-hostname,Hostname/Entity,one value per Asset is required,(string) host name/domain name of affected asset,Asset
-ec2,,one value per Asset is required,(string) Amazon EC2 instance id or name,Asset
-netbios,,one value per Asset is required,(string) netbios name,Asset
-external_ip_address,,no,(string) IP of external facing asset,Asset
-url,,one value per Asset is required,(string) URL pointing to asset,Asset
-fqdn,,one value per Asset is required,(string) fqdn of asset,Asset
-external_id,,one value per Asset is required,(string) ExtID of asset-Often used as an int org name for asset,Asset
-database,,one value per Asset is required,(string) Name of db,Asset
-application,Test Name,no,(string) ID/app Name,Asset
-tags,Test Name,no,(string) list of strings that correspond to tags on an asset,Asset Meta
-tag_prefix,,no,comma separated list of prefixes which corresponds to list in tag. Number and order of elements should match tags exactly. ,
-owner,,no,(string) Some string that identifies an owner of an asset,Asset Meta
-os,,no,(string) Operating system of asset,Asset Meta
-os_version,,no,(string) OS version,Asset Meta
-priority,,no,(Integer) Def:10 - Priority of asset (int 1 to 10).Adjusts asset score. nil for default to 10,Asset Meta
-scanner_source,static,yes,declares scanner type data locatin as static (listed in this file) or column (pulled from the source file),
-scanner_type,Pen Test,yes,(string) - official name of scan type - should be the same across files where appropriate can be static or pulled from column,Vulnerability
-scanner_id,Issue ID,yes,(string) - Vuln ID defined by the scanner,Vulnerability
-details,,no,(string) - Details about vuln,Vulnerability
-created,,no,(string) - Date vuln created,Vulnerability
-scanner_score,CVSS,no,(Integer) - scanner score,Vulnerability
-score_map,,no,hash of translation scanner score values to kenna range of 1-10 if needed,
-last_fixed,,no,(string) - Last fixed date,Vulnerability
-last_seen,,yes,(string) Date it was closed,Vulnerability
-status,,yes,"(string) default to ""open"" if inbound reports will only include open vulns",Vulnerability
-status_map,,no,Script Only - hash of translation... scanner status to Kenna status mappings if needed,
-closed,,required if status is closed,(string) Date it was closed,Vulnerability
-port,Port,no,(Integer) Port if associated with vuln,Vulnerability
-cve_id,CVE,no,(string) Any CVE(s)?,Vuln Def
-wasc_id,,no,(string) Any WASC?,Vuln Def
-cwe_id,,no,(string) Any CWE?,Vuln Def
-name,Vuln Name,no,(string) Name/title of Vuln,Vuln Def
-description,Vuln Description,no,(string) Description,Vuln Def
-solution,Vuln Recommendation,no,(string) Solution,Vuln Def
+file,,one value per Asset is required,column name in CSV pointing to (string) path of affected file,Asset
+ip_address,IP Address,one value per Asset is required,column name in CSV pointing to (string) IP of internal facing asset,Asset
+mac_address,,one value per Asset is required,column name in CSV pointing to (mac format-regex) MAC address asset,Asset
+hostname,Hostname/Entity,one value per Asset is required,column name in CSV pointing to (string) host name/domain name of affected asset,Asset
+ec2,,one value per Asset is required,column name in CSV pointing to (string) Amazon EC2 instance id or name,Asset
+netbios,,one value per Asset is required,column name in CSV pointing to(string) netbios name,Asset
+url,,one value per Asset is required,column name in CSV pointing to (string) URL pointing to asset,Asset
+fqdn,,one value per Asset is required,column name in CSV pointing to (string) fqdn of asset,Asset
+external_id,,one value per Asset is required,column name in CSV pointing to (string) ExtID of asset,Asset
+database,,one value per Asset is required,column name in CSV pointing to (string) Name of db,Asset
+application,Test Name,no,column name in CSV pointing to (string) ID/app Name - label assigned to asset,Asset
+tags,"Product Line,Product Business Unit,Product Division,Finder Type",no,(string) comma separated list of columns with strings that correspond to tags on an asset - no spaces,Asset Meta
+tag_prefix,"AppID:,Prod_BU:,Prod_Div:,Find_type:",no,comma separated list of prefixes which corresponds to list in tag. Number and order of elements should match tags exactly. ,
+owner,,no,column name in CSV pointing to (string) Some string that identifies an owner of an asset,Asset Meta
+os,,no,column name in CSV pointing to (string) Operating system of asset,Asset Meta
+os_version,,no,column name in CSV pointing to (string) OS version,Asset Meta
+priority,,no,column name in CSV pointing to (Integer) Priority of asset (int 1 to 10).Adjusts asset score. nil for default to 10,Asset Meta
+scanner_source,static,yes,declares scanner_type data as static (listed in this file) or column (pulled from the csv source file),
+scanner_type,Pen Test,yes,(string) - official name of scan type - should be the same across files where appropriate can be static or pulled from column as directed in scanner_source,Vulnerability & Vuln Def
+scanner_id,Issue ID,yes,column name in CSV pointing to (string) - Vuln ID as defined by the scanner,Vulnerability & Vuln Def
+details,,no,column name in CSV pointing to (string) - Details about vuln specific to single host,Vulnerability
+created,,no,column name in CSV pointing to (string) - Date vuln created,Vulnerability
+scanner_score,CVSS,no,column name in CSV pointing to (Integer) - scanner score used for scoring appsec vulns - informational for network vulns - translate to int 1-10 using score_map if needed,Vulnerability
+score_map,"{""High"":""8"",""Critical"":""10"",""Medium"":""6"",""Low"":""3""}",no,hash of translation scanner score values to kenna range of 1-10 if needed based on column in scanner_score,
+last_fixed,,no,column name in CSV pointing to (string) - Last fixed date,Vulnerability
+last_seen,,yes,column name in CSV pointing to (string) Date it was closed,Vulnerability
+status,Current Status,yes,"column name in CSV pointing to (string) default to ""open"" if inbound reports will only include open vulns",Vulnerability
+status_map,"{ ""Impact Statement Pending"" : ""open"", ""Closed"" : ""closed"", ""New"" : ""open"", ""Remediation Plan Pending"" : ""open"", ""Remedy in Progress"" : ""open""}",no,Script Only - hash of translation... scanner status to Kenna status mappings if needed,
+closed,,required if status is closed,column name in CSV pointing to (string) Date it was closed,Vulnerability
+port,Port,no,column name in CSV pointing to (Integer) Port if associated with vuln,Vulnerability
+cve_id,CVE,no,column name in CSV pointing to (string) CVEs - note that this can be a comma-delimited list format CVE-000-0000,Vuln Def
+wasc_id,,no,column name in CSV pointing to (string) WASC - note that this can be a comma-delimited list - format WASC-00,Vuln Def
+cwe_id,,no,column name in CSV pointing to (string) CWE - note that this can be a comma-delimited list - format CWE-000,Vuln Def
+name,Vuln Name,no,"column name in CSV pointing to (string) Name/title of Vuln will be displayed as vuln name if no cve, cwe or wasc",Vuln Def
+description,Vuln Description,no,column name in CSV pointing to (string) Description,Vuln Def
+solution,Vuln Recommendation,no,column name in CSV pointing to (string) Solution ,Vuln Def

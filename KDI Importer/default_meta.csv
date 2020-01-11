@@ -31,9 +31,9 @@ status,Current Status,yes,"column name in CSV pointing to (string) default to ""
 status_map,"{ ""Impact Statement Pending"" : ""open"", ""Closed"" : ""closed"", ""New"" : ""open"", ""Remediation Plan Pending"" : ""open"", ""Remedy in Progress"" : ""open""}",no,Script Only - hash of translation... scanner status to Kenna status mappings if needed,
 closed,,required if status is closed,column name in CSV pointing to (string) Date it was closed,Vulnerability
 port,Port,no,column name in CSV pointing to (Integer) Port if associated with vuln,Vulnerability
-cve_id,CVE,no,column name in CSV pointing to (string) CVEs comma separated,Vuln Def
-wasc_id,,no,column name in CSV pointing to (string) Any WASC?,Vuln Def
-cwe_id,,no,column name in CSV pointing to (string) Any CWE?,Vuln Def
+cve_id,CVE,no,column name in CSV pointing to (string) CVEs - note that this can be a comma-delimited list format CVE-000-0000,Vuln Def
+wasc_id,,no,column name in CSV pointing to (string) WASC - note that this can be a comma-delimited list - format WASC-00,Vuln Def
+cwe_id,,no,column name in CSV pointing to (string) CWE - note that this can be a comma-delimited list - format CWE-000,Vuln Def
 name,Vuln Name,no,"column name in CSV pointing to (string) Name/title of Vuln will be displayed as vuln name if no cve, cwe or wasc",Vuln Def
 description,Vuln Description,no,column name in CSV pointing to (string) Description,Vuln Def
 solution,Vuln Recommendation,no,column name in CSV pointing to (string) Solution ,Vuln Def

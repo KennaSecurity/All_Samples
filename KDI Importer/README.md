@@ -1,8 +1,8 @@
-# KDI Generic Transformer - ASSET ONLY
+# KDI Generic Transformer
 
 This script will transform csv files into json that can be consumed by the Kenna Data Importer. This copy has been updated to optionally import asset data only.
 
-**UPDATE: This is an update to our original KDI Transformer script that has been updated to help with Asset-Only imports.**
+**UPDATE: This has been updated from our original KDI Transformer script that has been updated to help with Asset-Only imports.**
 
 Note: This script can still be used like the original, but just omitting the last two parameters when running.
 

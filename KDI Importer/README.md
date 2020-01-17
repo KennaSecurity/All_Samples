@@ -1,16 +1,22 @@
-# KDI Generic Transformer
+# KDI Generic Transformer - ASSET ONLY
 
-This script will transform csv files into json that can be consumed by the Kenna Data Importer
+This script will transform csv files into json that can be consumed by the Kenna Data Importer. This copy has been updated to optionally import asset data only.
+
+**UPDATE: This is an update to our original KDI Transformer script that has been updated to help with Asset-Only imports.**
+
+Note: This script can still be used like the original, but just omitting the last two parameters when running.
 
 ##  Usage
 ```
-csv_KDI_json.rb source_vuln_file.csv has_header? metafile.csv skip_autoclose? output.json
+csv_KDI_json.rb source_vuln_file.csv has_header? metafile.csv skip_autoclose? output.json assets_only? domain_suffix?
 ```
  
 - has_header? => either "true" or "false"; defaults to true, does the source csv file have a header row? used to map the columns in metafile.csv
 
-- skip_autoclose? => defaults to false, set to false if processing only assets
+- skip_autoclose? => defaults to false, set to false if processing only assets.
 - output.json => name of file that the script writes the final JSON output 
+- assets_only? => OPTIONAL parameter to indicate to translate ONLY ASSET DATA. Either "true" or "false"; defaults to false
+- domain_suffix? => OPTIONAL parameter to provide a domain suffix to append to hostnames. (Still experimental)
 
 
 ## Meta Data file

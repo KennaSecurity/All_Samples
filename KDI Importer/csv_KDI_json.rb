@@ -337,11 +337,13 @@ end
 
 
 
-  create_asset_vuln(hostname,ip_address,file, mac_address,netbios,url,ec2,fqdn,external_id,database,scanner_type,scanner_id,details,created,scanner_score,last_fixed,
+  if @assets_only == "false" then # DBro - Added for ASSET ONLY Run 
+    create_asset_vuln(hostname,ip_address,file, mac_address,netbios,url,ec2,fqdn,external_id,database,scanner_type,scanner_id,details,created,scanner_score,last_fixed,
                     last_seen,status,closed,port)
 
-  # CREATE A VULN DEF THAT HAS THE SAME ID AS OUR VULN
-  create_vuln_def(scanner_type,scanner_id,cve_id,wasc_id,cwe_id,name,description,solution)
+    # CREATE A VULN DEF THAT HAS THE SAME ID AS OUR VULN
+    create_vuln_def(scanner_type,scanner_id,cve_id,wasc_id,cwe_id,name,description,solution)
+  end
 
 end
 

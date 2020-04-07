@@ -137,7 +137,9 @@ module KdiHelpers
     vuln_def << {cve_identifiers: "#{cve_id}"} unless cve_id.nil? || cve_id.empty?
     vuln_def << {wasc_identifiers: "#{wasc_id}"} unless wasc_id.nil? || wasc_id.empty?
     vuln_def << {cwe_identifiers: "#{cwe_id}"} unless cwe_id.nil? || cwe_id.empty?
-    vuln_def << {name: "#{name}",description: "#{description}",solution: "#{solution}"}
+    vuln_def << {name: "#{name}"} unless name.nil? || name.empty?
+    vuln_def << {description: "#{description}"} unless description.nil? || description.empty?
+    vuln_def << {solution: "#{solution}"} unless solution.nil? || solution.empty?
 
     $vuln_defs << vuln_def.reduce(&:merge)
   end

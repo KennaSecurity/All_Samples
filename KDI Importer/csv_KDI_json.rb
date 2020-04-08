@@ -1,6 +1,6 @@
 require 'json'
 require 'csv'
-require 'URI'
+# require 'URI'
 
 @data_file = ARGV[0]
 @has_header = ARGV[1]

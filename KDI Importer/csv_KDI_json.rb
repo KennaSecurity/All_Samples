@@ -243,8 +243,7 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
     application = row["#{map_application}"]                   #(string) ID/app Name
 
     # DBro - Added for ASSET ONLY Run 
-    if @domain_suffix != "" then hostname += ".#{@domain_suffix}" end
-
+    if @domain_suffix != "" && (@assets_only == "false" || @assets_only == false) then hostname += ".#{@domain_suffix}" end
 
   #########################
   # Asset Metadata fields #

@@ -1,6 +1,6 @@
 Welcome to the Kenna Security Samples wiki!
 
-These scripts are written to assist customers in automating common functions on the Kenna Security Platform or to integrate data not natively support via Kenna Connectors. Scripts use the fully documented and supported [Kenna Security REST API](https://api.kennasecurity.com/introduction). These scripts wrap additional logic around the API calls and are available as SAMPLES only. They are not part of the Kenna Engineering program and do not participate in a formal SDLC program. 
+These scripts are written to assist customers in automating common functions on the Kenna Security Platform or to integrate data not natively support via Kenna Connectors. Scripts use the fully documented and supported [Kenna Security REST API](https://apidocs.kennasecurity.com/reference). These scripts wrap additional logic around the API calls and are available as SAMPLES only. They are not part of the Kenna Engineering program and do not participate in a formal SDLC program. 
 
 Most of the scripts written here are in Ruby. You can run ruby from a desktop but for scheduled jobs against your Kenna Security instance, a server space is recommended. 
 

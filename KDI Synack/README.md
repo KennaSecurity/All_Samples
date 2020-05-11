@@ -1,4 +1,4 @@
-# KDI Generic Transformer
+# KDI Synack JSON Transformer
 
 This script will transform Synack JSON into Kenna KDI JSON that can be consumed by the Kenna Data Importer Connector. 
 

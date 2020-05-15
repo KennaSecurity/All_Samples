@@ -74,8 +74,8 @@ module KdiHelpers
     tmpassets << {tags: tags} unless tags.nil? || tags.empty?
     tmpassets << {owner: "#{owner}"} unless owner.nil? || owner.empty?
     tmpassets << {os: "#{os}"} unless os.nil? || os.empty?
-    tmpassets << {os_version: "#{os_version}"} unless os_version.nil? || os_version.empty?
-    tmpassets << {priority: priority} unless priority.nil? || priority.empty? 
+    tmpassets << {os_version: "#{os_version}"} unless os_version.nil? || os_version.to_s.empty?
+    tmpassets << {priority: priority} unless priority.nil? || priority.to_s.empty? 
     tmpassets << {vulns: []}
 
     success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty? && fqdn.to_s.empty? && application.to_s.empty?

@@ -14,7 +14,7 @@ require 'json'
 @max_retries = 5
 
 start_time = Time.now
-@output_filename = "clear_due_date-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
+@output_filename = Logger.new("clear_due_date-#{start_time.strftime("%Y%m%dT%H%M")}.txt")
 @debug = false
 
 # Encoding characters
@@ -45,9 +45,7 @@ def bulkUpdate(vulnids)
   rescue RestClient::UnprocessableEntity => e
 
   rescue RestClient::BadRequest => e
-    log_output = File.open(@output_filename,'a+')
-    log_output << "Async BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-    log_output.close
+    @output_filename.error("Async BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n")
     puts "Async BadRequest: #{e.message}"
   rescue RestClient::Exception => e
     @retries ||= 0
@@ -56,20 +54,14 @@ def bulkUpdate(vulnids)
       sleep(15)
       retry
     else
-      log_output = File.open(@output_filename,'a+')
-      log_output << "Async General RestClient error #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-      log_output.close
+      @output_filename.error("Async General RestClient error #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{start_time.to_s})\n")
       puts "Async Unable to get vulns: #{e.message}"
     end
   rescue Exception => e
-    log_output = File.open(@output_filename,'a+')
-    log_output << "Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-    log_output.close
+    @output_filename.error("Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n")
     puts "Unable to get vulns: #{e.message} #{e.backtrace.inspect}"
   end
-  log_output = File.open(@output_filename,'a+')
-  log_output << "bulk vuln update status: #{JSON.parse(query_post_return.body)}... time: #{Time.now.to_s}\n"
-  log_output.close
+  @output_filename.error("bulk vuln update status: #{JSON.parse(query_post_return.body)}... time: #{Time.now.to_s}\n")
 end
 
 bulk_query_json_string = "{\"status\": [\"open\"], "
@@ -131,14 +123,10 @@ begin
 rescue RestClient::TooManyRequests =>e
   retry
 rescue RestClient::UnprocessableEntity => e
-  log_output = File.open(@output_filename,'a+')
-  log_output << "UnprocessableEntity: ...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-  log_output.close
+  @output_filename.error("UnprocessableEntity: ...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n")
   puts "UnprocessableEntity: #{e.message}"
 rescue RestClient::BadRequest => e
-  log_output = File.open(@output_filename,'a+')
-  log_output << "BadRequest: ...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-  log_output.close
+  @output_filename.error("BadRequest: ...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n")
   puts "BadRequest: #{e.message}"
 rescue RestClient::Exception => e
   @retries ||= 0
@@ -147,15 +135,11 @@ rescue RestClient::Exception => e
     sleep(15)
     retry
   else
-    log_output = File.open(@output_filename,'a+')
-    log_output << "General RestClient error #{e.message}(time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-    log_output.close
+    @output_filename.error("General RestClient error #{e.message}(time: #{Time.now.to_s}, start time: #{start_time.to_s})\n")
     puts "Unable to get vulns: #{e.message}"
   end
 rescue Exception => e
-  log_output = File.open(@output_filename,'a+')
-  log_output << "Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-  log_output.close
+  @output_filename.error("Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n")
   puts "Unable to get vulns: #{e.backtrace.inspect}"
 end
 

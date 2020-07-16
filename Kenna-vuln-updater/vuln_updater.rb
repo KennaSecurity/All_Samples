@@ -46,7 +46,7 @@ end
 
 
 @max_retries = 5
-@debug = true
+@debug = false
 
 def build_ip_url(ipstring)
   puts "building ip url" if @debug

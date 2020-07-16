@@ -21,35 +21,32 @@ require 'monitor'
 @status_type = ARGV[11] #where status value will come from - static, column or empty string for setting new data
 @status_value = ARGV[12] #set status based on previous param - value, column name or empty string for setting new data
 @vuln_status = ARGV[13] #vuln status all, open or other for retrieval 
+ARGV.length == 15 ? @base_url = ARGV[14] : @base_url = "https://api.kennasecurity.com/"
 
 @enc_colon = "%3A"
 @enc_dblquote = "%22"
 @enc_space = "%20"
 
-start_time = Time.now
-@start_time = start_time
-output_filename = "kenna_bulk_status_update_log-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
-@output_filename = output_filename
+@start_time = Time.now
+@output_filename = Logger.new("kenna_vuln_updater_log-#{@start_time.strftime("%Y%m%dT%H%M")}.txt")
 
 if @vuln_status.empty? then 
-  log_output = File.open(output_filename,'a+')
-  log_output << "Vuln Status Null - Setting Vuln Status to Open\n"
-  log_output.close
+  @output_filename.error("Vuln Status Null - Setting Vuln Status to Open\n")
   @vuln_status = "open"
 end
 
 #Variables we'll need later
-@vuln_api_url = 'https://api.kennasecurity.com/vulnerabilities'
+@vuln_api_url = "#{@base_url}vulnerabilities"
 @vuln_api_bulk = 'bulk'
 @search_url = "/search?status%5B%5D=#{@vuln_status}&" 
 @urlquerybit = 'q='
-@async_api_url = 'https://api.kennasecurity.com/vulnerabilities/create_async_search'
+@async_api_url = "#{@base_url}vulnerabilities/create_async_search"
 @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json'}
 @custom_field_columns = [] 
 
 
 @max_retries = 5
-@debug = false
+@debug = true
 
 def build_ip_url(ipstring)
   puts "building ip url" if @debug
@@ -102,9 +99,7 @@ def post_data(post_url,json_data)
       rescue RestClient::UnprocessableEntity => e
         puts "unprocessible entity: #{e.message}"
       rescue RestClient::BadRequest => e
-        log_output = File.open(@output_filename,'a+')
-        log_output << "BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-        log_output.close
+        @output_filename.error("BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
         puts "BadRequest: #{e.backtrace.inspect}"
         Thread.exit
       rescue RestClient::Exception => e
@@ -114,16 +109,12 @@ def post_data(post_url,json_data)
           sleep(15)
           retry
         else
-          log_output = File.open(@output_filename,'a+')
-          log_output << "General RestClient error #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-          log_output.close
+          @output_filename.error("General RestClient error #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
           puts "Unable to get vulns: #{e.backtrace.inspect}"
           Thread.exit
         end
       rescue Exception => e
-        log_output = File.open(@output_filename,'a+')
-        log_output << "BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-        log_output.close
+        @output_filename.error("BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
         puts "BadRequest: #{e.backtrace.inspect}"
         Thread.exit
     end
@@ -131,7 +122,7 @@ def post_data(post_url,json_data)
 end
 
 # Set a finite number of simultaneous worker threads that can run
-thread_count = 8
+thread_count = 1
 
 # Create an array to keep track of threads
 threads = Array.new(thread_count)
@@ -161,16 +152,12 @@ end
 
 num_lines = CSV.read(@csv_file).length
 
-log_output = File.open(output_filename,'a+')
-log_output << "reading CSV total lines #{num_lines}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-log_output.close
+@output_filename.error("reading CSV total lines #{num_lines}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
 
-if @vuln_status.empty? then 
-  log_output = File.open(output_filename,'a+')
-  log_output << "Vuln Status Null - Setting Vuln Status to Open\n"
-  log_output.close
-  @vuln_status = "open"
-end if
+# if @vuln_status.empty? then 
+#   @output_filename.error("Vuln Status Null - Setting Vuln Status to Open\n")
+#   @vuln_status = "open"
+# end if
 
 producer_thread = Thread.new do
   puts "starting producer loop" if @debug
@@ -183,9 +170,7 @@ producer_thread = Thread.new do
     asset_identifier = nil
     asset_id = nil
 
-    log_output = File.open(output_filename,'a+')
-    log_output << "Reading line #{$.}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-    log_output.close
+    @output_filename.error("Reading line #{$.}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
 
     query_url = ""
     vuln_query = ""
@@ -256,7 +241,7 @@ producer_thread = Thread.new do
       json_string = "#{json_string}\"due_date\": \"#{new_date}\", "
     end
 
-    puts "***** #{custom_field_string}"
+    #puts "***** #{custom_field_string}"
     if !custom_field_string.empty? then
       json_string = "#{json_string}\"custom_fields\": {#{custom_field_string}}"
     end
@@ -337,10 +322,14 @@ consumer_thread = Thread.new do
           api_query = ip_address_query
         elsif @host_search_field == "ip_address" && !ip_address_query.empty? && !hostname_query.empty? && attempted == true then
           api_query = hostname_query
+        elsif @host_search_field == "ip_address" && attempted == true && hostname_query.empty? then
+          break
         elsif @host_search_field == "hostname" && !hostname_query.empty? && attempted == false then
           api_query = hostname_query
         elsif @host_search_field == "hostname" && !hostname_query.empty? && !ip_address_query.empty? && attempted == true then
           api_query = ip_address_query
+        elsif @host_search_field == "hostname" && attempted == true && ip_address_query.empty? then
+          break
         elsif hostname_query.empty? && ip_address_query.empty? then
           attempted = true
           asset_found = true
@@ -368,7 +357,7 @@ consumer_thread = Thread.new do
 
         query_url = query_url.gsub(/\&$/, '')
 
-        puts "query url = #{query_url}" if @debug
+        #puts "query url = #{query_url}" if @debug
         #puts "json data = #{json_data}" if @debug
 
 
@@ -388,6 +377,7 @@ consumer_thread = Thread.new do
           break if @host_search_field.empty?
           if attempted == false then
             attempted = true
+            next
           else
             break
           end
@@ -397,15 +387,11 @@ consumer_thread = Thread.new do
         rescue RestClient::TooManyRequests => e
           retry
         rescue RestClient::UnprocessableEntity => e
-          log_output = File.open(output_filename,'a+')
-          log_output << "UnprocessableEntity: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-          log_output.close
+          @output_filename.error("UnprocessableEntity: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
           puts "UnprocessableEntity: #{e.message}"
           Thread.exit
         rescue RestClient::BadRequest => e
-          log_output = File.open(output_filename,'a+')
-          log_output << "BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-          log_output.close
+          @output_filename.error("BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
           puts "BadRequest: #{e.message}"
           Thread.exit
         rescue RestClient::Exception => e
@@ -415,16 +401,12 @@ consumer_thread = Thread.new do
             sleep(15)
             retry
           else
-            log_output = File.open(output_filename,'a+')
-            log_output << "General RestClient error #{query_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-            log_output.close
+            @output_filename.error("General RestClient error #{query_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
             puts "Unable to get vulns: #{e.message}"
             Thread.exit
           end
         rescue Exception => e
-          log_output = File.open(output_filename,'a+')
-          log_output << "Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-          log_output.close
+          @output_filename.error("Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
           puts "Unable to get vulns: #{e.message} #{e.backtrace.inspect}"
           Thread.exit
 #        end
@@ -471,21 +453,6 @@ consumer_thread = Thread.new do
         if !async_query then 
           puts "starting regular query" if @debug
 
-
-          # query_response = RestClient::Request.execute(
-          #   method: :get,
-          #   url: query_url,
-          #   headers: @headers
-          # )
-
-          # #puts query_response
-          # meta_response_json = JSON.parse(query_response.body)["meta"]
-          # tot_vulns = meta_response_json.fetch("total_count")
-          # log_output = File.open(output_filename,'a+')
-          # log_output << "non async processing = #{query_url}. Total vulnerabilities = #{tot_vulns}\n"
-          # log_output.close
-          # puts "non async Processing #{query_url} Total vulnerabilities = #{tot_vulns}" if @debug
-          # pages = meta_response_json.fetch("pages")
           morepages = true
           i=1
           vuln_ids = []
@@ -549,7 +516,7 @@ consumer_thread = Thread.new do
           #puts bulk_query_json.to_s
             query_response = RestClient::Request.execute(
               method: :post,
-              url: "https://api.kennasecurity.com/data_exports",
+              url: "#{@base_url}data_exports",
               headers: @headers,
               payload: bulk_query_json_string
             ) 
@@ -562,7 +529,7 @@ consumer_thread = Thread.new do
 
             while searchComplete == false
             
-              status_code = RestClient.get("https://api.kennasecurity.com/data_exports/status?search_id=#{searchID}", @headers).code
+              status_code = RestClient.get("#{@base_url}data_exports/status?search_id=#{searchID}", @headers).code
 
               puts "status code =#{status_code}" if @debug
               if status_code != 200 then 
@@ -578,7 +545,7 @@ consumer_thread = Thread.new do
                       f.write chunk
                     end
                   }
-                  RestClient::Request.new(method: :get, url: "https://api.kennasecurity.com/data_exports?search_id=#{searchID}", headers: @headers, block_response: block).execute
+                  RestClient::Request.new(method: :get, url: "#{@base_url}data_exports?search_id=#{searchID}", headers: @headers, block_response: block).execute
                 }
                 gzfile = open(output_results)
                 gz = Zlib::GzipReader.new(gzfile)
@@ -613,15 +580,11 @@ consumer_thread = Thread.new do
         rescue RestClient::TooManyRequests => e
           retry
         rescue RestClient::UnprocessableEntity => e
-          log_output = File.open(output_filename,'a+')
-          log_output << "UnprocessableEntity: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-          log_output.close
+          @output_filename.error("UnprocessableEntity: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
           puts "UnprocessableEntity: #{e.message}"
           Thread.exit
         rescue RestClient::BadRequest => e
-          log_output = File.open(output_filename,'a+')
-          log_output << "BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-          log_output.close
+          @output_filename.error("BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
           puts "BadRequest: #{e.message}"
           Thread.exit
         rescue RestClient::Exception => e
@@ -631,16 +594,12 @@ consumer_thread = Thread.new do
             sleep(15)
             retry
           else
-            log_output = File.open(output_filename,'a+')
-            log_output << "General RestClient error #{query_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-            log_output.close
+            @output_filename.error("General RestClient error #{query_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
             puts "Unable to get vulns: #{e.message}"
             Thread.exit
           end
         rescue Exception => e
-          log_output = File.open(output_filename,'a+')
-          log_output << "Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
-          log_output.close
+          @output_filename.error("Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
           puts "Unable to get vulns: #{e.message} #{e.backtrace.inspect}"
           Thread.exit
         end

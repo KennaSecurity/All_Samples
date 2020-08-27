@@ -1,5 +1,5 @@
 ﻿Kenna Item - DON'T EDIT THESE VALUES,Associated Source File Column,Required,Description,Object Type
-date_format,%d%m/%Y,yes if dates in data,Script Only - used to format dates google ruby strftime for more info on format syntax,
+date_format,%d/%m/%Y,yes if dates in data,Script Only - used to format dates google ruby strftime for more info on format syntax,
 locator,ip_address,yes,Script only - field used to deduplication prior to upload - should match kenna locator syntax,Asset
 file,,one value per Asset is required,column name in CSV pointing to (string) path of affected file,Asset
 ip_address,IP Address,one value per Asset is required,column name in CSV pointing to (string) IP of internal facing asset,Asset

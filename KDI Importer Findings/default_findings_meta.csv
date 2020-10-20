@@ -1,0 +1,27 @@
+Kenna Item - DON'T EDIT THESE VALUES,Associated Source File Column,Required,Description,Object Type
+date_format,%d%m/%Y,yes if dates in data,Script Only - used to format dates - this should match the date format in your data file,
+locator,url,yes,Script only - field used to deduplication prior to upload - should match kenna locator syntax,Asset
+file,,one value per Asset is required,(string) path to affected file,Asset
+url,,one value per Asset is required,(string) URL pointing to asset,Asset
+external_id,,one value per Asset is required,(string) ExtID of asset-Often used as an int org name for asset,Asset
+application,,yes,(string) ID/app Name - required in finding model,Asset
+tags,"sys_class_name,assigned_to,department,location,u_security_class,manufacturer,u_os_model,u_decommissioned",no,(string) list of strings that correspond to tags on an asset,Asset Meta
+tag_prefix,"xn_class:,xn_assigned_to:,xn_department:,xn_loc:,xn_sec_cls:,xn_manufacturer:,xn_os_mod:,xn_decom:",no,comma separated list of prefixes which corresponds to list in tag. Number and order of elements should match tags exactly. ,
+owner,,no,(string) Some string that identifies an owner of an asset,Asset Meta
+scanner_source,static,yes,declares scanner type data locatin as static (listed in this file) or column (pulled from the source file),
+scanner_type,Pen Test,yes,(string) - official name of scan type - should be the same across files where appropriate can be static or pulled from column,Vulnerability
+scanner_id,Issue ID,yes,(string) - Vuln ID defined by the scanner,Vulnerability
+additional_fields,,no,(string) - comma separated list of fields to be included as additional information for the finding,Vulnerability
+created,,no,(string) - Date finding was first found,Vulnerability
+severity,CVSS,no,(Integer) - severity,Vulnerability
+severity_map,,no,hash of translation severity values to kenna range of 1-10 if needed,
+last_seen,,yes,(string) Date the finding was last seen,Vulnerability
+triage_state,,yes,"(string) default to ""new"" if inbound reports will only include open findings",Vulnerability
+triage_state_map,,no,Script Only - hash of translation... scanner status to Kenna triage_state mappings if needed,
+due_date,,no,(string) Due date for finding remediation,Vulnerability
+cve_id,CVE,no,(string) Any CVE(s)?,Vuln Def
+wasc_id,,no,(string) Any WASC?,Vuln Def
+cwe_id,,no,(string) Any CWE?,Vuln Def
+name,Vuln Name,no,(string) Name/title of Vuln - should be filled in if no ids included,Vuln Def
+description,Vuln Description,no,(string) Description,Vuln Def
+solution,Vuln Recommendation,no,(string) Solution,Vuln Def

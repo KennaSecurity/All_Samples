@@ -7,10 +7,8 @@ require 'csv'
 @mapping_file = ARGV[2]
 @skip_autoclose = ARGV[3] #defaults to false
 @output_filename = ARGV[4] #json filename for converted data
-# DBro - Added for ASSET ONLY Run 
-ARGV.length >= 6 ? @assets_only = ARGV[5] : @assets_only = "false" #Optional TRUE/FALSE param to indicate ASSET ONLY import. Defaults to false
 
-@debug = true
+@debug = false
 $map_locator = ''
 
 @output_filename = "#{@output_filename}.json" unless @output_filename.match(/\.json$/)
@@ -139,27 +137,25 @@ map_owner = "#{$mapping_array.assoc('owner').last}"
 
 # binding.pry
 
-if @assets_only == "false" then # DBro - Added for ASSET ONLY Run 
-  map_scanner_source = "#{$mapping_array.assoc('scanner_source').last}"                   
-  map_scanner_type = "#{$mapping_array.assoc('scanner_type').last}"    
-  map_scanner_id = "#{$mapping_array.assoc('scanner_id').last}"
-  map_scanner_id.encode!("utf-8")      
-  map_additional_fields = "#{$mapping_array.assoc('additional_fields').last}"          
-  map_created = "#{$mapping_array.assoc('created').last}"               
-  map_severity = "#{$mapping_array.assoc('severity').last}"               
-  map_last_seen = "#{$mapping_array.assoc('last_seen').last}"
-  map_triage_state = "#{$mapping_array.assoc('triage_state').last}"                      
-  map_cve_id = "#{$mapping_array.assoc('cve_id').last}"            
-  map_wasc_id = "#{$mapping_array.assoc('wasc_id').last}"            
-  map_cwe_id = "#{$mapping_array.assoc('cwe_id').last}"                
-  map_name = "#{$mapping_array.assoc('name').last}"              
-  map_description = "#{$mapping_array.assoc('description').last}"             
-  map_solution = "#{$mapping_array.assoc('solution').last}"  
-  severity_map_string = "#{$mapping_array.assoc('severity_map').last}"
-  triage_state_map_string = "#{$mapping_array.assoc('triage_state_map').last}"
-  severity_map = JSON.parse(severity_map_string) unless severity_map_string.nil? || severity_map_string.empty?
-  triage_state_map = JSON.parse(triage_state_map_string) unless triage_state_map_string.nil? || triage_state_map_string.empty?
-end      # DBro - Added for ASSET ONLY Run    
+map_scanner_source = "#{$mapping_array.assoc('scanner_source').last}"                   
+map_scanner_type = "#{$mapping_array.assoc('scanner_type').last}"    
+map_scanner_id = "#{$mapping_array.assoc('scanner_id').last}"
+map_scanner_id.encode!("utf-8")      
+map_additional_fields = "#{$mapping_array.assoc('additional_fields').last}"          
+map_created = "#{$mapping_array.assoc('created').last}"               
+map_severity = "#{$mapping_array.assoc('severity').last}"               
+map_last_seen = "#{$mapping_array.assoc('last_seen').last}"
+map_triage_state = "#{$mapping_array.assoc('triage_state').last}"                      
+map_cve_id = "#{$mapping_array.assoc('cve_id').last}"            
+map_wasc_id = "#{$mapping_array.assoc('wasc_id').last}"            
+map_cwe_id = "#{$mapping_array.assoc('cwe_id').last}"                
+map_name = "#{$mapping_array.assoc('name').last}"              
+map_description = "#{$mapping_array.assoc('description').last}"             
+map_solution = "#{$mapping_array.assoc('solution').last}"  
+severity_map_string = "#{$mapping_array.assoc('severity_map').last}"
+triage_state_map_string = "#{$mapping_array.assoc('triage_state_map').last}"
+severity_map = JSON.parse(severity_map_string) unless severity_map_string.nil? || severity_map_string.empty?
+triage_state_map = JSON.parse(triage_state_map_string) unless triage_state_map_string.nil? || triage_state_map_string.empty?   
 # Configure Date format
 ###########################
 # CUSTOMIZE Date format
@@ -190,7 +186,7 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
   #########################
     tag_list = map_tags.split(',')   #(string) list of strings that correspond to tags on an asset
     prefix_list = map_tag_prefix.split(',')
-    additional_fields_list = map_additional_fields.split(',')
+    additional_fields_list = map_additional_fields.split(',') if !map_additional_fields.nil?
     
     # binding.pry
 
@@ -208,65 +204,65 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
       end
       count+=1
     end
-    tags.compact
+    tags.compact if !tags.nil? && !tags.empty?
 
     
     additional_fields = nil
-    additional_fields_list.each do |col|
-      col = col.gsub(/\A['"]+|['"]+\Z/, "")
-      if !row[col].nil? && !row[col].empty? then
-        if additional_fields.nil? then
-          additional_fields = {col => row[col]}
-        else
-          additional_fields.merge!({col => row[col]})
+    if !additional_fields_list.nil? && !additional_fields_list.empty? then
+      additional_fields_list.each do |col|
+        col = col.gsub(/\A['"]+|['"]+\Z/, "")
+        if !row[col].nil? && !row[col].empty? then
+          if additional_fields.nil? then
+            additional_fields = {col => row[col]}
+          else
+            additional_fields.merge!({col => row[col]})
+          end
         end
       end
     end
 
-    additional_fields.compact
+    additional_fields.compact if !additional_fields.nil? && !additional_fields.empty?
 
     owner = row["#{map_owner}"]                 #(string) Some string that identifies an owner of an asset
 
-    if @assets_only == "false" then # DBro - Added for ASSET ONLY Run 
-      #########################
-      # Vulnerability Section #
-      #########################
-        if map_scanner_source == "static" then
-          scanner_type = "#{map_scanner_type}"    #(string) - default is freeform if nil from CSV
-        else
-          scanner_type = row["#{map_scanner_type}"]     #(string) - default is freeform if nil from CSV
-        end
-        raise "no scanner type found!" unless !scanner_type.nil? && !scanner_type.empty?
-        scanner_id = row["#{map_scanner_id}"]
-        raise "no scanner id found!" unless !scanner_id.nil? && !scanner_id.empty?
-        #additional_fields = JSON.pretty_generate(additional_fields) if !additional_fields.nil? && !additional_fields.empty?       #(string) - Details about vuln
-        created = row["#{map_created}"] 
-        if severity_map.nil? || severity_map.empty? then             #(string) - Date vuln created
-          severity = row["#{map_severity}"].to_i  unless  row["#{map_severity}"].nil? || row["#{map_severity}"].empty?    #(Integer) - scanner severity
-        else
-          severity = severity_map[row["#{map_severity}"]].to_i  unless  row["#{map_severity}"].nil? || row["#{map_severity}"].empty?    #(Integer) - scanner severity
-        end
-        last_seen = row["#{map_last_seen}"]
-        if triage_state_map.nil? || triage_state_map.empty? then
-          triage_state = row["#{map_triage_state}"]            #(string) #Rqd Def if nil; open triage_state by default if not in import
-        else
-          triage_state = triage_state_map[row["#{map_triage_state}"]]
-        end 
+    #########################
+    # Vulnerability Section #
+    #########################
+      if map_scanner_source == "static" then
+        scanner_type = "#{map_scanner_type}"    #(string) - default is freeform if nil from CSV
+      else
+        scanner_type = row["#{map_scanner_type}"]     #(string) - default is freeform if nil from CSV
+      end
+      raise "no scanner type found!" unless !scanner_type.nil? && !scanner_type.empty?
+      scanner_id = row["#{map_scanner_id}"]
+      raise "no scanner id found!" unless !scanner_id.nil? && !scanner_id.empty?
+      #additional_fields = JSON.pretty_generate(additional_fields) if !additional_fields.nil? && !additional_fields.empty?       #(string) - Details about vuln
+      created = row["#{map_created}"] 
+      if severity_map.nil? || severity_map.empty? then             #(string) - Date vuln created
+        severity = row["#{map_severity}"].to_i  unless  row["#{map_severity}"].nil? || row["#{map_severity}"].empty?    #(Integer) - scanner severity
+      else
+        severity = severity_map[row["#{map_severity}"]].to_i  unless  row["#{map_severity}"].nil? || row["#{map_severity}"].empty?    #(Integer) - scanner severity
+      end
+      last_seen = row["#{map_last_seen}"]
+      if triage_state_map.nil? || triage_state_map.empty? then
+        triage_state = row["#{map_triage_state}"]            #(string) #Rqd Def if nil; open triage_state by default if not in import
+      else
+        triage_state = triage_state_map[row["#{map_triage_state}"]]
+      end 
 
-      ############################
-      # Vulnerability Definition #
-      ############################
+    ############################
+    # Vulnerability Definition #
+    ############################
 
-      #in vuln section ##  scanner =
-      #in vuln section ##  scanner_id =
-        cve_id = row["#{map_cve_id}"]            #(string) Any CVE(s)?
-        wasc_id = row["#{map_wasc_id}"]                #(string) Any WASC?
-        cwe_id = row["#{map_cwe_id}"]                 #(string) Any CWE?
-        name = row["#{map_name}"]               #(string) Name/title of Vuln
-        description = row["#{map_description}"]             #(string) Description
-        solution = row["#{map_solution}"]          #(string) Solution
+    #in vuln section ##  scanner =
+    #in vuln section ##  scanner_id =
+      cve_id = row["#{map_cve_id}"]            #(string) Any CVE(s)?
+      wasc_id = row["#{map_wasc_id}"]                #(string) Any WASC?
+      cwe_id = row["#{map_cwe_id}"]                 #(string) Any CWE?
+      name = row["#{map_name}"]               #(string) Name/title of Vuln
+      description = row["#{map_description}"]             #(string) Description
+      solution = row["#{map_solution}"]          #(string) Solution
 
-    end # DBro - Added for ASSET ONLY Run 
 
 ##call the methods that will build the json now##
 
@@ -289,13 +285,11 @@ CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @
   next if !done
   
   ### ASSOCIATE THE ASSET TO THE VULN
-  if @assets_only == "false" then # DBro - Added for ASSET ONLY Run 
-    create_asset_findings(file,url,external_id,scanner_type,scanner_id,additional_fields,created,severity,
-                      last_seen,triage_state,closed)
+  create_asset_findings(file,url,external_id,scanner_type,scanner_id,additional_fields,created,severity,
+                    last_seen,triage_state,closed)
 
-    # CREATE A VULN DEF THAT HAS THE SAME ID AS OUR VULN
-    create_vuln_def(scanner_type,scanner_id,cve_id,wasc_id,cwe_id,name,description,solution)
-  end
+  # CREATE A VULN DEF THAT HAS THE SAME ID AS OUR VULN
+  create_vuln_def(scanner_type,scanner_id,cve_id,wasc_id,cwe_id,name,description,solution)
 
 end
 

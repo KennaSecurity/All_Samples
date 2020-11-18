@@ -220,7 +220,7 @@ date_format_KDI = "%Y-%m-%d-%H:%M:%S"
 
 include Kenna::KdiHelpers
 
-CSV.parse(File.open(@data_file, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => @has_header.eql?('true') ? true : false) do |row|
+CSV.parse(File.open(@data_file, 'r:bom|utf-8'){|f| f.read}, :headers => @has_header.eql?('true') ? true : false) do |row|
 
 
   ##################

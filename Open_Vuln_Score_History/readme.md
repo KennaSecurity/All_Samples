@@ -20,7 +20,7 @@ Update this line to include your Kenna API key:
 
 Install the needed python requirements.
 
-```pip3install -r requirements.txt```
+```pip3 install -r requirements.txt```
 
 Run the scipt.
 

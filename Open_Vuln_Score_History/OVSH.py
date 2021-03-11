@@ -6,8 +6,7 @@ import time
 import re
 from tqdm.auto import tqdm
 
-# Small Demo
-RiskToken = "RjUZkf6sir2s4nXyz_zVjAaMf5VQVg9nCokWs6_1xfBQpe7HrUbSr5_m9GkrL-41"
+RiskToken = "PasteKennaAPIKEyHere"
 
 # Setup Data Dump
 headers = {
@@ -106,5 +105,5 @@ df = df[['CVE', 'Kenna Risk Score', 'Date Changed', 'New Score', 'Old Score']]
 df["Kenna Risk Score"] = pd.to_numeric(df["Kenna Risk Score"])
 df["Date Changed"] = pd.to_datetime(df["Date Changed"])
 df = df.sort_values(by=['Date Changed'], ascending=False)
-df.to_csv("opencves.csv", index=False)
+df.to_csv("ovsh.csv", index=False)
 print(df)

@@ -1,4 +1,4 @@
-# Open Vlunerablity Score Histoy
+# Open Vulnerability Score History
 
 This POC python script will generate a CSV (ovsh.csv) with the score history for any open CVE in your Kenna Environment.
 

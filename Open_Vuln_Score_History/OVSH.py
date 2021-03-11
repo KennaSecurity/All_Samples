@@ -7,7 +7,7 @@ import re
 from tqdm.auto import tqdm
 
 # Small Demo
-RiskToken = "RjUZkf6sir2s4nXyz_zVjAaMf5VQVg9nCokWs6_1xfBQpe7HrUbSr5_m9GkrL-41"
+RiskToken = "PasteKennaAPIKEyHere"
 
 # Setup Data Dump
 headers = {

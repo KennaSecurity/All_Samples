@@ -6,7 +6,8 @@ import time
 import re
 from tqdm.auto import tqdm
 
-RiskToken = "PasteKennaAPIKEyHere"
+# Small Demo
+RiskToken = "RjUZkf6sir2s4nXyz_zVjAaMf5VQVg9nCokWs6_1xfBQpe7HrUbSr5_m9GkrL-41"
 
 # Setup Data Dump
 headers = {
@@ -73,30 +74,30 @@ for cve in tqdm(cves):
     
     response = requests.get(url, headers=headers)
     data = json.loads(response.content)
-    rms = json.dumps(data[cve]['risk_meter_score'])
-    rmshr = json.dumps(data[cve]['risk_meter_score_history'])
-    irmshrs = re.findall(r'\{([^}]+)\}', rmshr)
-    for irmshr in irmshrs:
-        rmshc = irmshr[rmshr.find(": \"20")+1:rmshr.find("Z")] 
-        rmshf = re.search('\"from\": (\d+)', irmshr)
-        if rmshf is not None:
-            rmshf = rmshf.group(0)
+    risk_meter_score = json.dumps(data[cve]['risk_meter_score'])
+    risk_meter_score_history_record= json.dumps(data[cve]['risk_meter_score_history'])
+    individual_risk_meter_score_history_records = re.findall(r'\{([^}]+)\}', risk_meter_score_history_record)
+    for irisk_meter_score_history_record in individual_risk_meter_score_history_records:
+        risk_meter_score_history_changed = irisk_meter_score_history_record[risk_meter_score_history_record.find(": \"20")+1:risk_meter_score_history_record.find("Z")] 
+        risk_meter_score_history_from = re.search('\"from\": (\d+)', irisk_meter_score_history_record)
+        if risk_meter_score_history_from is not None:
+            risk_meter_score_history_from = risk_meter_score_history_from.group(0)
         else:
-            rmshf = print("nochange")
+            risk_meter_score_history_from = print("nochange")
 
-        rmsht = re.search('\"to": (\d+)', irmshr)
-        if rmsht is not None:
-            rmsht = rmsht.group(0)
+        risk_meter_score_history_to = re.search('\"to": (\d+)', individual_risk_meter_score_history_records)
+        if risk_meter_score_history_to is not None:
+            risk_meter_score_history_to = risk_meter_score_history_to.group(0)
         else:
-            rmsht = print("nochange")
+            risk_meter_score_history_to = print("nochange")
 
         x_data_temp = []
         x_data_temp.append(cve)
-        x_data_temp.append(rms)
-        x_data_temp.append(rmshc)
-        x_data_temp.append(rmshf)
-        x_data_temp.append(rmsht)
-        df = df.append({'CVE': cve, 'Kenna Risk Score': rms, 'Date Changed': rmshc, "Old Score": rmshf, "New Score": rmsht}, ignore_index=True)
+        x_data_temp.append(risk_meter_score)
+        x_data_temp.append(risk_meter_score_history_changed)
+        x_data_temp.append(risk_meter_score_history_from)
+        x_data_temp.append(risk_meter_score_history_to)
+        df = df.append({'CVE': cve, 'Kenna Risk Score': risk_meter_score, 'Date Changed': risk_meter_score_history_changed, "Old Score": risk_meter_score_history_from, "New Score": risk_meter_score_history_to}, ignore_index=True)
 
 df['Date Changed'] = df['Date Changed'].map(lambda x: x.lstrip('+-').rstrip('"'))
 df['Old Score'] = df['Old Score'].str.replace(r'"from":', '')
@@ -105,5 +106,5 @@ df = df[['CVE', 'Kenna Risk Score', 'Date Changed', 'New Score', 'Old Score']]
 df["Kenna Risk Score"] = pd.to_numeric(df["Kenna Risk Score"])
 df["Date Changed"] = pd.to_datetime(df["Date Changed"])
 df = df.sort_values(by=['Date Changed'], ascending=False)
-df.to_csv("ovsh.csv", index=False)
+df.to_csv("opencves.csv", index=False)
 print(df)

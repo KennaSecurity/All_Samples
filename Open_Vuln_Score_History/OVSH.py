@@ -6,6 +6,9 @@ import time
 import re
 from tqdm.auto import tqdm
 
+# Base URL of API Endpoint. 
+base_url = "https://api.kennasecurity.com/"
+
 # Small Demo
 RiskToken = "PasteAPIKeyHere"
 
@@ -17,7 +20,9 @@ headers = {
 
 data = '{ "status" : ["open"], "export_settings" : { "format": "json", "model": "vulnerability" } }'
 
-response = requests.post('https://api.kennasecurity.com/data_exports', headers=headers, data=data)
+base_uri = '/data_exports'
+url = ''.join([base_url, base_uri])
+response = requests.post(url, headers=headers, data=data)
 data = json.loads(response.content)
 search_id = data['search_id']
 
@@ -30,12 +35,12 @@ params = (
     ('search_id', search_id),
 )
 
-response = requests.get('https://api.kennasecurity.com/data_exports', headers=headers, params=params)
+response = requests.get(url, headers=headers, params=params)
 while True:
     if (response.status_code != 200):
         print("Waiting 15 Seconds For Data Dump.")
         time.sleep(15)
-        response = requests.get('https://api.kennasecurity.com/data_exports', headers=headers, params=params)
+        response = requests.get(url, headers=headers, params=params)
     if (response.status_code == 200):
             break
 
@@ -66,13 +71,13 @@ headers = {
 
 for cve in tqdm(cves):
     cve_data_temp = []
-    base_url = 'https://api.kennasecurity.com/vulnerability_definitions/history?cves='
-    url = ''.join([base_url, cve])
+    base_uri2 = 'vulnerability_definitions/history?cves='
+    url2 = ''.join([base_url, base_uri2, cve])
 
     def getList(dict): 
             return dict.keys() 
     
-    response = requests.get(url, headers=headers)
+    response = requests.get(url2, headers=headers)
     data = json.loads(response.content)
     risk_meter_score = json.dumps(data[cve]['risk_meter_score'])
     risk_meter_score_history_record= json.dumps(data[cve]['risk_meter_score_history'])

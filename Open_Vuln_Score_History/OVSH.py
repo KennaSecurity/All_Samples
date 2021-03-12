@@ -85,7 +85,7 @@ for cve in tqdm(cves):
         else:
             risk_meter_score_history_from = print("nochange")
 
-        risk_meter_score_history_to = re.search('\"to": (\d+)', individual_risk_meter_score_history_records)
+        risk_meter_score_history_to = re.search('\"to": (\d+)', irisk_meter_score_history_record)
         if risk_meter_score_history_to is not None:
             risk_meter_score_history_to = risk_meter_score_history_to.group(0)
         else:

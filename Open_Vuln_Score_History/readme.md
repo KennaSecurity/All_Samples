@@ -14,6 +14,10 @@ This POC python script will generate a CSV (ovsh.csv) with the score history for
 
 ## How to Use It
 
+Update this line to point to your Kenna API URL:
+
+```base_url = "https://api.kennasecurity.com/"```
+
 Update this line to include your Kenna API key:
 
 ```RiskToken = "PasteKennaAPIKEyHere"```

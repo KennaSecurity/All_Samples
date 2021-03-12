@@ -69,7 +69,7 @@ headers = {
           'X-Risk-Token': RiskToken,
           }
 
-for cve in tqdm(cves):
+for cve in cves:
     cve_data_temp = []
     base_uri2 = 'vulnerability_definitions/history?cves='
     url2 = ''.join([base_url, base_uri2, cve])
@@ -78,7 +78,16 @@ for cve in tqdm(cves):
             return dict.keys() 
     
     response = requests.get(url2, headers=headers)
-    data = json.loads(response.content)
+
+    while True:
+        if (response.status_code != 200):
+            print("API Time Out, Taking A Break")
+            time.sleep(.5)
+            response = requests.get(url, headers=headers, params=params)
+        if (response.status_code == 200):
+            data = json.loads(response.content)
+            break
+
     risk_meter_score = json.dumps(data[cve]['risk_meter_score'])
     risk_meter_score_history_record= json.dumps(data[cve]['risk_meter_score_history'])
     individual_risk_meter_score_history_records = re.findall(r'\{([^}]+)\}', risk_meter_score_history_record)

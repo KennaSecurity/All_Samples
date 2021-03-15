@@ -81,9 +81,9 @@ for cve in cves:
 
     while True:
         if (response.status_code != 200):
-            print("API Time Out, Taking A Break")
-            time.sleep(.5)
-            response = requests.get(url, headers=headers, params=params)
+            print("API Time Out, Taking A 15 Second Break")
+            time.sleep(15)
+            response = requests.get(url2, headers=headers, params=params)
         if (response.status_code == 200):
             data = json.loads(response.content)
             break

@@ -7,7 +7,7 @@ in the included sample files.
 Usage:
 
 ```
-kenna-asset-tagger.rb <Kenna API token> <CSV file of vulns> <CSV file with custom field ids> <primary locator type> <primary locator column> 
+kenna-external-vulns-upload.rb <Kenna API token> <CSV file of vulns> <CSV file with custom field ids> <primary locator type> <primary locator column> 
 <vulnerability type> <vulnerability column> <CVS file with columns for notes field> <preferred case for hostname><last seen column> <first found column> 
 <due date column> <status column> <scanner vuln identifier column>
 ```

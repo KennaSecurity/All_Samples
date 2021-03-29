@@ -39,12 +39,12 @@ Dir.entries("#{@folder}").each do |abspath|
 
   begin
     query_response = RestClient::Request.execute(
-      method: :post,
-      url: conn_url,
-      headers: @headers,
-      payload: {
-        multipart: true,
-        file: File.new("#{@folder}/"+ abspath, 'rb')
+      :method => :post,
+      :url => conn_url,
+      :headers => @headers,
+      :payload => {
+        :multipart => true,
+        :file => File.new("#{@folder}/"+ abspath, 'rb')
       }
     )
 
@@ -61,9 +61,9 @@ Dir.entries("#{@folder}").each do |abspath|
 
       sleep(15)
       conn_check = RestClient::Request.execute(
-        method: :get,
-        url: conn_check_url,
-        headers: @headers
+        :method => :get,
+        :url => conn_check_url,
+        :headers => @headers
       )
 
       conn_check_json = JSON.parse(conn_check)['connector']

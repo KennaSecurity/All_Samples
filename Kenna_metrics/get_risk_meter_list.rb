@@ -27,9 +27,9 @@ def get_data(get_url)
   query_return = ""
    begin
       query_return = RestClient::Request.execute(
-        method: :get,
-        url: get_url,
-        headers: @headers
+        :method => :get,
+        :url => get_url,
+        :headers => @headers
       )
       rescue RestClient::TooManyRequests =>e
         retry

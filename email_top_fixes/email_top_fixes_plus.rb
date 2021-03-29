@@ -38,9 +38,9 @@ def checkForDueDate(vulnids)
   vuln_url = "#{vuln_url}#{vulnids.join("&id%5B%5D=")}&q=-_exists_%3Adue_date"
   begin
     vuln_return = RestClient::Request.execute(
-      method: :get,
-      url: vuln_url,
-      headers: @headers
+      :method => :get,
+      :url => vuln_url,
+      :headers => @headers
     ) 
     vuln_json = JSON.parse(vuln_return.body)["vulnerabilities"]
     vuln_json.each do |vuln|
@@ -97,10 +97,10 @@ def bulkUpdate(vulnids, newdate, cfstring)
   post_url = "https://api.kennasecurity.com/vulnerabilities/bulk"
   begin
     query_post_return = RestClient::Request.execute(
-      method: :put,
-      url: post_url,
-      payload: json_string,
-      headers: @headers
+      :method => :put,
+      :url => post_url,
+      :payload => json_string,
+      :headers => @headers
     )
   rescue RestClient::TooManyRequests =>e
     retry
@@ -238,9 +238,9 @@ CSV.foreach(@csv_file, :headers => true){|row|
     
     begin
     query_return = RestClient::Request.execute(
-      method: :get,
-      url: report_url,
-      headers: @headers
+      :method => :get,
+      :url => report_url,
+      :headers => @headers
     ) 
 
     json_data = JSON.parse(query_return.body)["asset_group"]
@@ -273,9 +273,9 @@ CSV.foreach(@csv_file, :headers => true){|row|
           if @include_extra_columns == "true" || !@due_date_column.empty? || !custom_field_meta.empty?  then
             fix_url = "#{@fixes_url}#{fix_id}"
             query_return = RestClient::Request.execute(
-              method: :get,
-              url: fix_url,
-              headers: @headers
+              :method => :get,
+              :url => fix_url,
+              :headers => @headers
             ) 
             fix_detail_data = JSON.parse(query_return.body)["fix"]
             if @include_extra_columns == "true" 

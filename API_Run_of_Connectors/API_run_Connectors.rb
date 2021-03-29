@@ -14,9 +14,9 @@ require 'json'
   #puts "query url = #{query_url}"
 
   query_response = RestClient::Request.execute(
-    method: :get,
-    url: @conn_api_url,
-    headers: @headers
+    :method => :get,
+    :url => @conn_api_url,
+    :headers => @headers
   )
 
   query_response_json = JSON.parse(query_response.body)["connectors"]
@@ -28,9 +28,9 @@ require 'json'
     p post_url
 
     query_post_return = RestClient::Request.execute(
-      method: :get,
-      url: post_url,
-      headers: @headers
+      :method => :get,
+      :url => post_url,
+      :headers => @headers
     )
     success = JSON.parse(query_post_return.body)
     puts success.fetch("success")

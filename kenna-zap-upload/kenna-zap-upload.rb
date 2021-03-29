@@ -132,9 +132,9 @@ Dir.glob("#{@dir_name}/*.xml") do |fname|
             vuln_id = nil
 
             get_response = RestClient::Request.execute(
-              method: :get,
-              url: vuln_url,
-              headers: @headers,
+              :method => :get,
+              :url => vuln_url,
+              :headers => @headers,
             )
 
             get_response_json = JSON.parse(get_response)["vulnerabilities"]
@@ -178,10 +178,10 @@ Dir.glob("#{@dir_name}/*.xml") do |fname|
               log_output.close
               puts "creating new vuln" if @debug
               update_response = RestClient::Request.execute(
-                method: :post,
-                url: @vuln_api_url,
-                headers: @headers,
-                payload: vuln_create_json
+                :method => :post,
+                :url => @vuln_api_url,
+                :headers => @headers,
+                :payload => vuln_create_json
               )
 
               update_response_json = JSON.parse(update_response)["vulnerability"]
@@ -195,10 +195,10 @@ Dir.glob("#{@dir_name}/*.xml") do |fname|
             log_output.close
             puts "updating vuln" if @debug
             update_response = RestClient::Request.execute(
-              method: :put,
-              url: vuln_custom_uri,
-              headers: @headers,
-              payload: vuln_update_json
+              :method => :put,
+              :url => vuln_custom_uri,
+              :headers => @headers,
+              :payload => vuln_update_json
             )
             #if update_response.code == 204 then next end
           #end

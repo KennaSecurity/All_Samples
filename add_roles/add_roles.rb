@@ -41,10 +41,10 @@ CSV.foreach(@csv_file, :headers => true){|row|
           puts json_data
           begin
             query_post_return = RestClient::Request.execute(
-              method: :post,
-              url: @post_url,
-              payload: json_data,
-              headers: @headers
+              :method => :post,
+              :url => @post_url,
+              :payload => json_data,
+              :headers => @headers
             ) 
 
           rescue Exception => e

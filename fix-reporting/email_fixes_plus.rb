@@ -75,9 +75,9 @@ CSV.foreach(@csv_file, :headers => true){|row|
     
     begin
     query_return = RestClient::Request.execute(
-      method: :get,
-      url: report_url,
-      headers: @headers
+      :method => :get,
+      :url => report_url,
+      :headers => @headers
     ) 
 
     json_data = JSON.parse(query_return.body)["fixes"]
@@ -119,9 +119,9 @@ CSV.foreach(@csv_file, :headers => true){|row|
         asset_meta = Array.new
         asset_url = "https://api.kennasecurity.com/assets/search?status\%5B\%5D=active&id\%5B\%5D=#{asset_ids.join("&id\%5B\%5D=")}"
         asset_return = RestClient::Request.execute(
-          method: :get,
-          url: asset_url,
-          headers: @headers
+          :method => :get,
+          :url => asset_url,
+          :headers => @headers
         )
         assets_return_meta = JSON.parse(asset_return.body)["meta"]
         pages = assets_return_meta.fetch("pages")
@@ -130,9 +130,9 @@ CSV.foreach(@csv_file, :headers => true){|row|
           puts "paging url = #{query_url}&page=#{i}" if @debug
 
           asset_return = RestClient::Request.execute(
-            method: :get,
-            url: "#{asset_url}&page=#{i}",
-            headers: @headers
+            :method => :get,
+            :url => "#{asset_url}&page=#{i}",
+            :headers => @headers
           )
         
           asset_json = JSON.parse(asset_return.body)["assets"]

@@ -11,11 +11,11 @@ require 'nokogiri'
 @headers = {'X-Requested-With' => 'RestClient request'}
 qualys_url = "https://qualysapi.qualys.com/api/2.0/fo/asset/host?action=list&use_tags=1&tag_set_by=name&tag_set_include=#{@tagname}"
 query_response = RestClient::Request.execute(
-    method: :get,
-    url: qualys_url,
-    headers: @headers,
-    user: @my_user,
-    password: @my_pass
+    :method => :get,
+    :url => qualys_url,
+    :headers => @headers,
+    :user => @my_user,
+    :password => @my_pass
   )
 @doc = Nokogiri::XML (query_response)
 
@@ -35,9 +35,9 @@ iploop = 1
 #puts @query_url
 
   query_response = RestClient::Request.execute(
-    method: :get,
-    url: @query_url, 
-    headers: @headers
+    :method => :get,
+    :url => @query_url, 
+    :headers => @headers
   )
 
   meta_response_json = JSON.parse(query_response.body)["meta"]
@@ -63,10 +63,10 @@ iploop = 1
       #puts json_data
       begin
         query_post_return = RestClient::Request.execute(
-          method: :put,
-          url: post_url,
-          payload: json_data,
-          headers: @headers
+          :method => :put,
+          :url => post_url,
+          :payload => json_data,
+          :headers => @headers
         )
       rescue RestClient::UnprocessableEntity 
 

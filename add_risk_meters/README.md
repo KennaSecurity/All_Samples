@@ -1,17 +1,12 @@
-# add_risk_meters
+This script will create risk meters from a csv file. Each risk meter must define a name and an unencoded query string. API base URL is api.kennasecurity.com. Edit the code if this is not the correct base URL for you. URL explanations can be found in the API documentation, or by contacting your account representative/support.
 
-This script will create risk meters from a csv file. 
+Usage: "add_risk_meters.rb <API Token> csvfilename.csv"
 
-# code should be edited as it specifically creates multiple risk meters per line. 
+Requirements:
 
-Usage:
+ruby
+rest-client
+json
+csv
 
-add_risk_meters.rb KennaAPItoken csvfilename
-
-Tested on:
-
-ruby 2.0.0p648 (2015-12-16 revision 53162) [universal.x86_64-darwin15]
-
-Required Ruby classes/gems:
-
-rest-client json csv
+Tested on: ruby 2.7.2p137 (2020-10-01 revision 5445e04352) [x64-mingw32]

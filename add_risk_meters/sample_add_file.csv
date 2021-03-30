@@ -1,4 +1,4 @@
-country_code,tags
-AF,BU-XXX-AF
-AL,BU-XXX-AL
-DZ,BU-XXX-DZ
+Risk Meter Name,Query String
+Scripted Meter 1,os:solaris AND tag:chicago
+Scripted Meter 2,os:solaris AND tag:boston
+Scripted Meter 3,os:solaris AND tag:dallas

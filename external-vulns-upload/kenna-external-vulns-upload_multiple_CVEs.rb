@@ -200,9 +200,9 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
           vuln_id = nil
           begin
             get_response = RestClient::Request.execute(
-              method: :get,
-              url: find_vuln_query,
-              headers: @headers,
+              :method => :get,
+              :url => find_vuln_query,
+              :headers => @headers,
             )
             get_response_json = JSON.parse(get_response)["vulnerabilities"]
             get_response_json.each do |item|
@@ -260,10 +260,10 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
               log_output.close
               puts "creating new vuln" if @debug
               update_response = RestClient::Request.execute(
-                method: :post,
-                url: @vuln_api_url,
-                headers: @headers,
-                payload: vuln_create_json
+                :method => :post,
+                :url => @vuln_api_url,
+                :headers => @headers,
+                :payload => vuln_create_json
               )
 
               update_response_json = JSON.parse(update_response)["vulnerability"]
@@ -283,10 +283,10 @@ CSV.foreach(@data_file, :headers => true, :encoding => "UTF-8"){|row|
             log_output.close
             puts "updating vuln" if @debug
             update_response = RestClient::Request.execute(
-              method: :put,
-              url: vuln_custom_uri,
-              headers: @headers,
-              payload: vuln_update_json
+              :method => :put,
+              :url => vuln_custom_uri,
+              :headers => @headers,
+              :payload => vuln_update_json
             )
             puts update_response
             if update_response.code == 204 then next end

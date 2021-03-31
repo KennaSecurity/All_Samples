@@ -35,10 +35,10 @@ def bulkUpdate(vulnids)
 
   begin
     query_post_return = RestClient::Request.execute(
-      method: :put,
-      url: @post_url,
-      payload: json_string,
-      headers: @headers
+      :method => :put,
+      :url => @post_url,
+      :payload => json_string,
+      :headers => @headers
     )
   rescue RestClient::TooManyRequests =>e
     retry
@@ -74,10 +74,10 @@ bulk_query_json = JSON.parse(bulk_query_json_string)
 
 begin
   query_response = RestClient::Request.execute(
-    method: :post,
-    url: @data_url,
-    headers: @headers,
-    payload: bulk_query_json_string
+    :method => :post,
+    :url => @data_url,
+    :headers => @headers,
+    :payload => bulk_query_json_string
   )
 
   query_response_json = JSON.parse(query_response.body)
@@ -106,7 +106,7 @@ begin
             f.write chunk
           end
         }
-        RestClient::Request.new(method: :get, url: "https://api.kennasecurity.com/data_exports?search_id=#{searchID}", headers: @headers, block_response: block).execute
+        RestClient::Request.new(:method => :get, :url => "https://api.kennasecurity.com/data_exports?search_id=#{searchID}", :headers => @headers, :block_response => block).execute
       }
       gzfile = open(output_results)
       gz = Zlib::GzipReader.new(gzfile)

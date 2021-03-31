@@ -38,9 +38,9 @@ while keep_trying
 
   begin
   query_response = RestClient::Request.execute(
-    method: :get,
-    url: query_url,
-    headers: @headers
+    :method => :get,
+    :url => query_url,
+    :headers => @headers
   ) 
     rescue RestClient::UnprocessableEntity 
       log_output = File.open(output_filename,'a+')
@@ -112,10 +112,10 @@ while keep_trying
     log_output.close
   begin
     update_response = RestClient::Request.execute(
-      method: :delete,
-      url: tag_api_url,
-      headers: @headers,
-      payload: tag_update_json
+      :method => :delete,
+      :url => tag_api_url,
+      :headers => @headers,
+      :payload => tag_update_json
     )
       rescue RestClient::UnprocessableEntity 
         log_output = File.open(output_filename,'a+')

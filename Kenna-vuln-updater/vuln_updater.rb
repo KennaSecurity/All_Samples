@@ -89,10 +89,10 @@ def post_data(post_url,json_data)
     puts "posting url #{post_url}"
     puts "posting json #{json_data}"
       query_post_return = RestClient::Request.execute(
-        method: :put,
-        url: post_url,
-        payload: json_data,
-        headers: @headers
+        :method => :put,
+        :url => post_url,
+        :payload => json_data,
+        :headers => @headers
       )
       rescue RestClient::TooManyRequests =>e
         retry
@@ -363,9 +363,9 @@ consumer_thread = Thread.new do
 
         begin
           query_response = RestClient::Request.execute(
-            method: :get,
-            url: query_url,
-            headers: @headers
+            :method => :get,
+            :url => query_url,
+            :headers => @headers
           ) 
           
 
@@ -461,9 +461,9 @@ consumer_thread = Thread.new do
             puts "paging url = #{query_url}&page=#{i}" if @debug
 
             query_response = RestClient::Request.execute(
-              method: :get,
-              url: "#{query_url}&page=#{i}",
-              headers: @headers
+              :method => :get,
+              :url => "#{query_url}&page=#{i}",
+              :headers => @headers
             )
             # Build URL to set the custom field value for each vulnerability
             query_response_json = JSON.parse(query_response.body)["vulnerabilities"]
@@ -515,10 +515,10 @@ consumer_thread = Thread.new do
 
           #puts bulk_query_json.to_s
             query_response = RestClient::Request.execute(
-              method: :post,
-              url: "#{@base_url}data_exports",
-              headers: @headers,
-              payload: bulk_query_json_string
+              :method => :post,
+              :url => "#{@base_url}data_exports",
+              :headers => @headers,
+              :payload => bulk_query_json_string
             ) 
             query_response_json = JSON.parse(query_response.body)
             searchID = query_response_json.fetch("search_id")
@@ -545,7 +545,7 @@ consumer_thread = Thread.new do
                       f.write chunk
                     end
                   }
-                  RestClient::Request.new(method: :get, url: "#{@base_url}data_exports?search_id=#{searchID}", headers: @headers, block_response: block).execute
+                  RestClient::Request.new(:method => :get, :url => "#{@base_url}data_exports?search_id=#{searchID}", :headers => @headers, :block_response => block).execute
                 }
                 gzfile = open(output_results)
                 gz = Zlib::GzipReader.new(gzfile)

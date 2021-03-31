@@ -44,10 +44,10 @@ def bulkUpdate(assets)
 
   begin
     query_post_return = RestClient::Request.execute(
-      method: :put,
-      url: post_url,
-      payload: holder,
-      headers: @headers
+      :method => :put,
+      :url => post_url,
+      :payload => holder,
+      :headers => @headers
     )
     rescue RestClient::UnprocessableEntity 
       log_output = File.open(output_filename,'a+')
@@ -112,9 +112,9 @@ producer_thread = Thread.new do
     async_query = false
     begin
       query_response = RestClient::Request.execute(
-        method: :get,
-        url: query_url,
-        headers: @headers
+        :method => :get,
+        :url => query_url,
+        :headers => @headers
       )
       rescue RestClient::TooManyRequests =>e
                 retry
@@ -219,9 +219,9 @@ consumer_thread = Thread.new do
         puts "starting regular query" if @debug
         begin
           query_response = RestClient::Request.execute(
-            method: :get,
-            url: query_url,
-            headers: @headers
+            :method => :get,
+            :url => query_url,
+            :headers => @headers
           )
         
           meta_response_json = JSON.parse(query_response.body)["meta"]
@@ -239,9 +239,9 @@ consumer_thread = Thread.new do
             puts "paging url = #{query_url}&page=#{i}" if @debug
 
             query_response = RestClient::Request.execute(
-              method: :get,
-              url: "#{query_url}&page=#{i}",
-              headers: @headers
+              :method => :get,
+              :url => "#{query_url}&page=#{i}",
+              :headers => @headers
             )
             # Build URL to set the custom field value for each vulnerability
             #counter = 0
@@ -291,9 +291,9 @@ consumer_thread = Thread.new do
         puts "starting async query" if @debug
         begin
           query_response = RestClient::Request.execute(
-            method: :post,
-            url: query_url,
-            headers: @headers
+            :method => :post,
+            :url => query_url,
+            :headers => @headers
           ) 
           query_response_json = JSON.parse(query_response.body)
           searchID = query_response_json.fetch("search_id")
@@ -310,7 +310,7 @@ consumer_thread = Thread.new do
                     f.write chunk
                   end
                 }
-                RestClient::Request.new(method: :get, url: "https://api.kennasecurity.com/vulnerabilities/async_search?search_id=#{searchID}", headers: @headers, block_response: block).execute
+                RestClient::Request.new(:method => :get, :url => "https://api.kennasecurity.com/vulnerabilities/async_search?search_id=#{searchID}", :headers => @headers, :block_response => block).execute
             }
 
             results_json = JSON.parse(File.read(output_results))

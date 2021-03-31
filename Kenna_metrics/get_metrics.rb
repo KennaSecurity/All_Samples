@@ -59,9 +59,9 @@ end
 url_list.each do |group_url|
   begin
     query_response = RestClient::Request.execute(
-      method: :get,
-      url: group_url,
-      headers: @headers
+      :method => :get,
+      :url => group_url,
+      :headers => @headers
     )
     rescue RestClient::UnprocessableEntity 
       log_output = File.open(output_filename,'a+')
@@ -118,9 +118,9 @@ url_list.each do |group_url|
       if !@date_range.nil? then metric_url += "?#{@date_range}" end
         begin
           metric_response = RestClient::Request.execute(
-            method: :get,
-            url: metric_url,
-            headers: @headers
+            :method => :get,
+            :url => metric_url,
+            :headers => @headers
           )
           rescue RestClient::UnprocessableEntity 
             log_output = File.open(output_filename,'a+')

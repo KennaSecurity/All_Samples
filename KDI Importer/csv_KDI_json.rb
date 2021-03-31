@@ -22,7 +22,7 @@ module KdiHelpers
 
 
   def generate_kdi_file
-    { skip_autoclose: (@skip_autoclose.eql?('true') ? true : false), assets: $assets.uniq, vuln_defs: $vuln_defs.uniq }
+    { :skip_autoclose => (@skip_autoclose.eql?('true') ? true : false), :assets => $assets.uniq, :vuln_defs => $vuln_defs.uniq }
   end
 
   def create_asset(file,ip_address,mac_address,hostname,ec2,netbios,url,fqdn,external_id,database,application,tags,owner,os,os_version,priority)
@@ -60,23 +60,23 @@ module KdiHelpers
 
     end
 
-    tmpassets << {file: "#{file}"} unless file.nil? || file.empty?
-    tmpassets << {ip_address: ip_address} unless ip_address.nil? || ip_address.empty?
-    tmpassets << {mac_address: mac_address} unless mac_address.nil? || mac_address.empty?
-    tmpassets << {hostname: hostname} unless hostname.nil? || hostname.empty?
-    tmpassets << {ec2: "#{ec2}"} unless ec2.nil? || ec2.empty?
-    tmpassets << {netbios: "#{netbios}"} unless netbios.nil? || netbios.empty?
-    tmpassets << {url: "#{url}"} unless url.nil? || url.empty?
-    tmpassets << {fqdn: "#{fqdn}"} unless fqdn.nil? || fqdn.empty?
-    tmpassets << {external_id: "#{external_id}"} unless external_id.nil? || external_id.empty?
-    tmpassets << {database: "#{database}"} unless database.nil? || database.empty?
-    tmpassets << {application: "#{application}"} unless application.nil? || application.empty?
-    tmpassets << {tags: tags} unless tags.nil? || tags.empty?
-    tmpassets << {owner: "#{owner}"} unless owner.nil? || owner.empty?
-    tmpassets << {os: "#{os}"} unless os.nil? || os.empty?
-    tmpassets << {os_version: "#{os_version}"} unless os_version.nil? || os_version.to_s.empty?
-    tmpassets << {priority: priority} unless priority.nil? || priority.to_s.empty? 
-    tmpassets << {vulns: []}
+    tmpassets << {:file => "#{file}"} unless file.nil? || file.empty?
+    tmpassets << {:ip_address => ip_address} unless ip_address.nil? || ip_address.empty?
+    tmpassets << {:mac_address => mac_address} unless mac_address.nil? || mac_address.empty?
+    tmpassets << {:hostname => hostname} unless hostname.nil? || hostname.empty?
+    tmpassets << {:ec2 => "#{ec2}"} unless ec2.nil? || ec2.empty?
+    tmpassets << {:netbios => "#{netbios}"} unless netbios.nil? || netbios.empty?
+    tmpassets << {:url => "#{url}"} unless url.nil? || url.empty?
+    tmpassets << {:fqdn => "#{fqdn}"} unless fqdn.nil? || fqdn.empty?
+    tmpassets << {:external_id => "#{external_id}"} unless external_id.nil? || external_id.empty?
+    tmpassets << {:database => "#{database}"} unless database.nil? || database.empty?
+    tmpassets << {:application => "#{application}"} unless application.nil? || application.empty?
+    tmpassets << {:tags => tags} unless tags.nil? || tags.empty?
+    tmpassets << {:owner => "#{owner}"} unless owner.nil? || owner.empty?
+    tmpassets << {:os => "#{os}"} unless os.nil? || os.empty?
+    tmpassets << {:os_version => "#{os_version}"} unless os_version.nil? || os_version.to_s.empty?
+    tmpassets << {:priority => priority} unless priority.nil? || priority.to_s.empty? 
+    tmpassets << {:vulns => []}
 
     success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty? && fqdn.to_s.empty? && application.to_s.empty?
 
@@ -120,15 +120,15 @@ module KdiHelpers
 
     # associate the asset
     assetvulns = []
-    assetvulns << {scanner_type: "#{scanner_type}",scanner_identifier: "#{scanner_id}",}
-    assetvulns << {details: "#{details}"} unless details.nil?
-    assetvulns << {created_at: "#{created}"} unless created.nil?
-    assetvulns << {scanner_score: scanner_score} unless scanner_score.nil? || scanner_score == 0
-    assetvulns << {last_fixed_on: "#{last_fixed}"} unless last_fixed.nil?
-    assetvulns << {last_seen_at: "#{last_seen}"} unless last_seen.nil?
-    assetvulns << {closed_at: "#{closed}"} unless closed.nil?
-    assetvulns << {port: port,} unless port.nil?
-    assetvulns << {status: "#{status}"}
+    assetvulns << {:scanner_type => "#{scanner_type}",:scanner_identifier => "#{scanner_id}",}
+    assetvulns << {:details => "#{details}"} unless details.nil?
+    assetvulns << {:created_at => "#{created}"} unless created.nil?
+    assetvulns << {:scanner_score => scanner_score} unless scanner_score.nil? || scanner_score == 0
+    assetvulns << {:last_fixed_on => "#{last_fixed}"} unless last_fixed.nil?
+    assetvulns << {:last_seen_at => "#{last_seen}"} unless last_seen.nil?
+    assetvulns << {:closed_at => "#{closed}"} unless closed.nil?
+    assetvulns << {:port => port,} unless port.nil?
+    assetvulns << {:status => "#{status}"}
 
     asset[:vulns] << assetvulns.reduce(&:merge)
 
@@ -136,13 +136,13 @@ module KdiHelpers
 
   def create_vuln_def(scanner_type,scanner_id,cve_id,wasc_id,cwe_id,name,description,solution)
     vuln_def = []
-    vuln_def << {scanner_type: "#{scanner_type}",scanner_identifier: "#{scanner_id}",}
-    vuln_def << {cve_identifiers: "#{cve_id}"} unless cve_id.nil? || cve_id.empty?
-    vuln_def << {wasc_identifiers: "#{wasc_id}"} unless wasc_id.nil? || wasc_id.empty?
-    vuln_def << {cwe_identifiers: "#{cwe_id}"} unless cwe_id.nil? || cwe_id.empty?
-    vuln_def << {name: "#{name}"} unless name.nil? || name.empty?
-    vuln_def << {description: "#{description}"} unless description.nil? || description.empty?
-    vuln_def << {solution: "#{solution}"} unless solution.nil? || solution.empty?
+    vuln_def << {:scanner_type => "#{scanner_type}",:scanner_identifier => "#{scanner_id}",}
+    vuln_def << {:cve_identifiers => "#{cve_id}"} unless cve_id.nil? || cve_id.empty?
+    vuln_def << {:wasc_identifiers => "#{wasc_id}"} unless wasc_id.nil? || wasc_id.empty?
+    vuln_def << {:cwe_identifiers => "#{cwe_id}"} unless cwe_id.nil? || cwe_id.empty?
+    vuln_def << {:name => "#{name}"} unless name.nil? || name.empty?
+    vuln_def << {:description => "#{description}"} unless description.nil? || description.empty?
+    vuln_def << {:solution => "#{solution}"} unless solution.nil? || solution.empty?
 
     $vuln_defs << vuln_def.reduce(&:merge)
   end

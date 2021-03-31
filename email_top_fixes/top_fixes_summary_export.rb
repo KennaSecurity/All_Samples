@@ -78,9 +78,9 @@ CSV.foreach(@csv_file, :headers => true){|row|
     
     begin
     query_return = RestClient::Request.execute(
-      method: :get,
-      url: report_url,
-      headers: @headers
+      :method => :get,
+      :url => report_url,
+      :headers => @headers
     ) 
 
     json_data = JSON.parse(query_return.body)["asset_group"]
@@ -109,9 +109,9 @@ CSV.foreach(@csv_file, :headers => true){|row|
           fix_solution = fix.fetch("solution")
           fix_url = "#{@fixes_url}/#{fix_id}"
           query_return = RestClient::Request.execute(
-            method: :get,
-            url: fix_url,
-            headers: @headers
+            :method => :get,
+            :url => fix_url,
+            :headers => @headers
           ) 
           fix_data = JSON.parse(query_return.body)["fix"]
           patch_publication_date = fix_data.fetch("patch_publication_date")

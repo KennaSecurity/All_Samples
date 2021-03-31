@@ -16,7 +16,7 @@ module KdiHelpers
 
 
   def generate_kdi_file
-    { skip_autoclose: (@skip_autoclose.eql?('true') ? true : false), assets: $assets.uniq, vuln_defs: $vuln_defs.uniq }
+    { :skip_autoclose => (@skip_autoclose.eql?('true') ? true : false), :assets => $assets.uniq, :vuln_defs => $vuln_defs.uniq }
   end
 
   def create_asset(url,application)
@@ -24,9 +24,9 @@ module KdiHelpers
     tmpassets = []
     success = true
 
-    tmpassets << {url: "#{url}"} unless url.nil? || url.empty? 
-    tmpassets << {application: "#{application}"} unless application.nil? || application.empty? 
-    tmpassets << {vulns: []}
+    tmpassets << {:url => "#{url}"} unless url.nil? || url.empty? 
+    tmpassets << {:application => "#{application}"} unless application.nil? || application.empty? 
+    tmpassets << {:vulns => []}
 
     success = false if url.to_s.empty?
 
@@ -46,13 +46,13 @@ module KdiHelpers
     # associate the asset
     assetvulns = []
 
-    assetvulns << {scanner_type: "#{scanner_type}",scanner_identifier: "#{scanner_id}"}
-    assetvulns << {last_seen_at: "#{last_seen}"} unless last_seen.nil?
-    assetvulns << {created_at: "#{created}"} unless created.nil?
-    assetvulns << {scanner_score: scanner_score} unless scanner_score.nil? || scanner_score == 0
-    assetvulns << {details: "#{details}"} unless details.nil?
-    assetvulns << {closed_at: "#{closed}"} unless closed.nil?
-    assetvulns << {status: "#{status}"}
+    assetvulns << {:scanner_type => "#{scanner_type}",:scanner_identifier => "#{scanner_id}"}
+    assetvulns << {:last_seen_at => "#{last_seen}"} unless last_seen.nil?
+    assetvulns << {:created_at => "#{created}"} unless created.nil?
+    assetvulns << {:scanner_score => scanner_score} unless scanner_score.nil? || scanner_score == 0
+    assetvulns << {:details => "#{details}"} unless details.nil?
+    assetvulns << {:closed_at => "#{closed}"} unless closed.nil?
+    assetvulns << {:status => "#{status}"}
 
     asset[:vulns] << assetvulns.reduce(&:merge)
 
@@ -60,8 +60,8 @@ module KdiHelpers
 
   def create_vuln_def(scanner_type,scanner_id,name,description,solution)
     vuln_def = []
-    vuln_def << {scanner_type: "#{scanner_type}",scanner_identifier: "#{scanner_id}",}
-    vuln_def << {name: "#{name}",description: "#{description}",solution: "#{solution}"}
+    vuln_def << {:scanner_type => "#{scanner_type}",:scanner_identifier => "#{scanner_id}",}
+    vuln_def << {:name => "#{name}",:description => "#{description}",:solution => "#{solution}"}
 
     $vuln_defs << vuln_def.reduce(&:merge)
   end

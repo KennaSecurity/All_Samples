@@ -274,10 +274,10 @@ consumer_thread = Thread.new do
 
       begin
         query_response = RestClient::Request.execute(
-          method: :get,
-          proxy: @proxy_string,
-          url: query_url,
-          headers: @headers
+          :method => :get,
+          :proxy => @proxy_string,
+          :url => query_url,
+          :headers => @headers
         ) 
         rescue RestClient::TooManyRequests =>e
           retry
@@ -349,12 +349,12 @@ consumer_thread = Thread.new do
               log_output.close
 
                 tag_update_response = RestClient::Request.execute(
-                  method: :put,
-                  url: tag_api_url,
-                  headers: @headers,
-                  proxy: @proxy_string,
-                  payload: tag_update_json,
-                  timeout: 10
+                  :method => :put,
+                  :url => tag_api_url,
+                  :headers => @headers,
+                  :proxy => @proxy_string,
+                  :payload => tag_update_json,
+                  :timeout => 10
                 )
               end
               if !asset_string.empty? then 
@@ -367,11 +367,11 @@ consumer_thread = Thread.new do
                 log_output << "asset update json...#{asset_update_json.to_s}\n"
                 log_output.close
                   update_response = RestClient::Request.execute(
-                    method: :put,
-                    url: update_api_url,
-                    headers: @headers,
-                    proxy: @proxy_string,
-                    payload: asset_update_json
+                    :method => :put,
+                    :url => update_api_url,
+                    :headers => @headers,
+                    :proxy => @proxy_string,
+                    :payload => asset_update_json
                   )
               end
             rescue RestClient::TooManyRequests =>e

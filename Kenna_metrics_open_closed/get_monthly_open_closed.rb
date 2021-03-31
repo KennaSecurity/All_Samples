@@ -36,9 +36,9 @@ def processURL(urlstring)
   puts "url string #{urlstring}" if @debug
   begin
     query_response = RestClient::Request.execute(
-    method: :get,
-    url: urlstring,
-    headers: @headers
+    :method => :get,
+    :url => urlstring,
+    :headers => @headers
   )
   rescue RestClient::UnprocessableEntity => e
     log_output = File.open(@output_filename,'a+')

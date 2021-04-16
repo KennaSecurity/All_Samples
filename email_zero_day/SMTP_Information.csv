@@ -1,0 +1,2 @@
+mail_server,port,user_name,password,from_address
+test_email_server,9999,test_user_name,test_passwaord,teest_from_address

@@ -31,7 +31,6 @@ from_address = @send_email == 'true' ? ARGV[9] : ''
 @headers = { 'content-type' => 'application/json', 'X-Risk-Token' => @token }
 
 if @send_email == 'true'
-    require 'pry-byebug';binding.pry
     CSV.foreach(@csv_file_smtp, :headers => true) { |row_s|
       v_mail_server = row_s[0]
       v_port = row_s[1]
@@ -48,7 +47,6 @@ if @send_email == 'true'
       }
 
       Mail.defaults do
-        require 'pry-byebug';binding.pry
         delivery_method :smtp, options
       end
 
@@ -70,7 +68,7 @@ puts "Found #{num_lines} lines."
 
 # Iterate through CSV
 CSV.foreach(@csv_file, :headers => true) { |row|
-    require 'pry-byebug';binding.pry
+
   # current_line = $.
   risk_meter_id = nil
   email_recipients = ''
@@ -113,7 +111,7 @@ CSV.foreach(@csv_file, :headers => true) { |row|
       ]
 
     end
-    require 'pry-byebug';binding.pry
+    
     # Let's put our code in safe area
     rescue StandardError => e
       print "Exception occured: #{e.backtrace.inspect}"

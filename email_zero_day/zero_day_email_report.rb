@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rest-client'
 require 'json'
 require 'csv'
@@ -31,26 +33,25 @@ from_address = @send_email == 'true' ? ARGV[9] : ''
 @headers = { 'content-type' => 'application/json', 'X-Risk-Token' => @token }
 
 if @send_email == 'true'
-    CSV.foreach(@csv_file_smtp, :headers => true) { |row_s|
-      v_mail_server = row_s[0]
-      v_port = row_s[1]
-      v_user_name = row_s[2]
-      v_password = row_s[3]
+  CSV.foreach(@csv_file_smtp, headers: true) do |row_s|
+    v_mail_server = row_s[0]
+    v_port = row_s[1]
+    v_user_name = row_s[2]
+    v_password = row_s[3]
 
-      options = { 
-        :address => "#{v_mail_server}",
-        :port => v_port,
-        :user_name => "#{v_user_name}",
-        :password => "#{v_password}",
-        :authentication => 'plain',
-        :enable_starttls_auto => true
-      }
-
-      Mail.defaults do
-        delivery_method :smtp, options
-      end
-
+    options = {
+      address: v_mail_server.to_s,
+      port: v_port,
+      user_name: v_user_name.to_s,
+      password: v_password.to_s,
+      authentication: 'plain',
+      enable_starttls_auto: true
     }
+
+    Mail.defaults do
+      delivery_method :smtp, options
+    end
+  end
 
 end
 
@@ -67,8 +68,7 @@ num_lines = CSV.read(@csv_file).length
 puts "Found #{num_lines} lines."
 
 # Iterate through CSV
-CSV.foreach(@csv_file, :headers => true) { |row|
-
+CSV.foreach(@csv_file, headers: true) do |row|
   # current_line = $.
   risk_meter_id = nil
   email_recipients = ''
@@ -76,9 +76,7 @@ CSV.foreach(@csv_file, :headers => true) { |row|
 
   risk_meter_id = row[0]
 
-  if @send_email == 'true'
-    email_recipients = row["#{@recipient_column}"]
-  end
+  email_recipients = row[@recipient_column.to_s] if @send_email == 'true'
 
   # Going directly to the Risk Meter History Score to get the needed information
   report_url = "#{@base_url}#{risk_meter_id}/report_query/historical_risk_meter_scores?start_date=#{todays_date}"
@@ -87,9 +85,9 @@ CSV.foreach(@csv_file, :headers => true) { |row|
 
   begin
     query_return = RestClient::Request.execute(
-      :method => :get,
-      :url => report_url,
-      :headers => @headers
+      method: :get,
+      url: report_url,
+      headers: @headers
     )
 
     json_data = JSON(query_return.body)
@@ -109,26 +107,24 @@ CSV.foreach(@csv_file, :headers => true) { |row|
         risk_meter_name,
         risk_score
       ]
-
     end
-    
+
     # Let's put our code in safe area
-    rescue StandardError => e
-      print "Exception occured: #{e.backtrace.inspect}"
+  rescue StandardError => e
+    print "Exception occured: #{e.backtrace.inspect}"
+  end
+
+  # Cheking if the risk meter is greater than 0
+  if risk_score.positive? && @send_email == 'true'
+    Mail.deliver do
+      to email_recipients.to_s
+      from from_address.to_s
+      subject "Critical Vulns Added to #{risk_meter_name}"
+      body "A change happened to #{risk_meter_name} - on #{DateTime.now}"
+      add_file filename: filename.to_s, content: File.read(filename)
     end
 
-    # Cheking if the risk meter is greater than 0
-    if risk_score.positive? && @send_email == 'true'
-      Mail.deliver do
-        to "#{email_recipients}"
-        from "#{from_address}"
-        subject "Critical Vulns Added to #{risk_meter_name}"
-        body "A change happened to #{risk_meter_name} - on #{DateTime.now}"
-        add_file :filename => "#{filename}", :content => File.read(filename)
-      end
+  end
 
-    end
-
-    File.delete(filename)
-
-}
+  File.delete(filename)
+end

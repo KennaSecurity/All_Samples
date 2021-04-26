@@ -17,7 +17,7 @@ output_filename = Logger.new("kenna_bulk_status_update_log-#{start_time.strftime
 @debug = false
 
 #Variables we'll need later
-@asset_group_url = "#{@base_url}asset_groups?per_page=100"
+@asset_group_url = "#{@base_url}asset_groups?"
 
 @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token }
 
@@ -60,6 +60,8 @@ enc_colon = "%3A"
 enc_dblquote = "%22"
 enc_space = "%20"
 
+page = 1
+
 morerows = true
 CSV.open( @csv_file, 'w' ) do |writer|
 
@@ -67,12 +69,10 @@ CSV.open( @csv_file, 'w' ) do |writer|
 
   while morerows
 
-  page = 1
-  max_pages = 1
-
-  query_response = get_data("#{@asset_group_url}&page=#{page}")
+  query_response = get_data("#{@asset_group_url}page=#{page}")
   meta = JSON.parse(query_response.body)["meta"]
   max_pages = meta.fetch("pages")
+  #puts "The number of max pages is #{max_pages}"
 
   asset_groups = JSON.parse(query_response.body)["asset_groups"]
     asset_groups.each do |item|
@@ -85,15 +85,16 @@ CSV.open( @csv_file, 'w' ) do |writer|
       rm_updated = item["updated_at"]
       writer << ["#{rm_id}", "#{rm_name}", "#{rm_query}","#{rm_assets}", "#{rm_vulns}","#{rm_created}", "#{rm_updated}"]
 
-      if max_pages > page then
-        page = page + 1
-      else
-        morerows = false
-      end
-
     end 
+
+    if max_pages > page then
+      page = page + 1
+      #puts "Processing page number #{page}"
+    else
+      morerows = false
+    
+    end
   end
 end
 
-     
-
+puts "Processing complete!"

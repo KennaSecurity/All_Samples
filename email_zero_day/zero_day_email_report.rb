@@ -33,19 +33,19 @@ from_address = @send_email == 'true' ? ARGV[9] : ''
 @headers = { 'content-type' => 'application/json', 'X-Risk-Token' => @token }
 
 if @send_email == 'true'
-  CSV.foreach(@csv_file_smtp, :headers => true) do |row_s|
+  CSV.foreach(@csv_file_smtp, headers: true) do |row_s|
     v_mail_server = row_s[0]
     v_port = row_s[1]
     v_user_name = row_s[2]
     v_password = row_s[3]
 
     options = {
-      :address => v_mail_server.to_s,
-      :port => v_port,
-      :user_name => v_user_name.to_s,
-      :password => v_password.to_s,
-      :authentication => 'plain',
-      :enable_starttls_auto => true
+      address: v_mail_server.to_s,
+      port: v_port,
+      user_name: v_user_name.to_s,
+      password: v_password.to_s,
+      authentication: 'plain',
+      enable_starttls_auto: true
     }
 
     Mail.defaults do
@@ -68,7 +68,7 @@ num_lines = CSV.read(@csv_file).length
 puts "Found #{num_lines} lines."
 
 # Iterate through CSV
-CSV.foreach(@csv_file, :headers => true) do |row|
+CSV.foreach(@csv_file, headers: true) do |row|
   # current_line = $.
   risk_meter_id = nil
   email_recipients = ''
@@ -85,9 +85,9 @@ CSV.foreach(@csv_file, :headers => true) do |row|
 
   begin
     query_return = RestClient::Request.execute(
-      :method => :get,
-      :url => report_url,
-      :headers => @headers
+      method: :get,
+      url: report_url,
+      headers: @headers
     )
 
     json_data = JSON(query_return.body)
@@ -121,7 +121,7 @@ CSV.foreach(@csv_file, :headers => true) do |row|
       from from_address.to_s
       subject "Critical Vulns Added to #{risk_meter_name}"
       body "A change happened to #{risk_meter_name} - on #{DateTime.now}"
-      add_file :filename => filename.to_s, :content => File.read(filename)
+      add_file filename: filename.to_s, content: File.read(filename)
     end
 
   end

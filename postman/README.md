@@ -3,9 +3,24 @@
 ## Introduction
 
 This repository contains a Postman collection for Kenna Security APIs.  The collection can be used in
-the agent or a web environment.
+the Postman app or in the browser environment.
 
 ## Import Collection
+
+You can import via Postman's GitHub interface or you can clone the `All_Samples` repository and import
+`postman/Kenna_API_postman_collection.json`.  To import via GitHub, do:
+
+1. Click the "Import" button.
+1. Click "Code Respository"
+1. You will have to give Postman access to GitHub via a pop-up web page.
+1. Select the following:
+   1. For __GitHub organization__, Kenna Security
+   1. For __repository__, All Samples
+   1. For __branch__, master
+1. Click "Continue"
+1. Select the collection, and click "Import"
+
+You should be ready to go.
 
 ## Set Authorization
 

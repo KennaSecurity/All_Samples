@@ -11,7 +11,7 @@ What is it for:
 # Kenna is not responsible for maintaining this script or any harm that it may cause.
 
 This POC python script has two outcomes:
-- Will generate a CSV (ovsh.csv) with the score history for any open CVE within a specific Risk Meter.
+- Will generate a CSV (opencves.csv) with the score history for any open CVE within a specific Risk Meter.
 - Will bulk update all the CVE IDs that changed score in the last X days within a specific Risk Meter.
 
 ## How It Does It

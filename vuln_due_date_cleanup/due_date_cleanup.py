@@ -83,7 +83,7 @@ headers = {
 }
 
 data = '{ "status" : ["open"], "search_id" : ' + str(RiskMeter) + ', "export_settings" : { "format": "json", "model": "vulnerability" } }'
-base_uri = '/data_exports'
+base_uri = 'data_exports'
 url = base_url + base_uri
 response = requests.post(url, headers=headers, data=data)
 if response.status_code != 200:

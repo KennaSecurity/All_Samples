@@ -21,14 +21,18 @@ if len(sys.argv) <= 3:
         print(f"{sys.argv[0]} <risk_token/API_key> <risk_meter_id> <number_of_days>")
         print("==========================================================================================================")
         sys.exit(1)
-elif len(sys.argv[1]) < 64:
+
+if len(sys.argv[1]) < 64:
     print("==========================================================================================================")
     print("Provided API Key (Risk_Token) is missing characters. Provided one has", len(sys.argv[1]), "as a normal one has 64. Missing", 64 - len(sys.argv[1]),"characters.")
+    print(f"{sys.argv[0]} <risk_token/API_key> <risk_meter_id> <number_of_days>")
     print("==========================================================================================================")
     sys.exit(1)
-elif int(sys.argv[3]) > 7:
+
+if int(sys.argv[3]) > 7:
     print("==========================================================================================================")
     print("Number of days to look back can't be more than 7 days. You chose ", sys.argv[3])
+    print(f"{sys.argv[0]} <risk_token/API_key> <risk_meter_id> <number_of_days>")
     print("==========================================================================================================")
     sys.exit(1)
 
@@ -42,7 +46,7 @@ yesterday_datetime = (datetime.today() - timedelta(num_days)).strftime('%Y-%m-%d
 
 # Used to bulk update the CVE's due dates
 base_uri3 = 'vulnerabilities/bulk'
-url3 = ''.join([base_url, base_uri3])
+url3 = base_url + base_uri3
 
 # Map of the CVE_IDs for a specific CVE_Name
 cve_id = {}
@@ -80,7 +84,7 @@ headers = {
 
 data = '{ "status" : ["open"], "search_id" : ' + str(RiskMeter) + ', "export_settings" : { "format": "json", "model": "vulnerability" } }'
 base_uri = '/data_exports'
-url = ''.join([base_url, base_uri])
+url = base_url + base_uri
 response = requests.post(url, headers=headers, data=data)
 if response.status_code != 200:
     print(f"Data export API error: {response.status_code}")

@@ -8,7 +8,7 @@ What is it for:
 - Every night Kenna runs an internal process that will grant a new DUE_DATE to those vulnerabilities that meet your SLA configuration.
 - So, after removing the needed DUE_DATE using this script, you might need to wait a day for the vulnerabilities to receive a new one.
 
-# Kenna is not responsible for maintaining this script or any harm that it may cause.
+> **Kenna is not responsible for maintaining this script or any harm that it may cause.**
 
 This POC python script has two outcomes:
 - Will generate a CSV (opencves.csv) with the score history for any open CVE within a specific Risk Meter.

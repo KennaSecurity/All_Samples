@@ -316,6 +316,12 @@ CSV.parse(File.open(@data_file, 'r:bom|utf-8'){|f| f.read}, :headers => @has_hea
                                   #in vuln section ##  scanner =
                                   #in vuln section ##  scanner_id =
   cve_id = row["#{map_cve_id}"]            #(string) Any CVE(s)?
+  unless cve_id.nil?
+   cve_id_removal = cve_id.split(',')
+   cve_id_removal = cve_id_removal.map{|x| x.strip} #This line to strip extra spaces before CVE id
+   cve_id = cve_id_removal.select{|x| x.start_with? "CVE"}.join(',') #This line to join exclude any values that doesn't start with CVE xx-xx-xx
+  end
+  
   wasc_id = row["#{map_wasc_id}"]                #(string) Any WASC?
   cwe_id = row["#{map_cwe_id}"]                 #(string) Any CWE?
   name = row["#{map_name}"]               #(string) Name/title of Vuln

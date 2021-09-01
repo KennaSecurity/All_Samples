@@ -1,10 +1,10 @@
 # Add Users
 
-This script will create users from a csv file
+This script will create users from a csv file. On September 1st Kenna began to role out support for assigning up to five different roles to a single user. If you have not yet received this update please use the legacy_add_users.rb script instead of add_users_MRPU.rb
 
 Usage:
 
-add_users.rb KennaAPItoken csvfilename fname_col_name lname_col_name role_col_name email_col_name
+add_users_MRPU.rb KennaAPItoken csvfilename fname_col_name lname_col_name role_col_name email_col_name
 
 Tested on:
 

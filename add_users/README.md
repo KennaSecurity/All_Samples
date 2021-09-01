@@ -4,7 +4,11 @@ This script will create users from a csv file. Kenna began to role out support f
 
 Usage:
 
-add_users_MRPU.rb KennaAPItoken csvfilename fname_col_name lname_col_name role_col_name email_col_name
+add_users_MRPU.rb KennaAPItoken usersample.csv
+
+Legacy Usage:
+
+legacy_add_users.rb KennaAPItoken singlerole.csv fname, lname, role, email
 
 Tested on:
 

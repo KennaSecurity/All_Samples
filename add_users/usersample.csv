@@ -1,4 +1,4 @@
-email,fname,lname,role
-sample1@sample.com,two names,user1,Baltimore
-sample2@sample.com,test2,user-hyphen,java
-sample3@sample.com,test15,o’user,servicenow active ticket
+email,fname,lname,roles
+uniquetestemail@sample.com,tester,user1,role1
+uniquetestemail2@sample.com,tester,user2,"role1, role2"
+uniquetestemail3@sample.com,tester,user3,"role1, role2, role3"

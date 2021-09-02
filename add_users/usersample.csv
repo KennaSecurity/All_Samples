@@ -1,4 +1,4 @@
-email,fname,lname,roles
-uniquetestemail@sample.com,tester,user1,role1
-uniquetestemail2@sample.com,tester,user2,"role1, role2"
-uniquetestemail3@sample.com,tester,user3,"role1, role2, role3"
+email,firstname,lastname,phone,roles
+jaredsample11@sample.com,tester,user1,,role1
+jaredsample12@sample.com,tester,user2,,"role1, role2"
+jaredsample13@sample.com,tester,user3,,"role1, role2, role3"

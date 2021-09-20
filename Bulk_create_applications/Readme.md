@@ -10,4 +10,5 @@ All you need is
 6)  If the applications in the csv exist, no application will be created, only new applications.
  
 Here is the command line that you can use to run the script:
-ruby bulk_application_create.rb <API token> application_list_source_file.csv
+
+ruby bulk_application_create.rb <API token> <application_list_source_file.csv>

@@ -11,4 +11,4 @@ All you need is
  
 Here is the command line that you can use to run the script:
 
-ruby bulk_application_create.rb <API token> <application_list_source_file.csv>
+ruby bulk_create_applications.rb <API token> <application_list_source_file.csv>

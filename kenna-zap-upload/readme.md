@@ -25,7 +25,7 @@ Paramters:
 Usage:
 
 ```
-kenna-guardium-upload.rb <Kenna API token> <folder location where vuln exports are located> cust_field_id1 cust_field_id2 cust_field_id3 cust_field_id4
+kenna-zap-upload.rb <Kenna API token> <folder location where vuln exports are located> cust_field_id1 cust_field_id2 cust_field_id3 cust_field_id4
 ```
 
 Tested on:

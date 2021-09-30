@@ -1,0 +1,16 @@
+FROM redhat/ubi8
+
+SHELL ["/bin/bash", "-c"]
+
+RUN echo $'[kennasecurity] \n\
+name=Kenna Security \n\
+baseurl=https://packages.kennasecurity.com/rpm/ \n\
+enabled=1 \n\
+gpgkey=https://packages.kennasecurity.com/rpm/kenna_security_packages.gpg.public \n\
+repo_gpgcheck=1 \n\ 
+gpgcheck=0' > /etc/yum.repos.d/kenna.repo
+
+RUN yum install kenna-agent -y  
+COPY kenna-agent.toml /etc/kenna-agent/
+COPY entrypoint.sh entrypoint.sh
+CMD [ "bin/sh", "entrypoint.sh" ]

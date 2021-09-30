@@ -8,7 +8,7 @@ This script can be used for many purposes
      c) If the identifiers are different, then will append the new identifier to the old one(s)
   3) If the identifier is blank in the application_listing.csv, the application won’t get created. An identifier is a must to create the application ( This is how Kenna works)
   4) The script can also delete the existing applications if the application name is same as identifier name
-  5) 
+
 
 The script is written in Ruby.
 To run the script, use this command line as an example

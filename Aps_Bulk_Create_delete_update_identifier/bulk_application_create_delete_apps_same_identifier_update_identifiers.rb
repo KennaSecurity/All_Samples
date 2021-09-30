@@ -71,7 +71,6 @@ unless @create_apps == "false"
 
   # Iterate through the CSV file
   CSV.foreach(@csv_file, headers: true) do |row|
-   #application_id = row[0]
     new_application_name = row[0]
     new_application_identifier = row[1]
     apps_on_page = JSON.parse(asset_listing_response.body)['applications']
@@ -81,13 +80,11 @@ unless @create_apps == "false"
         application_name = "#{apps_on_page[array_index]['name']}"
         identifier = "#{apps_on_page[array_index]['identifiers']}"
         application_id = "#{apps_on_page[array_index]['id']}"
-        #require 'pry-byebug';binding.pry
+        
 
         if new_application_name == application_name
           identifier = identifier.gsub(/"|\[|\]/, '')
-          # identifier = identifier.delete(" ")
           unless identifier.delete(" ") == new_application_identifier.delete(" ")
-            #require 'pry-byebug';binding.pry
             new_application_identifier = [identifier,new_application_identifier].join(', ')
             #new_application_identifier = new_application_identifier.delete(" ")
             puts "Updating Application identifier: #{new_application_name}"
@@ -117,7 +114,6 @@ unless @create_apps == "false"
     else
       puts "Creating Application: #{new_application_name}"
 
-      # require 'pry-byebug';binding.pry
       json_data = {
         "application": {
           "name": new_application_name.to_s,

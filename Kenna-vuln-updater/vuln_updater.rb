@@ -40,7 +40,6 @@ end
 @vuln_api_bulk = 'bulk'
 @search_url = "/search?status%5B%5D=#{@vuln_status}&" 
 @urlquerybit = 'q='
-@async_api_url = "#{@base_url}vulnerabilities/create_async_search"
 @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json'}
 @custom_field_columns = [] 
 
@@ -85,40 +84,39 @@ def is_nil_and_empty(data)
 end  
 
 def post_data(post_url,json_data)
-   begin
+  begin
     puts "posting url #{post_url}"
     puts "posting json #{json_data}"
-      query_post_return = RestClient::Request.execute(
+      RestClient::Request.execute(
         :method => :put,
         :url => post_url,
         :payload => json_data,
         :headers => @headers
       )
-      rescue RestClient::TooManyRequests =>e
-        retry
-      rescue RestClient::UnprocessableEntity => e
-        puts "unprocessible entity: #{e.message}"
-      rescue RestClient::BadRequest => e
-        @output_filename.error("BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
-        puts "BadRequest: #{e.backtrace.inspect}"
-        Thread.exit
-      rescue RestClient::Exception => e
-        @retries ||= 0
-        if @retries < @max_retries
-          @retries += 1
-          sleep(15)
-          retry
-        else
-          @output_filename.error("General RestClient error #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
-          puts "Unable to get vulns: #{e.backtrace.inspect}"
-          Thread.exit
-        end
-      rescue Exception => e
-        @output_filename.error("BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
-        puts "BadRequest: #{e.backtrace.inspect}"
-        Thread.exit
+  rescue RestClient::TooManyRequests =>e
+    retry
+  rescue RestClient::UnprocessableEntity => e
+    puts "unprocessible entity: #{e.message}"
+  rescue RestClient::BadRequest => e
+    @output_filename.error("BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
+    puts "BadRequest: #{e.backtrace.inspect}"
+    Thread.exit
+  rescue RestClient::Exception => e
+    @retries ||= 0
+    if @retries < @max_retries
+      @retries += 1
+      sleep(15)
+      retry
+    else
+      @output_filename.error("General RestClient error #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
+      puts "Unable to get vulns: #{e.backtrace.inspect}"
+      Thread.exit
     end
-  #return query_post_return
+  rescue Exception => e
+    @output_filename.error("BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
+    puts "BadRequest: #{e.backtrace.inspect}"
+    Thread.exit
+  end
 end
 
 # Set a finite number of simultaneous worker threads that can run
@@ -154,25 +152,14 @@ num_lines = CSV.read(@csv_file).length
 
 @output_filename.error("reading CSV total lines #{num_lines}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
 
-# if @vuln_status.empty? then 
-#   @output_filename.error("Vuln Status Null - Setting Vuln Status to Open\n")
-#   @vuln_status = "open"
-# end if
-
 producer_thread = Thread.new do
   puts "starting producer loop" if @debug
   
   ## Iterate through CSV
   CSV.foreach(@csv_file, :headers => true, :encoding => "UTF-8"){|row|
 
-    current_line = $.
-
-    asset_identifier = nil
-    asset_id = nil
-
     @output_filename.error("Reading line #{$.}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
 
-    query_url = ""
     vuln_query = ""
     hostname_query = ""
     ip_address_query = ""
@@ -246,10 +233,7 @@ producer_thread = Thread.new do
       json_string = "#{json_string}\"custom_fields\": {#{custom_field_string}}"
     end
 
-    if json_string.end_with?(', ') then
-      n = json_string.size
-      json_string = json_string[0..-3]
-    end
+    json_string = json_string[0..-3] if json_string.end_with?(', ')
 
     json_string = "#{json_string}}}"
 
@@ -369,21 +353,21 @@ consumer_thread = Thread.new do
           ) 
           
 
-        query_meta_json = JSON.parse(query_response)["meta"]
-        tot_vulns = query_meta_json.fetch("total_count")
-        pages = query_meta_json.fetch("pages")
-        puts "first query #{query_url} tot vulns = #{tot_vulns} and pages = #{pages}"
-        if tot_vulns == 0 then
-          break if @host_search_field.empty?
-          if attempted == false then
-            attempted = true
-            next
+          query_meta_json = JSON.parse(query_response)["meta"]
+          tot_vulns = query_meta_json.fetch("total_count")
+          pages = query_meta_json.fetch("pages")
+          puts "first query #{query_url} tot vulns = #{tot_vulns} and pages = #{pages}"
+          if tot_vulns == 0 then
+            break if @host_search_field.empty?
+            if attempted == false then
+              attempted = true
+              next
+            else
+              break
+            end
           else
-            break
+            asset_found = true
           end
-        else
-          asset_found = true
-        end
         rescue RestClient::TooManyRequests => e
           retry
         rescue RestClient::UnprocessableEntity => e
@@ -409,111 +393,108 @@ consumer_thread = Thread.new do
           @output_filename.error("Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
           puts "Unable to get vulns: #{e.message} #{e.backtrace.inspect}"
           Thread.exit
-#        end
-      end
+        end
 
-      # Put the row on the work queue
-      if pages > 20 then
-        async_query = true
-      end
+        # Put the row on the work queue
+        if pages > 20 then
+          async_query = true
+        end
 
-      puts "async query needed #{async_query}" if @debug
+        puts "async query needed #{async_query}" if @debug
 
-      begin
+        begin
 
-        if async_query then
-          query_url = "#{@async_api_url}?"
-        else
           query_url = "#{@vuln_api_url}#{@search_url}"
-        end
 
-        if !vuln_query.empty? then
-          if @vuln_type == "vuln_id" then
-            query_url = "#{query_url}#{vuln_query}"
-          else
-            query_url = "#{query_url}#{@urlquerybit}#{vuln_query}"
-          end
-        else
-          query_url = "#{query_url}#{@urlquerybit}"
-        end
-
-        if !api_query.empty? then
           if !vuln_query.empty? then
-            query_url = "#{query_url}+AND+#{api_query}"
-          else
-            query_url = "#{query_url}#{api_query}"
-          end
-        end
-
-      
-        query_url = query_url.gsub(/\&$/, '')
-
-        puts "before submit #{query_url}" if @debug
-
-        if !async_query then 
-          puts "starting regular query" if @debug
-
-          morepages = true
-          i=1
-          vuln_ids = []
-          #endloop = pages + 1
-          while morepages
-            puts "paging url = #{query_url}&page=#{i}" if @debug
-
-            query_response = RestClient::Request.execute(
-              :method => :get,
-              :url => "#{query_url}&page=#{i}",
-              :headers => @headers
-            )
-            # Build URL to set the custom field value for each vulnerability
-            query_response_json = JSON.parse(query_response.body)["vulnerabilities"]
-            meta_response_json = JSON.parse(query_response.body)["meta"]
-            pages = meta_response_json.fetch("pages")
-            if pages == i then
-              morepages = false
+            if @vuln_type == "vuln_id" then
+              query_url = "#{query_url}#{vuln_query}"
             else
-              i+=1
+              query_url = "#{query_url}#{@urlquerybit}#{vuln_query}"
             end
-
-            query_response_json.each do |item|
-              vuln_ids << item["id"]
-            end
+          else
+            query_url = "#{query_url}#{@urlquerybit}"
           end
-
-          temp_string = ""   
-          post_url = "#{@vuln_api_url}/#{@vuln_api_bulk}"
-          puts vuln_ids.size
-
-          vuln_ids.each_slice(5000) do |a|
-
-            json_data = json_data.insert(json_data.index('vulnerability')-1, "\"vulnerability_ids\": #{a},") 
-          end 
-          puts "*************************"    
-          #puts "post_url for nonasync = #{post_url}" if @debug
-          #puts "json for nonasync post = #{json_data}" if @debug
-
-          post_data(post_url,json_data)
-
-        else
-          puts "starting async query" if @debug
-
-
-          bulk_query_json_string = "{\"asset\": {\"status\": [\"active\"]}, \"status\": [\"#{@vuln_status}\"], "
 
           if !api_query.empty? then
             if !vuln_query.empty? then
-              q = "\"#{vuln_query}+AND+#{api_query}\""
+              query_url = "#{query_url}+AND+#{api_query}"
             else
-              q = "\"#{api_query}\""
+              query_url = "#{query_url}#{api_query}"
             end
           end
-          #q = q.gsub(':', "\:")
-          bulk_query_json_string = bulk_query_json_string + " \"q\": #{q}, \"export_settings\": { \"format\": \"json\", "
-          bulk_query_json_string = bulk_query_json_string + "\"compression\": \"gzip\", \"model\": \"vulnerability\" }}"
 
-          #bulk_query_json = JSON.parse(bulk_query_json_string)
+          query_url = query_url.gsub(/\&$/, '')
 
-          #puts bulk_query_json.to_s
+          if !async_query then
+            puts "starting regular query" if @debug
+            puts "before submit #{query_url}" if @debug
+
+            morepages = true
+            i=1
+            vuln_ids = []
+            #endloop = pages + 1
+            while morepages
+              puts "paging url = #{query_url}&page=#{i}" if @debug
+
+              query_response = RestClient::Request.execute(
+                :method => :get,
+                :url => "#{query_url}&page=#{i}",
+                :headers => @headers
+              )
+              # Build URL to set the custom field value for each vulnerability
+              query_response_json = JSON.parse(query_response.body)["vulnerabilities"]
+              meta_response_json = JSON.parse(query_response.body)["meta"]
+              pages = meta_response_json.fetch("pages")
+              if pages == i then
+                morepages = false
+              else
+                i+=1
+              end
+
+              query_response_json.each do |item|
+                vuln_ids << item["id"]
+              end
+            end
+
+            post_url = "#{@vuln_api_url}/#{@vuln_api_bulk}"
+            puts vuln_ids.size
+
+            vuln_ids.each_slice(5000) do |a|
+
+              json_data = json_data.insert(json_data.index('vulnerability')-1, "\"vulnerability_ids\": #{a},")
+            end
+            puts "*************************"
+            #puts "post_url for nonasync = #{post_url}" if @debug
+            #puts "json for nonasync post = #{json_data}" if @debug
+
+            post_data(post_url,json_data)
+
+          else
+            puts "starting async query" if @debug
+
+
+            bulk_query_json_string = "{\"asset\": {\"status\": [\"active\"]}, \"status\": [\"#{@vuln_status}\"], "
+
+            if !api_query.empty? then
+              if !vuln_query.empty? then
+                puts "here1"
+                q = "\"#{vuln_query.gsub(/"/,'\"')}+AND+#{api_query}\""
+              else
+                puts "here2"
+                q = "\"#{api_query}\""
+              end
+            elsif !vuln_query.empty?
+              q = "\"#{vuln_query.gsub(/"/,'\"')}\""
+            end
+
+            #q = q.gsub(':', "\:")
+            bulk_query_json_string = bulk_query_json_string + " \"q\": #{q}, \"export_settings\": { \"format\": \"json\", "
+            bulk_query_json_string = bulk_query_json_string + "\"compression\": \"gzip\", \"model\": \"vulnerability\" }}"
+
+            #bulk_query_json = JSON.parse(bulk_query_json_string)
+
+            puts bulk_query_json_string
             query_response = RestClient::Request.execute(
               :method => :post,
               :url => "#{@base_url}data_exports",

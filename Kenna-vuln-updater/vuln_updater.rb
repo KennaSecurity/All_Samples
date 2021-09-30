@@ -1,4 +1,4 @@
-# custom field update multi-threaded
+# vuln updater multi-threaded
 require 'rest-client'
 require 'json'
 require 'csv'

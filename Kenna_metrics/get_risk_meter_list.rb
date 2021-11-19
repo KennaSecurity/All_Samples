@@ -78,7 +78,7 @@ CSV.open( @csv_file, 'w' ) do |writer|
     asset_groups.each do |item|
       rm_id = item["id"]
       rm_name = item["name"]
-      rm_query = URI.decode(item["querystring"])
+      rm_query = URI.decode_www_form_component(item["querystring"])
       rm_assets = item["asset_count"]
       rm_vulns = item["vulnerability_count"]
       rm_created = item["created_at"]

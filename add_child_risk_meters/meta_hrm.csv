@@ -1,0 +1,11 @@
+﻿parent_id,display_name,rm_query
+1234,Child1,vulnerability_score:100
+1234,Child2,vulnerability_score:>90 AND vulnerability_score:<100
+1234,Child3,vulnerability_score:>80 AND vulnerability_score:<90
+1234,Child4,vulnerability_score:>70 AND vulnerability_score:<80
+1234,Child5,vulnerability_score:>60 AND vulnerability_score:<70
+1234,Child6,vulnerability_score:>50 AND vulnerability_score:<60
+1234,Child7,vulnerability_score:>40 AND vulnerability_score:<50
+1234,Child8,vulnerability_score:>30 AND vulnerability_score:<40
+1234,Child9,vulnerability_score:>20 AND vulnerability_score:<30
+1234,Child10,vulnerability_score:<30

@@ -19,6 +19,7 @@ if !@meter_list.nil? then
   CSV.parse(File.open(@meter_list, 'r:iso-8859-1:utf-8'){|f| f.read}, :headers => true) do |row|
     risk_meter_list << row[0]
   end
+else risk_meter_list = nil
 end
 
 case @date_range
@@ -56,6 +57,9 @@ if !risk_meter_list.nil? then
 else
   url_list << @asset_group_url
 end
+
+if @debug then p url_list end
+
 url_list.each do |group_url|
   begin
     query_response = RestClient::Request.execute(
@@ -88,6 +92,8 @@ url_list.each do |group_url|
       end
   end
 
+  #puts risk_meter_list
+  #puts query_response
 
   header_needed = true
   header_needed = false if File.exist?(@csv_file)
@@ -96,11 +102,16 @@ url_list.each do |group_url|
       writer << ["Risk Meter ID", "Risk Meter Name", "Risk Meter Score", "Score Last Week", "Score Week Delta", "Score Last Month", "Score Month Delta", "Score 90 Days Ago","Score 90 Delta","Last Update", "MTTR High", "MTTR Med", "MTTR Low","Date Range"]
     end
     query_response_json = []
-    if url_list.size > 1 then
+    if !risk_meter_list.nil?
+      if @debug then p "risk meter list found" end
       query_response_json << JSON.parse(query_response.body)["asset_group"]
-    else
-      query_response_json = JSON.parse(query_response.body)["asset_groups"]
+    else 
+      query_response_json << JSON.parse(query_response.body)["asset_groups"]
+      if @debug then p "no risk meters found" end
     end
+
+    #if @debug then p query_response_json
+
     if @debug then p query_response_json.size end
     query_response_json.each do |item|
       rm_id = item["id"]
@@ -148,9 +159,9 @@ url_list.each do |group_url|
         end
         metric_response_json = JSON.parse(metric_response.body)["mttr"]
         if @debug then puts metric_response_json.size end
-        high_risk = metric_response_json.fetch("High Risk Vulns")
-        med_risk = metric_response_json.fetch("Medium Risk Vulns")
-        low_risk = metric_response_json.fetch("Low Risk Vulns")
+        high_risk = metric_response_json.fetch("High risk")
+        med_risk = metric_response_json.fetch("Medium risk")
+        low_risk = metric_response_json.fetch("Low risk")
 
 
         writer << ["#{rm_id}", "#{rm_name}", "#{rm_score}", "#{score_last_week}","#{score_week_delta}", "#{score_last_month}","#{score_month_delta}", "#{score_90_days_ago}","#{score_90_delta}", "#{rm_last_update}", "#{high_risk}", "#{med_risk}", "#{low_risk}","#{@date_range}"]
@@ -158,5 +169,3 @@ url_list.each do |group_url|
     end 
   end
 end
-     
-

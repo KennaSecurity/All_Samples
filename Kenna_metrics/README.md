@@ -1,6 +1,6 @@
 # Kenna_metrics
 
-This script will loop through all existing Risk Meters (or a defined list) and output 
+This script will loop through a defined list of up to 30 risk meters and output 
 1. Risk Meter score 
 2. Scores and diffs for week, month and 90 days ago
 2. MTTR based on input date range parameter

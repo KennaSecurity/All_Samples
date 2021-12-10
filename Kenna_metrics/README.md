@@ -11,7 +11,7 @@ get_metrics.rb KennaAPItoken csvfilename meterlist daterange
 
 csvfilename: desired output filename and location will append existing file if it already exists
 
-meterlist: csv where first column is risk meter id. Script with pull data for each risk meter listed. If null, all meters will be pulled
+meterlist: csv where first column is risk meter id. Script with pull data for each risk meter listed.
 
 daterange: See API page for formatting of daterange data or use keyword: previous_month to automatically set the date range for the previous month. 
 

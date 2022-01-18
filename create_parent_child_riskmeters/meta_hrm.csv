@@ -1,0 +1,5 @@
+parent_id,display_name,rm_query,parent_ref,child_ref
+270515,XYZ_linux_child,vulnerability_score:>65,,xyz_linux_l3
+,XYZ_no_parent,vulnerability_score:>90 AND vulnerability_score:<100,,
+,XYZ_linux_gchild,vulnerability_score:>80,xyz_linux_l3,xyz_linux_l4
+,XYZ_linux_ggchild,vulnerability_score:>95,xyz_linux_l4,

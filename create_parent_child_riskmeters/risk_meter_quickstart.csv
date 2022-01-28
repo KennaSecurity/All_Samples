@@ -1,0 +1,61 @@
+parent_id,display_name,rm_query,parent_ref,child_ref
+,Reporting,,,reporting_child
+,SLA Metrics,,reporting_child,sla_child
+,Overdue vulnerabilities,not_closed_by_due_date:true,sla_child,
+,Due in the next 7 days,due_date:>now-7d,sla_child,
+,Due in the next 30 days,due_date:>now-30d,sla_child,
+,Asset Types,,reporting_child,asset_type_child
+,Servers,"tag:""Servers""",asset_type_child,servers_child
+,Linux,"tag:""Linux""",servers_child,linux_child
+,RHEL,"os:(""*RHEL*"" OR ""*Red Hat*"")",linux_child,
+,Ubuntu,"os:(""*Ubuntu*"")",linux_child,
+,Windows,"tag:""Windows Servers""",servers_child,windows_child
+,Windows Server 2008,"os:(""*Server 2008*"")",windows_child,
+,Windows Server 2012,"os:(""*Server 2012*"")",windows_child,
+,Endpoints,"tag:""Endpoints""",asset_type_child,endpoints_child
+,Windows,"tag:""Windows Endpoints""",endpoints_child,
+,Mac,"os:(""*Mac*"")",endpoints_child,
+,Network Devices,"tag:""Networking Devices""",asset_type_child,network_devices_child
+,Printers,"tag:""Printers""",network_devices_child,
+,Switches,"tag:""Switches""",network_devices_child,
+,Routers,"tag:""Routers""",network_devices_child,
+,Firewalls,"tag:""Firewalls""",network_devices_child,
+,Other Appliances,"tag:""Appliances""",network_devices_child,
+,Cloud Infrastructure,"tag:""Cloud""",asset_type_child,cloud_child
+,AWS,"tag:""AWS""",cloud_child,aws_child
+,US-East,"tag:""AWS US-East""",aws_child,
+,US-West,"tag:""AWS US-West""",aws_child,
+,GCP,"tag:""GCP""",cloud_child,
+,Azure,"tag:""Azure""",cloud_child,
+,Docker,"tag:""Docker""",asset_type_child,docker_child
+,Containers,container_id:*,docker_child,
+,Images,image_id:*,docker_child,
+,Network Segmentation,,reporting_child,network_seg_child
+,Internal Assets,ip:([10.0.0.0 TO 10.255.255.255] OR [172.16.0.0 TO 172.31.255.255] OR [192.168.0.0 TO 192.168.255.255]),network_seg_child,
+,External Assets,-ip:([10.0.0.0 TO 10.255.255.255] OR [172.16.0.0 TO 172.31.255.255] OR [192.168.0.0 TO 192.168.255.255]),network_seg_child,
+,DMZ Assets,,network_seg_child,
+,Vulnerability Types,,reporting_child,vuln_type_child
+,Zero-Day,zero_day:true,vuln_type_child,
+,Malware Exploitable,malware_exploitable:true,vuln_type_child,
+,Actively Exploited,active_internet_breach:true,vuln_type_child,
+,New Assets,asset_created:>now-60d,reporting_child,assets_child
+,Created in the last 7 days,asset_created:>now-7d,assets_child,
+,Created in the last 30 days,asset_created:>now-30d,assets_child,
+,Adhoc Risk Meters,,,adhoc_child
+,Log4J - CVE-2021-44228,cve:2021-44228,adhoc_child,
+,PrintNightmare (CVE-2021-34527 and CVE-2021-1675),cve:(2021-34527 OR 2021-1675),adhoc_child,
+,Team Meters by VP or Business Unit,,,team_child
+,Marketing (John Smith),"tag:""Marketing""",team_child,marketing_child
+,SLA,,marketing_child,marketing_sla_child
+,Overdue vulnerabilities,not_closed_by_due_date:true,marketing_sla_child,
+,Due in the next 7 days,due_date:>now-7d,marketing_sla_child,
+,Due in the next 30 days,due_date:>now-30d,marketing_sla_child,
+,Recently Discovered,vulnerability_created:>now-14d,marketing_child,
+,High Risk,vulnerability_score:>65,marketing_child,
+,Finance (Jane Doe),,team_child,finance_child
+,SLA,,finance_child,finance_sla_child
+,Overdue vulnerabilities,not_closed_by_due_date:true,finance_sla_child,
+,Due in the next 7 days,due_date:>now-7d,finance_sla_child,
+,Due in the next 30 days,due_date:>now-30d,finance_sla_child,
+,Recently Discovered,vulnerability_created:>now-14d,finance_child,
+,High Risk,vulnerability_score:>65,finance_child,

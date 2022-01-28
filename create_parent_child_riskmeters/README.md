@@ -9,7 +9,7 @@ API base URL is api.kennasecurity.com. Edit the code if this is not the correct 
 Data in the meta file is used for creating the relevant parent or child risk meters.  
 
 ## Usage
-ruby create_parent_child_meters.rb <API_token> meta_hrm.csv
+`ruby create_parent_child_meters.rb <API_token> meta_hrm.csv`
 
 ## Example Usage of the meta file
 The table below provides illustrations of how different scenarios are used to create hierarchical risk meters from the meta file. 
@@ -20,6 +20,13 @@ The table below provides illustrations of how different scenarios are used to cr
 | |xyz_no_parent|vulnerability_score:>90 AND vulnerability_score:<100| | | no parent ID or parent ref so this will be a parent RM. Also, no child_ref so a child RM is not going to be created off this RM. |
 | |xyz_gchild |vulnerability_score:>80 |xyz_child_level_1 | xyz_child_level_2 | no parent ID but parent_ref available matching the child_ref of xyz_child RM in the file so xyz_child will be the parent RM for xyz_gchild RM. child_ref indicates this xyz_gchild RM is to be the parent of yet another RM. |
 | |xyz_ggchild |vulnerability_score:>95 |xyz_child_level_2 | | no parent ID but parent_ref matching the child_ref of xyz_gchild so this RM will be the child of xyz_gchild. |
+
+##Risk Meter Quick Start
+We have provided an additional csv metadata file which is intended to be used for customers who are looking to create a new risk meter structure from scratch. This meta data file will add around 60 new risk meters which will help to jump start your deployment of hierarchical risk meters. For more information around the types of risk meters which wil be created, as well as their intended use, please review this [blog post](https://www.kennasecurity.com/blog/managing-assets-intuitively-with-hierarchical-risk-meter-structure/).
+
+### Usage
+
+`ruby create_parent_child_meters.rb <API_token> risk_meter_quickstart.csv'
 
 ## Requirements
 * ruby

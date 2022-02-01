@@ -13,7 +13,7 @@ It also provides simplicity for these tasks to be run without having to setup yo
 2. Create a .yml file in the .github/workflows directory
 3. Edit the created .yml file using the code in the sample template (toolkit.yml) provided
    * Sample template contains instructions for both on-demand (manual runs) and scheduled workflows
-   * The on-demand workflow is the default. Remove comments ('#') comments on lines 3 - 5 to setup a scheduled workflow. Comment out line 8
+   * The on-demand workflow is the default. Remove comments ('#') on lines 3 - 5 to setup a scheduled workflow. Comment out line 8
 5. Make edits to the run command for the desired connector task or utility you would like to run
 6. Commit your changes
 7. For the created repository, navigate to 'Settings' and locate the 'Secrets' section

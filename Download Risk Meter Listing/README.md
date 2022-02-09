@@ -1,6 +1,6 @@
 # Risk Meter Listing
 
-The script is used for pulls details of the risk meters available to an account, and saves this information in a csv file.  
+The script pulls details of the risk meters available to an account, and saves this information in a csv file.  
 
 ## Usage Instructions 
 Use the --help or -h argument to call the help page below.

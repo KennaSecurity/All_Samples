@@ -1,0 +1,24 @@
+name: AllSample_AssetTagger
+on: workflow_dispatch
+jobs:
+  AllSample_AssetTagger_Job:
+    runs-on: ubuntu-latest
+    env:
+      API_TOKEN: ${{ secrets.API_KEY }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@477b21f02be01bcb8030d50f37cfec92bfa615b6
+        with:
+          ruby-version: 2.7.3
+      - name: Install dependencies
+        run: |
+          gem install rest-client
+          gem install json
+          gem install tempfile
+          gem install fileutils
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
+          ls -la
+      - run: ruby ./Asset_Tagger/asset_tagger.rb $API_TOKEN ./Asset_Tagger/SampleTest.csv ./Asset_Tagger/MetaFile.csv hostname

@@ -1,0 +1,8 @@
+hostname,tags
+ec2-18-221-114-125.us-east-2.compute.amazonaws.com,"TEST1,TEST"
+centos5.badlab.untenable.io,TEST2
+ec2-3-15-218-130.us-east-2.compute.amazonaws.com,TEST3
+ec2-18-188-219-134.us-east-2.compute.amazonaws.com,TEST4
+ec2-100-27-11-18.compute-1.amazonaws.com,TEST5
+ip-172-31-30-98.ec2.internal,TEST6
+ec2-18-217-150-74.us-east-2.compute.amazonaws.com,TEST7

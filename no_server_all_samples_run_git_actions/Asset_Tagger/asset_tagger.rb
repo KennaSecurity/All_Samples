@@ -11,11 +11,8 @@ require 'monitor'
 @tag_column_file = ARGV[2] # tag meta data - column from source file and tag prefix
 @hostname = ARGV[3] # column name in source file which holds the search field data or empty string
 
-# @asset_api_url = 'https://api.kennasecurity.com/assets'
-@asset_api_url = 'https://api.kennasecurity.com/assets' # US AWS
-# @asset_api_url = 'https://api.us.kennasecurity.com/assets' # US GCP
-# @asset_api_url = 'https://api.ca.kennasecurity.com/assets' # Canada
-# @asset_api_url = 'https://api.eu.kennasecurity.com/assets' # Europe
+# In case you don't know your API URL, please contact the Kenna support team
+@asset_api_url = 'https://api.kennasecurity.com/assets'
 
 @search_url = @asset_api_url + '/search?q='
 @headers = { 'content-type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json' }

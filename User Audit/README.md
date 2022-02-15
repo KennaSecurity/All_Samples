@@ -4,15 +4,8 @@ This Python script will output all of the users and roles for the client into a 
 
 The script assumes standard US date formatting for use in Excel (i.e. m/d/YYYY). Users with European or other default date formats will want to modify the date format in the script to their locale.
 
+Tested on Python version 3.9.6. Please see requirements.txt for full dependency list.
+
 ## Usage
 
 `python useraudit.py <API_TOKEN>`
-
-## Requirements
-- Admin API token
-- Python (version 3.9.6 tested)
-- Pandas
-- Requests
-- json
-- openpyxl
-- xlsxwriter

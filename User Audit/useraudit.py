@@ -77,14 +77,12 @@ workbook = writer.book
 users_df.to_excel(writer, sheet_name='Users')
 roles_df.to_excel(writer, sheet_name='Roles')
 
-red_format = workbook.add_format({'bg_color':   '#FFC7CE',
-                               'font_color': '#9C0006'})
-yellow_format = workbook.add_format({'bg_color':   '#FFEB9C',
-                               'font_color': '#9C6500'})
+red_format = workbook.add_format({'bg_color': '#FFC7CE','font_color': '#9C0006'})
+yellow_format = workbook.add_format({'bg_color': '#FFEB9C','font_color': '#9C6500'})
 
 users_sheet = writer.sheets['Users']
 
-#Conditional formatting resources:
+#Conditional formatting resources to apply new rules/formats:
 #https://www.extendoffice.com/documents/excel/2196-excel-conditional-formatting-dates-older-than.html
 #https://xlsxwriter.readthedocs.io/working_with_conditional_formats.html
 

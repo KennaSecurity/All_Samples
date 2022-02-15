@@ -6,6 +6,10 @@ The script assumes standard US date formatting for use in Excel (i.e. m/d/YYYY).
 
 Tested on Python version 3.9.6. Please see requirements.txt for full dependency list.
 
+## Intallation
+
+`pip3 install -r requirements.txt`
+
 ## Usage
 
 `python useraudit.py <API_TOKEN>`

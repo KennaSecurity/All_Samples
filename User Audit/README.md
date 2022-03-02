@@ -8,7 +8,7 @@ Tested on Python version 3.9.6. Please see requirements.txt for full dependency 
 
 ## Installation
 
-`pip3 install -r requirements.txt`
+`pip install -r requirements.txt`
 
 ## Usage
 

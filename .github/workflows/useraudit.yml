@@ -8,9 +8,10 @@ name: User Audit
 on: workflow_dispatch
 jobs:
   user_audit_job:
+    env: 
+      API_TOKEN: ${{ secrets.API_KEY }}
     build:
       runs-on: ubuntu-latest
-      env: API_TOKEN: ${{ secrets.API_KEY }}
     steps:
      - run: |
       pip install -r requirements.txt

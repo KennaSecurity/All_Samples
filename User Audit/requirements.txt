@@ -1,0 +1,6 @@
+pandas
+openpyxl
+XlsxWriter
+requests
+python-dateutil
+numpy

@@ -13,6 +13,13 @@ jobs:
     build:
       runs-on: ubuntu-latest
     steps:
-     - run: |
-      pip install -r requirements.txt
-      python useraudit.py $API_TOKEN
+     - name: Generate Spreadsheet
+      run: |
+        pip install -r requirements.txt
+        python useraudit.py $API_TOKEN
+    - name: Store output
+      uses: actions/upload-artifact@v3
+      with:
+        name: user-audit
+        path: output/kenna_user_audit.xlsx
+        

@@ -64,7 +64,7 @@ Kenna Audit Logs Parser. Usage: audit_parser.rb [options]
 
 Some things to note
 - Searches can be done using a combination of short/and/or long options (see samples below)
-- By default, the script provides a 10-second timeframe for which the user is prompted to save the results into a CSV file. Type 'y' and enter to save the results, or 'n' and enter to avoid saving. If not input is given within the 10-second window, the program exists. 
+- By default, the script provides a 10-second timeframe for which the user is prompted to save the results into a CSV file. Type 'y' and enter to save the results, or 'n' and enter to avoid saving. If no input is given within the 10-second window, the program exists. 
 - Use the -s option to prevent having the program prompt you to save. This is good for automations so the output of a search can be saved without any user interaction
 - Various samples are provided for searches to track risk meter, vuln status and asset status changes / updates. 
 

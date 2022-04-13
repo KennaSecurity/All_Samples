@@ -230,7 +230,7 @@ def display_export_results(my_regex)
       export_query = logmatch["audit_log_event"]["details"]["query"]
       export_type = logmatch["audit_log_event"]["details"]["export_type"]
       date_of_export = logmatch["audit_log_event"]["occurred_at"]
-      @results_array = [export_user_id, export_user_IP, export_user_email, audit_action, export_type, export_query, date_of_export]
+      @results_array[match_num] = [export_user_id, export_user_IP, export_user_email, audit_action, export_type, export_query, date_of_export]
       match_num += 1
       puts "%-15s %-18s %-40s %-20s %-15s %-60s %-40s" % [export_user_id, export_user_IP, export_user_email, audit_action, export_type, export_query, date_of_export]
     end
@@ -280,6 +280,8 @@ def display_vulnstat_results(my_regex)
       vuln_status = logmatch["audit_log_event"]["details"]["fields"]["status"]
       audit_action = logmatch["audit_log_event"]["name"]
       change_date = logmatch["audit_log_event"]["occurred_at"]
+      @results_array[match_num] = [vuln_id, user_id, user_IP, user_email, vuln_status, audit_action, change_date]
+      match_num += 1
       puts "%-20s %-15s %-18s %-40s %-20s %-20s %-40s" % [vuln_id, user_id, user_IP, user_email, vuln_status, audit_action, change_date]
     end
   end
@@ -776,6 +778,11 @@ end
 
 if @options.empty?
   abort(my_parser.help)
+end
+
+if @options[:filename].nil?
+  puts "Filename parameter (-f) is a mandatory argument"
+  exit_msg
 end
 
 abort("\n**The file doesn't exist. Please check the file and try again\n") unless File.exists?(@options[:filename])

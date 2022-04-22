@@ -12,7 +12,7 @@ my_parser = OptionParser.new do |parser|
   parser.on '-t', '--token=TOKEN', 'Optional argument. API token for the account making API calls.',
                   'If this is not specified, then you must provide a source csv file using the (-r) parameter with your risk meters'
   parser.on '-f', '--filename=FILENAME', 'Mandatory argument. Filename of the audit log file should be provided'
-  parser.on '-h', '--has_header=YES|NO', 'Optional argument (yes | no)- confirms if the risk meter file (-r option) has a header or not.',
+  parser.on '-d', '--document_header=YES|NO', 'Optional argument (yes | no)- confirms if the risk meter file (-r option) has a header or not.',
                   'If none is specified, the default is "yes"'
 
 end
@@ -125,7 +125,7 @@ def get_risk_meters_file()
   abort("\n**The risk meter source file doesn't exist. Please check the file and try again\n") unless File.exists?(@options[:risk_meters])
   puts "\n[*] Pulling risk meters from your source file"
   @org_risk_meters = CSV.read(@options[:risk_meters])
-  unless @options[:has_header] == ("no" || "n")
+  unless @options[:document_header] == ("no" || "n")
     @org_risk_meters.shift()
   end
 end

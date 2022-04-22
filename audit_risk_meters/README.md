@@ -35,6 +35,7 @@ Risk Meter Audit Script. Usage: rmaudit.rb [options]
 Some things to note
 - If a token (-t) and a risk meter file (-r) is provided, the script gives preference to the risk meter file. 
 - Required columns in the risk meter file are risk meter ID, and risk meter name. See sample provided for any clarification.  
+- The script tracks usage of visits to Risk meter pages, as well as API to risk meters and doesn't track visits to 'Reporting' and 'Top Fixes' pages for risk meters
 
 
 

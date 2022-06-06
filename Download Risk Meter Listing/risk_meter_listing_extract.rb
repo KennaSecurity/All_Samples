@@ -2,6 +2,7 @@ require 'json'
 require 'rest-client'
 require 'csv'
 require 'optparse'
+require 'cgi'
 
 # Initialize parser
 my_parser = OptionParser.new do |parser|
@@ -74,7 +75,7 @@ csv << csv_headers
       "#{page_risk_meters[array_index]["unique_open_cve_count"]}",
       "#{page_risk_meters[array_index]["child_ids"]}",
       "#{page_risk_meters[array_index]["created_at"]}",
-      "#{page_risk_meters[array_index]["querystring"]}"]
+      CGI.unescapeHTML(CGI.unescape "#{page_risk_meters[array_index]["querystring"]}")]
   end
 end
 

@@ -1,10 +1,10 @@
 # Vuln Updater Multi-threaded
 
-Kenna CVS import to updated vulns using multi-threading
+Kenna CSV import to update vulns using multi-threading
 
-This script will process a CSV file, retrieve vulnerabilities, then update a data, including custom fields on each vulnerability. 
+This script will process a CSV file, retrieve vulnerabilities, then update data, including custom fields on each vulnerability targeted. 
 
-Usage:
+Example Usage:
 
     Kenna-vuln-updater.rb <Kenna API token> <Import data CSV file> <meta file for custom fields> <vuln type> <vuln column in data file> <host lookup type> <IP column in data file> <hostname column in data file> <notes type> <notes value> <duedate> <status type> <status value> <vuln status> <base url>
     

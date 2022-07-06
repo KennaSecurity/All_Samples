@@ -6,6 +6,8 @@ This script will download each of your fixes in Kenna, multiply the count of vul
 
 Please note that due to the complexities of Kenna's scoring algorithm, applying these fixes may not immediately drive a direct correlation to reduced risk meter scores in Kenna. This script will, however, give you a general sense of overall risk reduction for each fix in your environment. You can use this sorted list as a "next best action" guide which over time will deliver serious risk score reduction in your risk meters.
 
+Depending on the size of your environment this script can take a significant amount of time to complete due to the number of API requests which are needed. For reference, the script can be expected to complete in 45 minutes for an environment with 8,000 fixes.
+
 ## Dependencies
 
 ### Environment

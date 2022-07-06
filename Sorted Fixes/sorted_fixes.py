@@ -23,7 +23,6 @@ total_count = first_page['meta']['total_count']
 total_count = int(total_count)
 page = 1
 pages = int(first_page['meta']['pages'])
-pages = int(pages)
 
 print(f'{total_count} fixes found.')
 

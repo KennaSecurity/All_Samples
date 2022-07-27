@@ -7,7 +7,10 @@ The OpenAPI specification files should used as they will be kept up to date.  Th
 collection file is present for compatibility purposes.  Both OpenAPI specification files and
 Postman collection files can be used in the Postman app or in the browser environment.
 
-## Import OpenAPI specification or Collection
+If is highly recommended to use the OpenAPI specification files. As of July 2022,
+the Inference APIs were moved to their own separate specification.
+
+## Import OpenAPI Specification or Collection
 
 You can import via Postman's GitHub interface or you can clone the `All_Samples` repository and import
 `postman/Kenna_API_postman_collection.json`.  To import via GitHub, do:

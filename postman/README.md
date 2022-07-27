@@ -2,13 +2,14 @@
 
 ## Introduction
 
-This directory contains OpenAPI specifications for Kenna Platform and Kenna Inference APIs.
+This directory contains [OpenAPI version 3](https://swagger.io/specification/)
+specifications for Kenna Platform and Kenna Inference APIs.
 The OpenAPI specification files should used as they will be kept up to date.  The Postman
-collection file is present for compatibility purposes.  Both OpenAPI specification files and
+collection file is present for compatibility purposes and will not be updated.  Both OpenAPI
+specification files and
 Postman collection files can be used in the Postman app or in the browser environment.
 
-If is highly recommended to use the OpenAPI specification files. As of July 2022,
-the Inference APIs were moved to their own separate specification.
+As of July 2022, the Inference APIs were moved to their own separate specification.
 
 ## Import OpenAPI Specification or Collection
 

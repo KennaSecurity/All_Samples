@@ -1,11 +1,13 @@
-# Kenna Security API Postman Collection
+# Kenna Security API OpenAPI Specicification
 
 ## Introduction
 
-This repository contains a Postman collection for Kenna Security APIs.  The collection can be used in
-the Postman app or in the browser environment.
+This directory contains OpenAPI specifications for Kenna Platform and Kenna Inference APIs.
+The OpenAPI specification files should used as they will be kept up to date.  The Postman
+collection file is present for compatibility purposes.  Both OpenAPI specification files and
+Postman collection files can be used in the Postman app or in the browser environment.
 
-## Import Collection
+## Import OpenAPI specification or Collection
 
 You can import via Postman's GitHub interface or you can clone the `All_Samples` repository and import
 `postman/Kenna_API_postman_collection.json`.  To import via GitHub, do:
@@ -33,7 +35,7 @@ authorization for the entire collection, do:
 1. Type in "X-Risk-Token" in the "Key" text box.
 1. Copy your API key in the "Value" text box.
 1. In the "Add to" puldown, select "Header".
-1. Click "Save". (Located between "Run" and "Share" to the right.)
+1. Click "Save". (Located between "Run" and ellipsis to the right.)
 
 ## Set Base URL
 
@@ -43,7 +45,7 @@ correct, then do:
 1. Click on the collection.
 1. Click on the "Variables" tab.
 1. Change the "Current Value" to desire base URL.
-1. Click "Save". (Located between "Run" and "Share" to the right.)
+1. Click "Save". (Located between "Run" and ellipsis to the right.)
 
 ## List Assets
 

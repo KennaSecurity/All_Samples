@@ -1,0 +1,1816 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Kenna Inference API",
+    "description": "Swagger POC",
+    "version": "2.0"
+  },
+  "components": {
+    "schemas": {
+      "51612701083eea34cbeb0be66175b235566839e2376216d7ff4bab8b393d98fd_post_response_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "example": 51618,
+              "default": 0
+            },
+            "cve_description": {
+              "type": "string",
+              "example": "Microsoft .NET Framework 1.0 SP3, 1.1 SP1, 2.0 SP2, 3.5, 3.5.1, 4, and 4.5 does not properly validate function parameters, which allows remote attackers to execute arbitrary code via (1) a crafted XAML browser application (aka XBAP), (2) a crafted ASP.NET application, or (3) a crafted .NET Framework application, aka \".NET Framework Parameter Validation Vulnerability.\""
+            },
+            "cvss_access_complexity": {
+              "type": "string",
+              "example": "Medium"
+            },
+            "cvss_access_vector": {
+              "type": "string",
+              "example": "Network"
+            },
+            "cvss_authentication": {
+              "type": "string",
+              "example": "None required"
+            },
+            "description": {
+              "type": "string",
+              "example": "Microsoft .NET Framework 1.0 SP3, 1.1 SP1, 2.0 SP2, 3.5, 3.5.1, 4, and 4.5 does not properly validate function parameters, which allows remote attackers to execute arbitrary code via (1) a crafted XAML browser application (aka XBAP), (2) a crafted ASP.NET application, or (3) a crafted .NET Framework application, aka \".NET Framework Parameter Validation Vulnerability.\""
+            },
+            "risk_meter_score": {
+              "type": "number",
+              "example": 49.2658,
+              "default": 0
+            },
+            "solution": {},
+            "cvss_availability_impact": {
+              "type": "string",
+              "example": "Complete"
+            },
+            "cvss_confidentiality_impact": {
+              "type": "string",
+              "example": "Complete"
+            },
+            "cvss_integrity_impact": {
+              "type": "string",
+              "example": "Complete"
+            },
+            "easily_exploitable": {
+              "type": "boolean",
+              "example": true,
+              "default": true
+            },
+            "malware_exploitable": {
+              "type": "boolean",
+              "example": false,
+              "default": true
+            },
+            "active_internet_breach": {
+              "type": "boolean",
+              "example": false,
+              "default": true
+            },
+            "cve_id": {
+              "type": "string",
+              "example": "CVE-2012-0163"
+            },
+            "cvss_score": {
+              "type": "number",
+              "example": 9.3,
+              "default": 0
+            },
+            "cvss_exploit_subscore": {
+              "type": "number",
+              "example": 8.6,
+              "default": 0
+            },
+            "cvss_impact_subscore": {
+              "type": "integer",
+              "example": 10,
+              "default": 0
+            },
+            "cvss_vector": {
+              "type": "string",
+              "example": "AV:N/AC:M/Au:N/C:C/I:C/A:C/E:U/RL:OF/RC:C"
+            },
+            "cvss_temporal_score": {
+              "type": "number",
+              "example": 6.9,
+              "default": 0
+            },
+            "cvss_v3_score": {},
+            "cvss_v3_exploit_subscore": {},
+            "cvss_v3_impact_subscore": {},
+            "cvss_v3_vector": {},
+            "cvss_v3_temporal_score": {},
+            "last_modified": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2018-10-12T22:02:00Z"
+            },
+            "published": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2012-04-10T21:55:00Z"
+            },
+            "vulnerable_products": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "example": "cpe:2.3:a:microsoft:.net_framework:1.0:sp3:*:*:*:*:*:*"
+              }
+            }
+          }
+        }
+      },
+      "app_inference_request_body_schema": {
+        "type": "object",
+        "required": [
+          "os_type",
+          "os_version",
+          "software"
+        ],
+        "properties": {
+          "arch": {
+            "type": "string",
+            "description": "The architecture of the operating system. Currently only `64-bit` is supported. This parameter can be omitted for Linux."
+          },
+          "os_type": {
+            "type": "string",
+            "description": "The operating system type. Supported values include CENTOS, SLES, RHEL, UBUNTU or WINDOWS."
+          },
+          "os_name": {
+            "type": "string",
+            "description": "A human readable name for the operating system."
+          },
+          "os_version": {
+            "type": "string",
+            "description": "The version of the Linux or Windows operating system to check. See below for a list of supported Windows operating systems."
+          },
+          "software": {
+            "type": "array",
+            "description": "A list of the applications to check for vulnerabilities",
+            "items": {
+              "type": "object",
+              "properties": {
+                "checksum": {
+                  "type": "string",
+                  "description": "A checksum for the Windows application or Linux package. This should be unique within the API request."
+                },
+                "vendor": {
+                  "type": "string",
+                  "description": "The application's vendor."
+                },
+                "product": {
+                  "type": "string",
+                  "description": "The name of the Windows application or Linux package."
+                },
+                "version": {
+                  "type": "string",
+                  "description": "The version of the Windows application or Linux package to check."
+                },
+                "release": {
+                  "type": "string",
+                  "description": "The release version of the Linux package to check. Note: this is field should be omitted for Windows applications."
+                }
+              }
+            }
+          },
+          "min_risk_meter_score": {
+            "type": "integer",
+            "description": "The minimum risk meter score for vulns to be returned; will not return any vulns with risk meter scores less than this value. A min_risk_meter_score of zero will return all vulns."
+          }
+        }
+      },
+      "application_mappings_find_cpe_products_by_vendor_cpe_schema": {
+        "type": "object",
+        "properties": {
+          "cpe_products": {
+            "type": "array",
+            "description": "product part of CPE URIs associated with a vendor",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "application_mappings_find_cpe_vendors_by_vendor_name_schema": {
+        "type": "object",
+        "properties": {
+          "cpe_vendors": {
+            "type": "array",
+            "description": "vendor part of CPE URIs associated with a vendor",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "application_mappings_schema": {
+        "type": "object",
+        "properties": {
+          "cpe_normalized_application_names": {
+            "type": "array",
+            "description": "The architecture of the operating system. Currently only `64-bit` is supported. This parameter can be omitted for Linux.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "cpe_mappings": {
+            "type": "array",
+            "description": "The architecture of the operating system. Currently only `64-bit` is supported. This parameter can be omitted for Linux.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "cpe_vendor": {
+                  "type": "string",
+                  "description": "Vendor identifier on CPE"
+                },
+                "cpe_product": {
+                  "type": "string",
+                  "description": "Product identifier on CPE"
+                }
+              }
+            }
+          },
+          "vendor_binary_information": {
+            "type": "array",
+            "description": "The architecture of the operating system. Currently only `64-bit` is supported. This parameter can be omitted for Linux.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "vendor": {
+                  "type": "string",
+                  "description": "Vendor name collected from redistributable binary distributed by the vendor"
+                },
+                "product": {
+                  "type": "string",
+                  "description": "Product name collected from redistributable binary distributed by the vendor"
+                }
+              }
+            }
+          }
+        }
+      },
+      "darwin_os_inference_request_body_schema": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "major": {
+              "type": "string",
+              "example": "10"
+            },
+            "name": {
+              "type": "string",
+              "example": "Max OS X"
+            },
+            "platform_like": {
+              "type": "string",
+              "example": "darwin"
+            },
+            "patch": {
+              "type": "string",
+              "example": "3"
+            },
+            "platform": {
+              "type": "string",
+              "example": "darwin"
+            },
+            "version": {
+              "type": "string",
+              "example": "10.15.1"
+            },
+            "build": {
+              "type": "string",
+              "example": "19D76"
+            },
+            "codename": {
+              "type": "string",
+              "example": null
+            },
+            "arch": {
+              "type": "string",
+              "example": "x86_64"
+            },
+            "minor": {
+              "type": "string",
+              "example": "15"
+            }
+          }
+        }
+      },
+      "darwin_os_inference_response_schema": {
+        "type": "object",
+        "properties": {
+          "system_information": {
+            "type": "object",
+            "properties": {
+              "os_name": {
+                "type": "string",
+                "example": "Mac OS X"
+              },
+              "version": {
+                "type": "string",
+                "example": "10.5.1"
+              },
+              "platform": {
+                "type": "string",
+                "example": "DARWIN"
+              },
+              "arch": {
+                "type": "string",
+                "example": "x86_64"
+              }
+            }
+          },
+          "os": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "cve": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "example": "171973"
+                    },
+                    "description": {
+                      "type": "string",
+                      "example": "An out-of-bounds read was addressed with improved bounds checking. This issue is fixed in macOS Catalina 10.15.7, Security Update 2020-005 High Sierra, Security Update 2020-005 Mojave, iOS 14.0 and iPadOS 14.0. Processing a maliciously crafted USD file may lead to unexpected application termination or arbitrary code execution."
+                    },
+                    "updated_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2020-11-15T22:00:04.000Z"
+                    },
+                    "vendor_updated_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2020-11-15T20:15:00Z"
+                    },
+                    "vendor_published_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2020-10-27T21:15:00Z"
+                    }
+                  }
+                },
+                "risk": {
+                  "type": "object",
+                  "properties": {
+                    "risk_meter_score": {
+                      "type": "number",
+                      "format": "float",
+                      "example": 33.1211
+                    },
+                    "easily_exploitable": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "malware_exploitable": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "active_internet_breach": {
+                      "type": "boolean",
+                      "example": false
+                    },
+                    "malware_count": {
+                      "type": "integer",
+                      "format": "int32",
+                      "example": 5
+                    }
+                  }
+                },
+                "fixes": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "fix_id": {
+                        "type": "number",
+                        "example": 10822
+                      },
+                      "package_name": {
+                        "type": "string",
+                        "example": "Model I/O"
+                      },
+                      "product_name": {
+                        "type": "string",
+                        "example": "macOS Catalina 10.15.7 Security Update 2020-005 High Sierra Security Update 2020-005 Mojave"
+                      },
+                      "description": {
+                        "type": "string",
+                        "example": "An out-of-bounds read was addressed with improved bounds checking."
+                      },
+                      "impact": {
+                        "type": "string",
+                        "example": "Processing a maliciously crafted USD file may lead to unexpected application termination or arbitrary code execution"
+                      },
+                      "vendor_source_id": {
+                        "type": "string",
+                        "example": "HT211849"
+                      },
+                      "vendor_link": {
+                        "type": "string",
+                        "example": "https://support.apple.com/en-us/HT211849"
+                      },
+                      "vendor_security_update_link": {
+                        "type": "string",
+                        "example": "https://support.apple.com/en-us/HT201222"
+                      },
+                      "release_on": {
+                        "type": "string",
+                        "example": "2020-09-24"
+                      },
+                      "last_modified": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2021-03-16"
+                      },
+                      "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2021-09-22T06:00:24Z"
+                      }
+                    }
+                  }
+                },
+                "vulnerable_products": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "cpe_version": {
+                        "type": "string",
+                        "example": "2.3"
+                      },
+                      "cpe_uri": {
+                        "type": "string",
+                        "example": "cpe:2.3:o:apple:ipados:*:*:*:*:*:*:*:*"
+                      },
+                      "affected_versions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "lower_bound_type": {
+                              "type": "string",
+                              "example": null
+                            },
+                            "lower_bound": {
+                              "type": "string",
+                              "example": null
+                            },
+                            "upper_bound_type": {
+                              "type": "string",
+                              "example": "excluding"
+                            },
+                            "upper_bound": {
+                              "type": "string",
+                              "example": "14.0"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "vendor_data": {
+                  "type": "object",
+                  "properties": {
+                    "vendor_priority": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "nvd"
+                      }
+                    },
+                    "nvd": {
+                      "type": "object",
+                      "properties": {
+                        "cvss_score": {
+                          "type": "number",
+                          "format": "float",
+                          "example": 9.3
+                        },
+                        "cvss_exploit_subscore": {
+                          "type": "number",
+                          "format": "float",
+                          "example": 8.6
+                        },
+                        "cvss_impact_subscore": {
+                          "type": "number",
+                          "format": "float",
+                          "example": 10
+                        },
+                        "cvss_vector": {
+                          "type": "string",
+                          "example": "AV:N/AC:M/Au:N/C:C/I:C/A:C/E:U/RL:OF/RC:C"
+                        },
+                        "summary": {
+                          "type": "string",
+                          "example": "An out-of-bounds read was addressed with improved bounds checking. This issue is fixed in macOS Catalina 10.15.7, Security Update 2020-005 High Sierra, Security Update 2020-005 Mojave, iOS 14.0 and iPadOS 14.0. Processing a maliciously crafted USD file may lead to unexpected application termination or arbitrary code execution."
+                        },
+                        "cvss_access_complexity": {
+                          "type": "string",
+                          "example": "Medium"
+                        },
+                        "cvss_access_vector": {
+                          "type": "string",
+                          "example": "Network"
+                        },
+                        "cvss_authentication": {
+                          "type": "string",
+                          "example": "None required"
+                        },
+                        "description": {
+                          "type": "string",
+                          "example": "An out-of-bounds read was addressed with improved bounds checking. This issue is fixed in macOS Catalina 10.15.7, Security Update 2020-005 High Sierra, Security Update 2020-005 Mojave, iOS 14.0 and iPadOS 14.0. Processing a maliciously crafted USD file may lead to unexpected application termination or arbitrary code execution."
+                        },
+                        "cvss_availability_impact": {
+                          "type": "string",
+                          "example": "Complete"
+                        },
+                        "cvss_confidentiality_impact": {
+                          "type": "string",
+                          "example": "Complete"
+                        },
+                        "cvss_integrity_impact": {
+                          "type": "string",
+                          "example": "Complete"
+                        },
+                        "cvss_temporal_score": {
+                          "type": "number",
+                          "format": "float",
+                          "example": 6.9
+                        },
+                        "cvss_v3_score": {
+                          "type": "number",
+                          "format": "float",
+                          "example": 7.8
+                        },
+                        "cvss_v3_exploit_subscore": {
+                          "type": "number",
+                          "format": "float",
+                          "example": 1.8
+                        },
+                        "cvss_v3_impact_subscore": {
+                          "type": "number",
+                          "format": "float",
+                          "example": 5.9
+                        },
+                        "cvss_v3_vector": {
+                          "type": "string",
+                          "example": "CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H/E:U/RL:O/RC:C"
+                        },
+                        "cvss_v3_temporal_score": {
+                          "type": "number",
+                          "format": "float",
+                          "example": null
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "applications": {
+            "type": "object",
+            "example": {}
+          }
+        }
+      },
+      "error_response": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "The HTTP error message."
+          },
+          "message": {
+            "type": "string",
+            "description": "The specific error message."
+          },
+          "success": {
+            "type": "string",
+            "description": "Indicates success, usually 'false'."
+          }
+        }
+      },
+      "microsoft_vuln_inferenece_post_response_schema": {
+        "type": "array",
+        "description": "An array of malware family information.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "fixed_by": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "example": "KB4541331"
+              }
+            },
+            "id": {
+              "type": "integer",
+              "format": "int32",
+              "example": "502028"
+            },
+            "cve_description": {
+              "type": "string",
+              "example": "A memory corruption vulnerability exists in the Windows DHCP clientwhen an attacker sends specially crafted DHCP responses to a client, aka 'Windows DHCP Client Remote Code Execution Vulnerability'. This CVE ID is unique from CVE-2019-0698, CVE-2019-0726."
+            },
+            "cvss_access_complexity": {
+              "type": "string",
+              "example": "Low"
+            },
+            "cvss_access_vector": {
+              "type": "string",
+              "example": "Network"
+            },
+            "cvss_authentication": {
+              "type": "string",
+              "example": "None required"
+            },
+            "description": {
+              "type": "string",
+              "example": "A memory corruption vulnerability exists in the Windows DHCP client when an attacker sends specially crafted DHCP responses to a client, aka 'Windows DHCP Client Remote Code Execution Vulnerability'. This CVE ID is unique from CVE-2019-0698, CVE-2019-0726."
+            },
+            "risk_meter_score": {
+              "type": "number",
+              "example": "35.7432"
+            },
+            "cve_checksum": {
+              "type": "string",
+              "example": "a8c8ca07c4e55c6b5dd6d8379b77e38de047894c"
+            },
+            "cve_checksum_updated_at": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2022-02-14T13:86:06Z"
+            },
+            "cve_remote_code_execution": {
+              "type": "boolean",
+              "example": true
+            },
+            "cvss_availability_impact": {
+              "type": "string",
+              "example": "Partial"
+            },
+            "cvss_confidentiality_impact": {
+              "type": "string",
+              "example": "Partial"
+            },
+            "cvss_integrity_impact": {
+              "type": "string",
+              "example": "Partial"
+            },
+            "easily_exploitable": {
+              "type": "boolean"
+            },
+            "malware_exploitable": {
+              "type": "boolean"
+            },
+            "active_internet_breach": {
+              "type": "boolean"
+            },
+            "cve_id": {
+              "type": "string",
+              "example": "CVE-2019-0697"
+            },
+            "cvss_score": {
+              "type": "number",
+              "example": "7.5"
+            },
+            "cvss_exploit_subscore": {
+              "type": "number",
+              "example": "10.0"
+            },
+            "cvss_impact_subscore": {
+              "type": "number",
+              "example": "6.4"
+            },
+            "cvss_vector": {
+              "type": "string",
+              "example": "AV:N/AC:L/Au:N/C:P/I:P/A:P"
+            },
+            "cvss_temporal_score": {
+              "type": "number",
+              "example": "7.5"
+            },
+            "cvss_v3_score": {
+              "type": "number",
+              "example": "9.8"
+            },
+            "cvss_v3_exploit_subscore": {
+              "type": "number",
+              "example": "3.9"
+            },
+            "cvss_v3_impact_subscore": {
+              "type": "number",
+              "example": "5.9"
+            },
+            "cvss_v3_vector": {
+              "type": "string",
+              "example": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+            },
+            "cvss_v3_temporal_score": {
+              "type": "string",
+              "format": "nullable"
+            },
+            "last_modified": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2019-04-09T17:31:00Z"
+            },
+            "malware_count": {
+              "type": "integer",
+              "format": "int32",
+              "example": 28284
+            },
+            "published": {
+              "type": "string",
+              "format": "date-time",
+              "example": "2019-01-09T17:31:00Z"
+            },
+            "vulnerable_products": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "example": "cpe:2.3:o:microsoft:windows_10:1803:*:*:*:*:*:*:*"
+              }
+            },
+            "vulnerable_products_v2": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "affected_versions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "cpe_version": {
+                    "type": "string",
+                    "example": "2.3"
+                  },
+                  "cpe_uri": {
+                    "type": "string",
+                    "example": "cpe:2.3:o:microsoft:windows_10:1803:*:*:*:*:*:*:*"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "os_inference_request_body_schema": {
+        "type": "object",
+        "required": [
+          "os_type",
+          "os_version"
+        ],
+        "properties": {
+          "arch": {
+            "type": "string",
+            "description": "The architecture of the operating system. Currently only `64-bit` is supported. This parameter can be omitted for Linux."
+          },
+          "os_type": {
+            "type": "string",
+            "description": "The operating system type. Supported values include CENTOS, SLES, RHEL, UBUNTU or WINDOWS."
+          },
+          "os_name": {
+            "type": "string",
+            "description": "A human readable name for the operating system."
+          },
+          "os_version": {
+            "type": "string",
+            "description": "The version of the Linux or Windows operating system to check. See below for a list of supported Windows operating systems."
+          },
+          "min_risk_meter_score": {
+            "type": "integer",
+            "description": "The minimum risk meter score for vulns to be returned; will not return any vulns with risk meter scores less than this value. A min_risk_meter_score of zero will return all vulns."
+          },
+          "include_unverified_versions": {
+            "type": "boolean",
+            "description": "Whether or not to include inference results for Windows OSes whose data quality results have not yet been verified by our research team. Does not include results for those versions by default."
+          },
+          "installed_kbs": {
+            "type": "array",
+            "description": "List of KBs installed on the operating system. e.g: [\"KB5005043\", \"KB5004948\"]",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "X-Risk-Token": {
+        "type": "apiKey",
+        "name": "X-Risk-Token",
+        "in": "header"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://{defaultHost}",
+      "variables": {
+        "defaultHost": {
+          "default": "api.inference.us.kennasecurity.com"
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/v2/application_mappings/find_by_binary_information": {
+      "get": {
+        "summary": "CPE mappings for distributable binaries",
+        "description": "\n<p>\n  Returns Common Platform Enumeration (CPE) mappings for a given application based on the information that the application's vendor attached to the distributable binary, which can be retrieved via osquery.\n</p>\n\n<div class=\"pin\"><blockquote class=\"callout callout_warn\" theme=\"\ud83d\udea7\"><h3 class=\"callout-heading false\"><span class=\"callout-icon\">\ud83d\udea7</span><p>Restricted Access</p></h3><p>This API endpoint is a premium feature for selected partners.</p></blockquote></div>\n\n<p>\n  To retrieve the vendor/product information from distributable binaries installed on a client machine, run this osquery command:\n</p>\n\n<code>\nosqueryi --json \"SELECT * FROM programs;\"\n</code>\n\n<p>\n  This should produce JSON output which looks like this:\n</p>\n\n<pre><code>[\n  {\n    \"identifying_number\":\"\",\n    \"install_date\":\"20210215\",\n    \"install_location\":\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\",\n    \"install_source\":\"\",\n    \"language\":\"\",\n    \"name\":\"Microsoft Edge\",\n    \"publisher\":\"Microsoft Corporation\",\n    \"uninstall_string\":\"\"C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\88.0.705.68\\Installer\\setup.exe\" --uninstall --msedge --system-level --verbose-logging\",\n    \"version\":\"88.0.705.68\"\n  },\n  ...etc\n]\n</code></pre>\n\n<p>\n  The \"publisher\" and \"name\" outputs from osquery map to the \"vendor_name\" and \"product_name\" parameters on this API endpoint. In this case, \"Microsoft Corporation\" and \"Microsoft Edge\":\n</p>\n\n<code>\n/v2/application_mappings/find_by_binary_information?vendor_name=Microsoft Corporation&product_name=Microsoft Edge\n</code>\n\n<p>Results:</p>\n\n<pre><code>{\n  \"cpe_normalized_application_names\": [\n    \"Microsoft Edge\"\n  ],\n  \"cpe_mappings\": [\n    {\n      \"cpe_vendor\": \"microsoft\",\n      \"cpe_product\": \"edge\"\n    }\n  ],\n  \"vendor_binary_information\": [\n    {\n      \"vendor\": \"Microsoft Corporation\",\n      \"product\": \"Microsoft Edge\"\n    },\n    {\n      \"vendor\": \"Microsoft\",\n      \"product\": \"EDGE\"\n    }\n    {\n      \"vendor\": \"Microsoft Corp\",\n      \"product\": \"Microsoft Edge\"\n    }\n    ...etc\n  ],\n  \"cpe_application_names\": [\n    \"Microsoft Edge 88.0.705.50\",\n    \"Microsoft Edge 88.0.705.62\",\n    \"Microsoft Edge 88.0.705.63\"\n    ...etc\n  ],\n  \"cpes\": [\n    {\n      \"product_version\": \"-\",\n      \"cpe_uri\": \"cpe:/a:microsoft:edge:-\",\n      \"cpe_uri_format\": \"2.2\"\n    },\n    {\n      \"product_version\": null,\n      \"cpe_uri\": \"cpe:/a:microsoft:edge\",\n      \"cpe_uri_format\": \"2.2\"\n    },\n    {\n      \"product_version\": \"88.0.705.50\",\n      \"cpe_uri\": \"cpe:/a:microsoft:edge:88.0.705.50\",\n      \"cpe_uri_format\": \"2.2\"\n    },\n    {\n      \"product_version\": \"88.0.705.62\",\n      \"cpe_uri\": \"cpe:/a:microsoft:edge:88.0.705.62\",\n      \"cpe_uri_format\": \"2.2\"\n    },\n    ...etc\n  ]\n}</code></pre>\n        ",
+        "operationId": "application_mappings-find_by_binary_information",
+        "security": [
+          {
+            "X-Risk-Token": []
+          }
+        ],
+        "tags": [
+          "INFERENCE V2 - Application Mappings"
+        ],
+        "parameters": [
+          {
+            "name": "vendor_name",
+            "in": "query",
+            "description": "The specified vendor being requested.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "product_name",
+            "in": "query",
+            "description": "The specified product being requested.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cpe_normalized_application_names": [
+                    "Microsoft Edge"
+                  ],
+                  "cpe_mappings": [
+                    {
+                      "cpe_vendor": "microsoft",
+                      "cpe_product": "edge"
+                    }
+                  ],
+                  "vendor_binary_information": [
+                    {
+                      "vendor": "Microsoft Corporation",
+                      "product": "Microsoft Edge"
+                    },
+                    {
+                      "vendor": "Microsoft Edge",
+                      "product": "Microsoft Edge"
+                    },
+                    {
+                      "vendor": "Microsoft Corp",
+                      "product": "Microsoft Edge"
+                    },
+                    {
+                      "vendor": "Microsoft",
+                      "product": "EDGE"
+                    }
+                  ],
+                  "cpe_application_names": [
+                    "Microsoft Edge 86.0.622.69",
+                    "Microsoft Edge 87.0.664.41",
+                    "Microsoft Edge 88.0.705.74"
+                  ],
+                  "cpes": [
+                    {
+                      "product_version": "86.0.622.69",
+                      "cpe_uri": "cpe:/a:microsoft:edge:86.0.622.69",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "87.0.664.41",
+                      "cpe_uri": "cpe:/a:microsoft:edge:87.0.664.41",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "88.0.705.74",
+                      "cpe_uri": "cpe:/a:microsoft:edge:88.0.705.74",
+                      "cpe_uri_format": "2.2"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/application_mappings_schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/application_mappings/find_by_cpe_title": {
+      "get": {
+        "summary": "CPE mappings from application name",
+        "description": "\n<p>\n  Given an application name and an optional vendor name, this endpoint executes a wildcard search against all CPE application titles and returns any matching CPE mappings.\n</p>\n\n<div class=\"pin\"><blockquote class=\"callout callout_warn\" theme=\"\ud83d\udea7\"><h3 class=\"callout-heading false\"><span class=\"callout-icon\">\ud83d\udea7</span><p>Restricted Access</p></h3><p>This API endpoint is a premium feature for selected partners.</p></blockquote></div>\n\n<p>For example, if searching with cpe_title = \"Microsoft Internet Explorer 88.0.1008.3\", this endpoint will ignore the version and return all CPE mappings with titles containing \"Microsoft Internet Explorer\". Ex:\n\n<pre><code>{\n  \"cpe_normalized_application_names\": [\n    \"Microsoft Internet Explorer\",\n    \"Microsoft Internet Explorer SP1\",\n    \"Microsoft Internet Explorer SP2\",\n    \"Microsoft Internet Explorer Platform Preview 1.0 (PP1)\",\n    \"Microsoft Internet Explorer SP3\",\n    \"...etc\"\n  ],\n  \"cpe_mappings\": [\n    {\n      \"cpe_vendor\": \"microsoft\",\n      \"cpe_product\": \"ie\"\n    },\n    {\n      \"cpe_vendor\": \"microsoft\",\n      \"cpe_product\": \"pocket_internet_explorer\"\n    }\n  ],\n  \"vendor_binary_information\": [],\n  \"cpe_application_names\": [\n    \"Microsoft Internet Explorer\",\n    \"Microsoft Internet Explorer 4.0.1 SP1\",\n    \"Microsoft Internet Explorer 4.0.1 SP2\",\n    \"Microsoft Internet Explorer 4.0 Platform Preview 1.0 (PP1)\",\n    \"Microsoft Internet Explorer 4.01 Service Pack 1 (Windows 98)\",\n    \"Microsoft Internet Explorer 5.0.1 SP3\",\n    \"...etc\"\n  ],\n  \"cpes\": [\n    {\n      \"product_version\": null,\n      \"cpe_uri\": \"cpe:/a:microsoft:ie\",\n      \"cpe_uri_format\": \"2.2\"\n    },\n    {\n      \"product_version\": \"4.0.1\",\n      \"cpe_uri\": \"cpe:/a:microsoft:ie:4.0.1:sp1\",\n      \"cpe_uri_format\": \"2.2\"\n    },\n    {\n      \"product_version\": \"4.0.1\",\n      \"cpe_uri\": \"cpe:/a:microsoft:ie:4.0.1:sp2\",\n      \"cpe_uri_format\": \"2.2\"\n    },\n    ...etc\n  ]\n}\n</code></pre>\n        ",
+        "operationId": "application_mappings-find_by_cpe_title",
+        "security": [
+          {
+            "X-Risk-Token": []
+          }
+        ],
+        "tags": [
+          "INFERENCE V2 - Application Mappings"
+        ],
+        "parameters": [
+          {
+            "name": "cpe_vendor",
+            "in": "query",
+            "description": "The specified vendor being requested, extracted from CPE URI.",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cpe_title",
+            "in": "query",
+            "description": "The specified product title/name requested, fuzzy matches records using product title.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cpe_normalized_application_names": [
+                    "Microsoft Office",
+                    "Microsoft Office SP3",
+                    "Microsoft Office Professional",
+                    "Microsoft Office Service Pack 2 on X86"
+                  ],
+                  "cpe_mappings": [
+                    {
+                      "cpe_vendor": "microsoft",
+                      "cpe_product": "office"
+                    }
+                  ],
+                  "vendor_binary_information": [
+                    {
+                      "vendor": "Microsoft Corporation",
+                      "product": "Microsoft Office"
+                    },
+                    {
+                      "vendor": "Microsoft Corporation",
+                      "product": "Microsoft\u00ae Office"
+                    },
+                    {
+                      "vendor": "Microsoft Office",
+                      "product": "Microsoft Office"
+                    }
+                  ],
+                  "cpe_application_names": [
+                    "Microsoft Office",
+                    "Microsoft Office 2000",
+                    "Microsoft Office 2000 sp1",
+                    "Microsoft Office 2001",
+                    "Microsoft Office 2019 on x64",
+                    "Microsoft Office 2019 on x86",
+                    "Microsoft Office 2013 Service Pack 2 on X86",
+                    "Microsoft Office 2021 Long Term Servicing Channel (LTSC) Edition for MacOS"
+                  ],
+                  "cpes": [
+                    {
+                      "product_version": "2000",
+                      "cpe_uri": "cpe:/a:microsoft:office:2000",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2000",
+                      "cpe_uri": "cpe:/a:microsoft:office:2000:::ko",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2000",
+                      "cpe_uri": "cpe:/a:microsoft:office:2000:::zh",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2000",
+                      "cpe_uri": "cpe:/a:microsoft:office:2000:sp1",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2021",
+                      "cpe_uri": "cpe:/a:microsoft:office:2021::~~ltsc~macos~~",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2004",
+                      "cpe_uri": "cpe:/a:microsoft:office:2004::~~~macos~~",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2008",
+                      "cpe_uri": "cpe:/a:microsoft:office:2008::~~~macos~~",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2013",
+                      "cpe_uri": "cpe:/a:microsoft:office:2013::~~click-to-run~~x64~",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2013",
+                      "cpe_uri": "cpe:/a:microsoft:office:2013::~~click-to-run~~x86~",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2021",
+                      "cpe_uri": "cpe:/a:microsoft:office:2021::~~ltsc~~~",
+                      "cpe_uri_format": "2.2"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/application_mappings_schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/application_mappings/find_by_cpe_mappings": {
+      "get": {
+        "summary": "CPE mappings by vendor and product",
+        "description": "\n<p>\n  Returns Common Platform Enumeration (CPE) information associated with the provided CPE vendor and product values.\n</p>\n\n<div class=\"pin\"><blockquote class=\"callout callout_warn\" theme=\"\ud83d\udea7\"><h3 class=\"callout-heading false\"><span class=\"callout-icon\">\ud83d\udea7</span><p>Restricted Access</p></h3><p>This API endpoint is a premium feature for selected partners.</p></blockquote></div>\n\n<p>\n  CPE vendor and product names come from CPE URIs. These can come from several sources: An <a href=\"https://nvd.nist.gov/vuln/detail/cve-2014-0160\">entry on NVD</a>, the <a href=\"https://nvd.nist.gov/products/cpe\">CPE dictionary</a> or the results of a previous call to the Inference API.\n</p>\n\n<p>\n  An example from the CPE dictionary looks like this:\n</p>\n\n<pre><code>\n[cpe-item name=\"cpe:/a:microsoft:office:2007\"]\n  [title xml:lang=\"en-US\"]Microsoft Office 2007[/title]\n  [meta:item-metadata nvd-id=\"38081\" status=\"FINAL\" modification-date=\"2008-04-15T23:55:38.437Z\"/]\n[/cpe-item]\n</code></pre>\n\n<p>\n  In this case the CPE URI is \"cpe:/a:microsoft:office:2007\". The cpe_vendor is \"microsoft\", and the cpe_title is \"office\":'\n</p>\n\n<code>\n/v2/application_mappings/find_by_cpe_title?cpe_vendor=microsoft&cpe_title=office\n</code>\n\n<p>Results:</p>\n\n<pre><code>\n{\n  \"cpe_normalized_application_names\": [\n    \"Microsoft Office\",\n    \"Microsoft Office SP3\",\n    \"Microsoft Office Professional\",\n    \"Microsoft Office Service Pack 2 on X86\"\n    ...etc\n  ],\n  \"cpe_mappings\": [\n    {\n      \"cpe_vendor\": \"microsoft\",\n      \"cpe_product\": \"office\"\n    }\n  ],\n  \"vendor_binary_information\": [\n    {\n      \"vendor\": \"Microsoft Corporation\",\n      \"product\": \"Microsoft Office\"\n    },\n    {\n      \"vendor\": \"Microsoft Corporation\",\n      \"product\": \"Microsoft\u00ae Office\"\n    },\n    {\n      \"vendor\": \"Microsoft Office\",\n      \"product\": \"Microsoft Office\"\n    },\n    ...etc\n  ],\n  \"cpe_application_names\": [\n    \"Microsoft Office\",\n    \"Microsoft Office 2013 Service Pack 2 on X86\",\n    \"Microsoft Office 2019 on x64\",\n    \"Microsoft Office 2019 on x86\",\n    \"Microsoft Office 2021 Long Term Servicing Channel (LTSC) Edition for MacOS\"\n    ...etc\n  ],\n  \"cpes\": [\n    {\n      \"product_version\": \"2000\",\n      \"cpe_uri\": \"cpe:/a:microsoft:office:2000:sp1\",\n      \"cpe_uri_format\": \"2.2\"\n    },\n    {\n      \"product_version\": \"2021\",\n      \"cpe_uri\": \"cpe:/a:microsoft:office:2021::~~ltsc~macos~~\",\n      \"cpe_uri_format\": \"2.2\"\n    },\n    {\n      \"product_version\": \"2013\",\n      \"cpe_uri\": \"cpe:/a:microsoft:office:2013::~~click-to-run~~x64~\",\n      \"cpe_uri_format\": \"2.2\"\n    }\n    ...etc\n  ]\n}</code></pre>\n          ",
+        "operationId": "application_mappings-find_by_cpe_mappings",
+        "security": [
+          {
+            "X-Risk-Token": []
+          }
+        ],
+        "tags": [
+          "INFERENCE V2 - Application Mappings"
+        ],
+        "parameters": [
+          {
+            "name": "cpe_vendor",
+            "in": "query",
+            "description": "The specified vendor being requested, extracted from CPE URI.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cpe_product",
+            "in": "query",
+            "description": "The specified product being requested, extracted from CPE URI.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cpe_normalized_application_names": [
+                    "Microsoft Office",
+                    "Microsoft Office SP3",
+                    "Microsoft Office Professional",
+                    "Microsoft Office Service Pack 2 on X86"
+                  ],
+                  "cpe_mappings": [
+                    {
+                      "cpe_vendor": "microsoft",
+                      "cpe_product": "office"
+                    }
+                  ],
+                  "vendor_binary_information": [
+                    {
+                      "vendor": "Microsoft Corporation",
+                      "product": "Microsoft Office"
+                    },
+                    {
+                      "vendor": "Microsoft Corporation",
+                      "product": "Microsoft\u00ae Office"
+                    },
+                    {
+                      "vendor": "Microsoft Office",
+                      "product": "Microsoft Office"
+                    }
+                  ],
+                  "cpe_application_names": [
+                    "Microsoft Office",
+                    "Microsoft Office 2000",
+                    "Microsoft Office 2000 sp1",
+                    "Microsoft Office 2001",
+                    "Microsoft Office 2019 on x64",
+                    "Microsoft Office 2019 on x86",
+                    "Microsoft Office 2013 Service Pack 2 on X86",
+                    "Microsoft Office 2021 Long Term Servicing Channel (LTSC) Edition for MacOS"
+                  ],
+                  "cpes": [
+                    {
+                      "product_version": "2000",
+                      "cpe_uri": "cpe:/a:microsoft:office:2000",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2000",
+                      "cpe_uri": "cpe:/a:microsoft:office:2000:::ko",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2000",
+                      "cpe_uri": "cpe:/a:microsoft:office:2000:::zh",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2000",
+                      "cpe_uri": "cpe:/a:microsoft:office:2000:sp1",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2021",
+                      "cpe_uri": "cpe:/a:microsoft:office:2021::~~ltsc~macos~~",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2004",
+                      "cpe_uri": "cpe:/a:microsoft:office:2004::~~~macos~~",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2008",
+                      "cpe_uri": "cpe:/a:microsoft:office:2008::~~~macos~~",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2013",
+                      "cpe_uri": "cpe:/a:microsoft:office:2013::~~click-to-run~~x64~",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2013",
+                      "cpe_uri": "cpe:/a:microsoft:office:2013::~~click-to-run~~x86~",
+                      "cpe_uri_format": "2.2"
+                    },
+                    {
+                      "product_version": "2021",
+                      "cpe_uri": "cpe:/a:microsoft:office:2021::~~ltsc~~~",
+                      "cpe_uri_format": "2.2"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/application_mappings_schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/application_mappings/find_cpe_vendors_by_vendor_name": {
+      "get": {
+        "summary": "Find all CPE vendor names from a plaintext vendor name",
+        "description": "\n<p>\nReturns the CPE vendor names from CPE URIs associated with a vendor name extracted from a distributable binary\n</p>\n\n<div class=\"pin\"><blockquote class=\"callout callout_warn\" theme=\"\ud83d\udea7\"><h3 class=\"callout-heading false\"><span class=\"callout-icon\">\ud83d\udea7</span><p>Restricted Access</p></h3><p>This API endpoint is a premium feature for selected partners.</p></blockquote></div>\n\n<p>\nGiven a vendor name: Google LLC \n</p>\n\n<pre><code>\n/v2/application_mappings/find_cpe_vendors_by_vendor_name?vendor_name=Google LLC\n</code></pre>\n\n<p>Results:</p>\n\n<pre><code>{\n  \"cpe_vendors\": [\n    \"google\",\n    \"google_llc\"\n  ]\n}\n</code></pre>\n        ",
+        "operationId": "application_mappings-find_cpe_vendors_by_vendor_name",
+        "security": [
+          {
+            "X-Risk-Token": []
+          }
+        ],
+        "tags": [
+          "INFERENCE V2 - Application Mappings"
+        ],
+        "parameters": [
+          {
+            "name": "vendor_name",
+            "in": "query",
+            "description": "The specified vendor being requested.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cpe_vendors": [
+                    "google",
+                    "google_llc"
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/application_mappings_find_cpe_vendors_by_vendor_name_schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v2/application_mappings/find_cpe_products_by_vendor_cpe": {
+      "get": {
+        "summary": "Find products associated with a CPE's vendor name",
+        "description": "\n<p>\n  Returns CPE product names associated with the provided vendor name\n</p>\n\n<div class=\"pin\"><blockquote class=\"callout callout_warn\" theme=\"\ud83d\udea7\"><h3 class=\"callout-heading false\"><span class=\"callout-icon\">\ud83d\udea7</span><p>Restricted Access</p></h3><p>This API endpoint is a premium feature for selected partners.</p></blockquote></div>\n\n<p>\n  CPE URI:\n</p>\n\n<pre><code>\ncpe:/a:microsoft:office:2007\n</code></pre>\n\n<p>\n  Using the vendor part from the above CPE URI, \"microsoft\", we can return all the products associated with that vendor\n</p>\n\n<pre><code>\n/v2/application_mappings/find_cpe_products_by_vendor_cpe?cpe_vendor=microsoft\n</code></pre>\n\n<pre><code>{\n  \"cpe_products\": [\n    \"visio\",\n    \"visual_studio_2015\",\n    \"excel_web_app_2013\",\n    \"wordpad\",\n    \"visual_studio_2017\",\n    \"internet_explorer\",\n    ...etc\n  ]\n</code></pre>\n}\n        ",
+        "operationId": "application_mappings-find_cpe_products_by_vendor_cpe",
+        "security": [
+          {
+            "X-Risk-Token": []
+          }
+        ],
+        "tags": [
+          "INFERENCE V2 - Application Mappings"
+        ],
+        "parameters": [
+          {
+            "name": "cpe_vendor",
+            "in": "query",
+            "description": "The vendor being requested, extracted from CPE URI.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "example": {
+                  "cpe_products": [
+                    "edge",
+                    "visual_studio",
+                    "visual_studio_community",
+                    "onedrive",
+                    "powerpoint",
+                    "windows",
+                    ".net",
+                    "...etc"
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/application_mappings_find_cpe_products_by_vendor_cpe_schema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inference/v2/os_query": {
+      "post": {
+        "summary": "Vulnerability Inference for Darwin-based Operating Systems",
+        "description": "<p>Returns a list of known vulnerabilities for a given Darwin-based operating system such as OS X.</p><div class=\"pin\"><blockquote class=\"callout callout_warn\" theme=\"\ud83d\udea7\"><h3 class=\"callout-heading false\"><span class=\"callout-icon\">\ud83d\udea7</span><p>Restricted Access</p></h3><p>This API endpoint is a premium feature for select partners.</p></blockquote></div><p>To generate a payload on the client machine, run this osquery command from your command line shell:<pre><code>osqueryi --json \"SELECT * FROM os_version;\"</code></pre></p><p>The command should produce JSON output that looks like this:<pre><code>[\n  {\n    \"major\": \"10\",\n    \"name\": \"Mac OS X\",\n    \"platform_like\": \"darwin\",\n    \"patch\": \"3\",\n    \"platform\": \"darwin\",\n    \"version\": \"10.15.1\",\n    \"build\": \"19D76\",\n    \"codename\": \"\",\n    \"arch\": \"x86_64\",\n    \"minor\": \"15\"\n  }\n]</code></pre></p><p>The above output can be used in the POST request.</p>",
+        "operationId": "darwin-os-inference",
+        "security": [
+          {
+            "X-Risk-Token": []
+          }
+        ],
+        "tags": [
+          "INFERENCE V2 - Osquery"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "example": {
+                  "system_information": {
+                    "os_name": "Mac OS X",
+                    "version": "10.15.1",
+                    "platform": "DARWIN",
+                    "arch": "x86_64"
+                  },
+                  "os": [
+                    {
+                      "cve": {
+                        "id": 171973,
+                        "cve_id": "CVE-2020-9973",
+                        "description": "An out-of-bounds read was addressed with improved bounds checking. This issue is fixed in macOS Catalina 10.15.7, Security Update 2020-005 High Sierra, Security Update 2020-005 Mojave, iOS 14.0 and iPadOS 14.0. Processing a maliciously crafted USD file may lead to unexpected application termination or arbitrary code execution.",
+                        "updated_at": "2020-11-15T22:00:04.000Z",
+                        "vendor_updated_at": "2020-11-15T20:15:00Z",
+                        "vendor_published_at": "2020-10-27T21:15:00Z"
+                      },
+                      "risk": {
+                        "risk_meter_score": 33.1211,
+                        "easily_exploitable": false,
+                        "malware_exploitable": false,
+                        "active_internet_breach": false,
+                        "malware_count": 3
+                      },
+                      "fixes": [
+                        {
+                          "fix_id": 10822,
+                          "package_name": "Model I/O",
+                          "product_name": "macOS Catalina 10.15.7 Security Update 2020-005 High Sierra Security Update 2020-005 Mojave",
+                          "description": "An out-of-bounds read was addressed with improved bounds checking.",
+                          "impact": "Processing a maliciously crafted USD file may lead to unexpected application termination or arbitrary code execution",
+                          "vendor_source_id": "HT211849",
+                          "vendor_link": "https://support.apple.com/en-us/HT211849",
+                          "vendor_security_update_link": "https://support.apple.com/en-us/HT201222",
+                          "released_on": "2020-09-24",
+                          "last_modified": "2021-03-16",
+                          "updated_at": "2021-09-22T06:00:24Z"
+                        }
+                      ],
+                      "vulnerable_products": [
+                        {
+                          "cpe_version": "2.3",
+                          "cpe_uri": "cpe:2.3:o:apple:ipados:*:*:*:*:*:*:*:*",
+                          "affected_versions": [
+                            {
+                              "lower_bound_type": null,
+                              "lower_bound": null,
+                              "upper_bound_type": "excluding",
+                              "upper_bound": "14.0"
+                            }
+                          ]
+                        },
+                        {
+                          "cpe_version": "2.3",
+                          "cpe_uri": "cpe:2.3:o:apple:iphone_os:*:*:*:*:*:*:*:*",
+                          "affected_versions": [
+                            {
+                              "lower_bound_type": null,
+                              "lower_bound": null,
+                              "upper_bound_type": "excluding",
+                              "upper_bound": "14.0"
+                            }
+                          ]
+                        },
+                        {
+                          "cpe_version": "2.3",
+                          "cpe_uri": "cpe:2.3:o:apple:mac_os_x:*:*:*:*:*:*:*:*",
+                          "affected_versions": [
+                            {
+                              "lower_bound_type": null,
+                              "lower_bound": null,
+                              "upper_bound_type": "excluding",
+                              "upper_bound": "10.15.7"
+                            }
+                          ]
+                        }
+                      ],
+                      "vendor_data": {
+                        "vendor_priority": [
+                          "nvd"
+                        ],
+                        "nvd": {
+                          "cvss_score": 9.3,
+                          "cvss_exploit_subscore": 8.6,
+                          "cvss_impact_subscore": 10,
+                          "cvss_vector": "AV:N/AC:M/Au:N/C:C/I:C/A:C/E:U/RL:OF/RC:C",
+                          "summary": "An out-of-bounds read was addressed with improved bounds checking. This issue is fixed in macOS Catalina 10.15.7, Security Update 2020-005 High Sierra, Security Update 2020-005 Mojave, iOS 14.0 and iPadOS 14.0. Processing a maliciously crafted USD file may lead to unexpected application termination or arbitrary code execution.",
+                          "cvss_access_complexity": "Medium",
+                          "cvss_access_vector": "Network",
+                          "cvss_authentication": "None required",
+                          "description": "An out-of-bounds read was addressed with improved bounds checking. This issue is fixed in macOS Catalina 10.15.7, Security Update 2020-005 High Sierra, Security Update 2020-005 Mojave, iOS 14.0 and iPadOS 14.0. Processing a maliciously crafted USD file may lead to unexpected application termination or arbitrary code execution.",
+                          "cvss_availability_impact": "Complete",
+                          "cvss_confidentiality_impact": "Complete",
+                          "cvss_integrity_impact": "Complete",
+                          "cvss_temporal_score": 6.9,
+                          "cvss_v3_score": 7.8,
+                          "cvss_v3_exploit_subscore": 1.8,
+                          "cvss_v3_impact_subscore": 5.9,
+                          "cvss_v3_vector": "CVSS:3.0/AV:L/AC:L/PR:N/UI:R/S:U/C:H/I:H/A:H/E:U/RL:O/RC:C",
+                          "cvss_v3_temporal_score": null
+                        }
+                      }
+                    }
+                  ],
+                  "applications": {}
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/darwin_os_inference_response_schema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "400",
+            "content": {
+              "application/json": {
+                "example": {},
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/darwin_os_inference_request_body_schema"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnerability_definitions/app_inference": {
+      "post": {
+        "summary": "Vulnerability Inference for Applications",
+        "description": "<p>Returns a list of known vulnerabilities for a given list of applications. Supported operating systems include CentOS, SUSE Linux Enterprise Server, Redhat Enterprise Linux, Ubuntu and Windows.</p><div class=\"pin\"><blockquote class=\"callout callout_warn\" theme=\"\ud83d\udea7\"><h3 class=\"callout-heading false\"><span class=\"callout-icon\">\ud83d\udea7</span><p>Restricted Access</p></h3><p>This API endpoint is a premium feature for select partners.</p></blockquote></div>",
+        "operationId": "application-inference",
+        "security": [
+          {
+            "X-Risk-Token": []
+          }
+        ],
+        "tags": [
+          "INFERENCE V1 (Legacy)"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/51612701083eea34cbeb0be66175b235566839e2376216d7ff4bab8b393d98fd_post_response_schema"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "400",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/app_inference_request_body_schema"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/vulnerability_definitions/os_inference": {
+      "post": {
+        "summary": "Vulnerability Inference for Microsoft Operating Systems",
+        "description": "<p>Returns a list of known vulnerabilities for a given Windows operating system version.</p><div class=\"pin\"><blockquote class=\"callout callout_warn\" theme=\"\ud83d\udea7\"><h3 class=\"callout-heading false\"><span class=\"callout-icon\">\ud83d\udea7</span><p>Restricted Access</p></h3><p>This API endpoint is a premium feature for select partners.</p></blockquote></div>",
+        "operationId": "windows-os-inference",
+        "security": [
+          {
+            "X-Risk-Token": []
+          }
+        ],
+        "tags": [
+          "INFERENCE V1 (Legacy)"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "fixed_by": [
+                      "KB4541331",
+                      "KB4538461",
+                      "KB4537818",
+                      "KB4534321",
+                      "KB4534273",
+                      "KB4532691",
+                      "KB4530715",
+                      "KB4524148",
+                      "KB4523205",
+                      "KB4522015",
+                      "KB4520062",
+                      "KB4519338",
+                      "KB4516077",
+                      "KB4512578",
+                      "KB4512534",
+                      "KB4511553",
+                      "KB4509479",
+                      "KB4507469",
+                      "KB4505658",
+                      "KB4505056",
+                      "KB4503327",
+                      "KB4501835",
+                      "KB4501371",
+                      "KB4497934",
+                      "KB4495667",
+                      "KB4494441",
+                      "KB4493509",
+                      "KB4490481",
+                      "KB4489899"
+                    ],
+                    "id": 502028,
+                    "cve_checksum": "a8c8ca07c4e55c6b5dd6d8379b77e38de047894c",
+                    "cve_checksum_updated_at": "2021-10-28T18:58:56Z",
+                    "cve_description": "A memory corruption vulnerability exists in the Windows DHCP clientwhen an attacker sends specially crafted DHCP responses to a client, aka 'Windows DHCP Client Remote Code Execution Vulnerability'. This CVE ID is unique from CVE-2019-0698, CVE-2019-0726.",
+                    "cve_id": "CVE-2019-0697",
+                    "cve_remote_code_execution": true,
+                    "cvss_access_complexity": "Low",
+                    "cvss_access_vector": "Network",
+                    "cvss_authentication": "None required",
+                    "description": "A memory corruption vulnerability exists in the Windows DHCP client when an attacker sends specially crafted DHCP responses to a client, aka 'Windows DHCP Client Remote Code Execution Vulnerability'. This CVE ID is unique from CVE-2019-0698, CVE-2019-0726.",
+                    "risk_meter_score": 35.7432,
+                    "solution": null,
+                    "cvss_availability_impact": "Partial",
+                    "cvss_confidentiality_impact": "Partial",
+                    "cvss_integrity_impact": "Partial",
+                    "easily_exploitable": false,
+                    "malware_exploitable": false,
+                    "active_internet_breach": false,
+                    "cvss_score": 7.5,
+                    "cvss_exploit_subscore": 10,
+                    "cvss_impact_subscore": 6.4,
+                    "cvss_vector": "AV:N/AC:L/Au:N/C:P/I:P/A:P",
+                    "cvss_temporal_score": 7.5,
+                    "cvss_v3_score": 9.8,
+                    "cvss_v3_exploit_subscore": 3.9,
+                    "cvss_v3_impact_subscore": 5.9,
+                    "cvss_v3_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H",
+                    "cvss_v3_temporal_score": null,
+                    "last_modified": "2019-04-09T17:31:00Z",
+                    "published": "2019-01-09T17:31:00Z",
+                    "vulnerable_products": [
+                      "cpe:2.3:o:microsoft:windows_10:1803:*:*:*:*:*:*:*",
+                      "cpe:2.3:o:microsoft:windows_10:1809:*:*:*:*:*:*:*",
+                      "cpe:2.3:o:microsoft:windows_server_2016:1803:*:*:*:*:*:*:*",
+                      "cpe:2.3:o:microsoft:windows_server_2019:*:*:*:*:*:*:*:*"
+                    ],
+                    "vulnerable_products_v2": [
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_10:1803:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      },
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_10:1809:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      },
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_server_2016:1803:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      },
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_server_2019:*:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      }
+                    ]
+                  },
+                  {
+                    "fixed_by": [
+                      "KB4541331",
+                      "KB4538461",
+                      "KB4537818",
+                      "KB4534321",
+                      "KB4534273",
+                      "KB4532691",
+                      "KB4530715",
+                      "KB4524148",
+                      "KB4523205",
+                      "KB4522015",
+                      "KB4520062",
+                      "KB4519338",
+                      "KB4516077",
+                      "KB4512578",
+                      "KB4512534",
+                      "KB4511553",
+                      "KB4509479",
+                      "KB4507469",
+                      "KB4505658",
+                      "KB4505056",
+                      "KB4503327",
+                      "KB4501835",
+                      "KB4501371",
+                      "KB4497934",
+                      "KB4495667",
+                      "KB4494441",
+                      "KB4493509",
+                      "KB4490481",
+                      "KB4489899"
+                    ],
+                    "id": 502029,
+                    "cve_checksum": "a8c8ca07c4e55c6b5dd6d8379b77e38de047894c",
+                    "cve_checksum_updated_at": "2021-11-28T60:22:14Z",
+                    "cve_description": "A memory corruption vulnerability exists in the Windows DHCP client when an attacker sends specially crafted DHCP responses to a client, aka 'Windows DHCP Client Remote Code Execution Vulnerability'. This CVE ID is unique from CVE-2019-0697, CVE-2019-0726.",
+                    "cve_remote_code_execution": true,
+                    "cvss_access_complexity": "Low",
+                    "cvss_access_vector": "Network",
+                    "cvss_authentication": "None required",
+                    "description": "A memory corruption vulnerability exists in the Windows DHCP client when an attacker sends specially crafted DHCP responses to a client, aka 'Windows DHCP Client Remote Code Execution Vulnerability'. This CVE ID is unique from CVE-2019-0697, CVE-2019-0726.",
+                    "risk_meter_score": 45.4913,
+                    "solution": null,
+                    "cvss_availability_impact": "Partial",
+                    "cvss_confidentiality_impact": "Partial",
+                    "cvss_integrity_impact": "Partial",
+                    "easily_exploitable": false,
+                    "malware_exploitable": false,
+                    "active_internet_breach": false,
+                    "cve_id": "CVE-2019-0698",
+                    "cvss_score": 7.5,
+                    "cvss_exploit_subscore": 10,
+                    "cvss_impact_subscore": 6.4,
+                    "cvss_vector": "AV:N/AC:L/Au:N/C:P/I:P/A:P/E:U/RL:OF/RC:C",
+                    "cvss_temporal_score": 5.5,
+                    "cvss_v3_score": 9.8,
+                    "cvss_v3_exploit_subscore": 3.9,
+                    "cvss_v3_impact_subscore": 5.9,
+                    "cvss_v3_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H/E:U/RL:O/RC:C",
+                    "cvss_v3_temporal_score": null,
+                    "last_modified": "2019-04-09T17:57:00Z",
+                    "published": "2019-01-09T17:57:00Z",
+                    "vulnerable_products": [
+                      "cpe:2.3:o:microsoft:windows_10:1803:*:*:*:*:*:*:*",
+                      "cpe:2.3:o:microsoft:windows_10:1809:*:*:*:*:*:*:*",
+                      "cpe:2.3:o:microsoft:windows_server_2016:1803:*:*:*:*:*:*:*",
+                      "cpe:2.3:o:microsoft:windows_server_2019:*:*:*:*:*:*:*:*"
+                    ],
+                    "vulnerable_products_v2": [
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_10:1803:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      },
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_10:1809:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      },
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_server_2016:1803:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      },
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_server_2019:*:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      }
+                    ]
+                  },
+                  {
+                    "fixed_by": [
+                      "KB4541331",
+                      "KB4538461",
+                      "KB4537818",
+                      "KB4534321",
+                      "KB4534273",
+                      "KB4532691",
+                      "KB4530715",
+                      "KB4524148",
+                      "KB4523205",
+                      "KB4522015",
+                      "KB4520062",
+                      "KB4519338",
+                      "KB4516077",
+                      "KB4512578",
+                      "KB4512534",
+                      "KB4511553",
+                      "KB4509479",
+                      "KB4507469",
+                      "KB4505658",
+                      "KB4505056",
+                      "KB4503327",
+                      "KB4501835",
+                      "KB4501371",
+                      "KB4497934",
+                      "KB4495667",
+                      "KB4494441",
+                      "KB4493509",
+                      "KB4490481",
+                      "KB4489899"
+                    ],
+                    "id": 502034,
+                    "cve_checksum": "a8c8ca07c4e55c6b5dd6d8379b77e38de047894c",
+                    "cve_checksum_updated_at": "2021-10-28T18:58:56Z",
+                    "cve_description": "A memory corruption vulnerability exists in the Windows DHCP client when an attacker sends specially crafted DHCP responses to a client, aka 'Windows DHCP Client Remote Code Execution Vulnerability'. This CVE ID is unique from CVE-2019-0697, CVE-2019-0698.",
+                    "cve_remote_code_execution": true,
+                    "cvss_access_complexity": "Low",
+                    "cvss_access_vector": "Network",
+                    "cvss_authentication": "None required",
+                    "description": "A memory corruption vulnerability exists in the Windows DHCP client when an attacker sends specially crafted DHCP responses to a client, aka 'Windows DHCP Client Remote Code Execution Vulnerability'. This CVE ID is unique from CVE-2019-0697, CVE-2019-0698.",
+                    "risk_meter_score": 45.4913,
+                    "solution": null,
+                    "cvss_availability_impact": "Partial",
+                    "cvss_confidentiality_impact": "Partial",
+                    "cvss_integrity_impact": "Partial",
+                    "easily_exploitable": false,
+                    "malware_exploitable": false,
+                    "active_internet_breach": false,
+                    "cve_id": "CVE-2019-0726",
+                    "cvss_score": 7.5,
+                    "cvss_exploit_subscore": 10,
+                    "cvss_impact_subscore": 6.4,
+                    "cvss_vector": "AV:N/AC:L/Au:N/C:P/I:P/A:P/E:U/RL:OF/RC:C",
+                    "cvss_temporal_score": 5.5,
+                    "cvss_v3_score": 9.8,
+                    "cvss_v3_exploit_subscore": 3.9,
+                    "cvss_v3_impact_subscore": 5.9,
+                    "cvss_v3_vector": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H/E:U/RL:O/RC:C",
+                    "cvss_v3_temporal_score": null,
+                    "last_modified": "2019-04-10T03:45:00Z",
+                    "published": "2019-01-10T03:45:00Z",
+                    "vulnerable_products": [
+                      "cpe:2.3:o:microsoft:windows_10:1803:*:*:*:*:*:*:*",
+                      "cpe:2.3:o:microsoft:windows_10:1809:*:*:*:*:*:*:*",
+                      "cpe:2.3:o:microsoft:windows_server_2016:1803:*:*:*:*:*:*:*",
+                      "cpe:2.3:o:microsoft:windows_server_2019:*:*:*:*:*:*:*:*"
+                    ],
+                    "vulnerable_products_v2": [
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_10:1803:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      },
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_10:1809:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      },
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_server_2016:1803:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      },
+                      {
+                        "cpe_version": "2.3",
+                        "cpe_uri": "cpe:2.3:o:microsoft:windows_server_2019:*:*:*:*:*:*:*:*",
+                        "affected_versions": []
+                      }
+                    ]
+                  }
+                ],
+                "schema": {
+                  "$ref": "#/components/schemas/microsoft_vuln_inferenece_post_response_schema"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/os_inference_request_body_schema"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-readme": {
+    "explorer-enabled": true,
+    "proxy-enabled": true,
+    "samples-enabled": true
+  }
+}

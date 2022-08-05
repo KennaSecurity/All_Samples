@@ -4969,30 +4969,39 @@
       "stacks_request_body_schema": {
         "type": "object",
         "required": [
-          "name",
-          "application_ids",
-          "asset_search_ids"
+          "stack"
         ],
         "properties": {
-          "name": {
-            "type": "string",
-            "example": "Test Stack",
-            "description": "The name of the stack."
-          },
-          "application_ids": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "example": 234,
-              "description": "An array containing ID of the applications to add to the stack."
-            }
-          },
-          "asset_search_ids": {
-            "type": "array",
-            "items": {
-              "type": "integer",
-              "example": 234,
-              "description": "An array containing ID of the asset searches to add to the stack."
+          "stack": {
+            "type": "object",
+            "description": "The stack create object",
+            "required": [
+              "name",
+              "application_ids",
+              "asset_search_ids"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "example": "Test Stack",
+                "description": "The name of the stack."
+              },
+              "application_ids": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "example": 234,
+                  "description": "An array containing ID of the applications to add to the stack."
+                }
+              },
+              "asset_search_ids": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "example": 234,
+                  "description": "An array containing ID of the asset searches to add to the stack."
+                }
+              }
             }
           }
         }
@@ -9124,6 +9133,7 @@
                     "vulnerabilities_count": 1,
                     "inactive_at": "2020-10-31",
                     "status_set_manually": false,
+                    "overage": false,
                     "urls": {
                       "vulnerabilities": "https://api.kennasecurity.com/assets/183/vulnerabilities"
                     },
@@ -9528,6 +9538,7 @@
                       "vulnerabilities_count": 1,
                       "inactive_at": "2020-10-31",
                       "status_set_manually": false,
+                      "overage": false,
                       "urls": {
                         "vulnerabilities": "https://api.kennasecurity.com/assets/183/vulnerabilities"
                       },
@@ -9613,6 +9624,7 @@
                     "vulnerabilities_count": 0,
                     "inactive_at": "2020-10-31",
                     "status_set_manually": false,
+                    "overage": false,
                     "urls": {
                       "vulnerabilities": "https://api.kennasecurity.com/assets/183/vulnerabilities"
                     },
@@ -9765,7 +9777,7 @@
     "/assets/search": {
       "get": {
         "summary": "Search Assets",
-        "description": "<p>Filters assets by a given set of parameters and returns the filtered assets as well as the total number of assets in the filtered set. By default, only active assets with open vulnerabilities are returned.</p><p>Each unique parameter is combined using AND while each of values passed in a single array will be combined using OR. For example, if you search for all assets with <code>status=[\"active\"]</code> and <code>tags=[\"foo\", \"bar\"]</code> you will receive all active assets that have either a \"foo\" tag or a \"bar\" tag. </p><p><table>  <tr>    <th>Attribute</th>    <th>Value</th>  </tr>  <tr>    <td>Maximum Pages Allowed</td>    <td>20</td>  </tr>  <tr>    <td>Maximum Page Size</td>    <td>50,000</td>  </tr>  <tr>    <td>Default Page Size</td>    <td>500</td>  </tr>  <tr>    <td>Total Count Present in <code>meta</code> object</td>    <td>Yes</td>  </tr></table>Large page size can cause performance issues.  See the <a href=\"https://apidocs.kennasecurity.com/reference/pagination\">Pagination Section</a> for more details. </p><p>This endpoint does not return tag source information. Tag source information is available in the <a href=\"https://apidocs.kennasecurity.com/reference/list-tags\">List Tags</a> endpoint.<p>",
+        "description": "<p>Filters assets by a given set of parameters and returns the filtered assets as well as the total number of assets in the filtered set. By default, only active assets with open vulnerabilities are returned.</p><p>Each unique parameter is combined using AND while each of values passed in a single array will be combined using OR. For example, if you search for all assets with <code>status[]=[\"active\"]</code> and <code>tags[]=[\"foo\", \"bar\"]</code> you will receive all active assets that have either a \"foo\" tag or a \"bar\" tag. </p><p><table>  <tr>    <th>Attribute</th>    <th>Value</th>  </tr>  <tr>    <td>Maximum Pages Allowed</td>    <td>20</td>  </tr>  <tr>    <td>Maximum Page Size</td>    <td>50,000</td>  </tr>  <tr>    <td>Default Page Size</td>    <td>500</td>  </tr>  <tr>    <td>Total Count Present in <code>meta</code> object</td>    <td>Yes</td>  </tr></table>Large page size can cause performance issues.  See the <a href=\"https://apidocs.kennasecurity.com/reference/pagination\">Pagination Section</a> for more details. </p><p>This endpoint does not return tag source information. Tag source information is available in the <a href=\"https://apidocs.kennasecurity.com/reference/list-tags\">List Tags</a> endpoint.<p>",
         "operationId": "search-assets",
         "security": [
           {
@@ -9787,7 +9799,7 @@
             }
           },
           {
-            "name": "exclude_child_filter",
+            "name": "exclude_child_filter[]",
             "in": "query",
             "schema": {
               "type": "array",
@@ -9798,7 +9810,7 @@
             "description": "If you want to include all assets regardless of vulnerability filters, pass a value of [\"Include all assets\"]; otherwise, omit this parameter."
           },
           {
-            "name": "id",
+            "name": "id[]",
             "in": "query",
             "schema": {
               "type": "array",
@@ -9859,7 +9871,7 @@
             }
           },
           {
-            "name": "operating_system",
+            "name": "operating_system[]",
             "in": "query",
             "schema": {
               "type": "array",
@@ -9870,7 +9882,7 @@
             "description": "An array of the names of the operating systems associated with a set of assets."
           },
           {
-            "name": "primary_locator",
+            "name": "primary_locator[]",
             "in": "query",
             "schema": {
               "type": "array",
@@ -9889,7 +9901,7 @@
             }
           },
           {
-            "name": "service_names",
+            "name": "service_names[]",
             "in": "query",
             "schema": {
               "type": "array",
@@ -9900,7 +9912,7 @@
             "description": "An array of service names relating to your assets. Make sure all letters are lowercase."
           },
           {
-            "name": "service_ports",
+            "name": "service_ports[]",
             "in": "query",
             "schema": {
               "type": "array",
@@ -9911,7 +9923,7 @@
             "description": "An array of ports relating to your assets."
           },
           {
-            "name": "service_products",
+            "name": "service_products[]",
             "in": "query",
             "schema": {
               "type": "array",
@@ -9922,7 +9934,7 @@
             "description": "An array of service products relating to your assets. Make sure all letters are lowercase."
           },
           {
-            "name": "service_protocols",
+            "name": "service_protocols[]",
             "in": "query",
             "schema": {
               "type": "array",
@@ -9933,7 +9945,7 @@
             "description": "An array of service protocols relating to your assets. Make sure all letters are lowercase."
           },
           {
-            "name": "status",
+            "name": "status[]",
             "in": "query",
             "schema": {
               "type": "array",
@@ -9948,12 +9960,15 @@
             "description": "An array of statuses for your assets which can include active and/or inactive. NOTE: By default, only active assets are returned when searching. You must specify the asset status you want in order to override that default."
           },
           {
-            "name": "status_set_manually",
+            "name": "status_set_manually[]",
             "in": "query",
-            "description": "A boolean to indicate whether an asset's active/inactive status was set automatically by Kenna or manually by a human.",
             "schema": {
-              "type": "boolean"
-            }
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "A boolean to indicate whether an asset's active/inactive status was set automatically by Kenna or manually by a human."
           },
           {
             "name": "search_id",
@@ -9972,7 +9987,7 @@
             }
           },
           {
-            "name": "tags",
+            "name": "tags[]",
             "in": "query",
             "schema": {
               "type": "array",
@@ -9983,12 +9998,312 @@
             "description": "An array of tag names associated with your assets."
           },
           {
-            "name": "vulnerability",
+            "name": "vulnerability[classification][]",
             "in": "query",
-            "description": "Vulnerability ids. Search for all assets that have vulnerabilities with these ids.",
             "schema": {
-              "type": "object"
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Classification of the vulnerability."
+          },
+          {
+            "name": "vulnerability[connector_names][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Connector names of the vulnerabilitys."
+          },
+          {
+            "name": "vulnerability[connector_types][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Connector types of the vulnerabilitys."
+          },
+          {
+            "name": "vulnerability[has_know_exploits][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "Vulnerabilities that have know exploits."
+          },
+          {
+            "name": "vulnerability[has_know_malware][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "Vulnerabilities that have know malware."
+          },
+          {
+            "name": "vulnerability[id][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "Vulnerability IDs."
+          },
+          {
+            "name": "vulnerability[max_priority]",
+            "in": "query",
+            "description": "Vulnerability levels less that this value.",
+            "schema": {
+              "type": "integer"
             }
+          },
+          {
+            "name": "vulnerability[max_risk_meter_score]",
+            "in": "query",
+            "description": "Vulnerability risk scores less that this value.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vulnerability[max_rounded_risk_meter_score]",
+            "in": "query",
+            "description": "Vulnerability risk scores rounded to the integer less that this value.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vulnerability[max_severity]",
+            "in": "query",
+            "description": "Vulnerabilities with serverity levels less that this value.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vulnerability[max_threat]",
+            "in": "query",
+            "description": "Vulnerabilities with threat levels less that this value.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vulnerability[min_priority]",
+            "in": "query",
+            "description": "Vulnerability levels greater that this value.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vulnerability[min_risk_meter_score]",
+            "in": "query",
+            "description": "Vulnerability risk scores greater that this value.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vulnerability[min_rounded_risk_meter_score]",
+            "in": "query",
+            "description": "Vulnerability risk scores rounded to the integer greater that this value.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vulnerability[min_severity]",
+            "in": "query",
+            "description": "Vulnerabilities with serverity levels greater that this value.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vulnerability[min_threat]",
+            "in": "query",
+            "description": "Vulnerabilities with threat levels greater that this value.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "vulnerability[no_vulnerability_definition_id][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "Exclude Vulnerability IDs."
+          },
+          {
+            "name": "vulnerability[pci_related][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "Vulnerabilities that are PCI related."
+          },
+          {
+            "name": "vulnerability[port][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "Ports associated with vulnerabilies."
+          },
+          {
+            "name": "vulnerability[predicted_exploitable][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "Vulnerabilities that are predicted to be exploitable."
+          },
+          {
+            "name": "vulnerability[prioritize][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "Vulnerabilities that are prioritized."
+          },
+          {
+            "name": "vulnerability[q]",
+            "in": "query",
+            "description": "Vulnerability query string.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "vulnerability[remote_code_execution][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "Vulnerabilities that be executed remotely."
+          },
+          {
+            "name": "vulnerability[service_ticket_status][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Vulnerability ticket status."
+          },
+          {
+            "name": "vulnerability[status][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Vulnerability status."
+          },
+          {
+            "name": "vulnerability[top_exploited][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "Vulnerabilities that are actively being used for internet breaches."
+          },
+          {
+            "name": "vulnerability[trending][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "Vulnerabilities that are trending."
+          },
+          {
+            "name": "vulnerability[vulnerability_class][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Vulnerability classification."
+          },
+          {
+            "name": "vulnerability[vulnerability_definition_id][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "Vulnerability definition IDs."
+          },
+          {
+            "name": "vulnerability[wasc_classification][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "Vulnerability WASC classification."
+          },
+          {
+            "name": "vulnerability[zero_day][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "Vulnerabilities that have zero day exploits."
           }
         ],
         "responses": {
@@ -10025,6 +10340,7 @@
                       "vulnerabilities_count": 1,
                       "inactive_at": "2020-10-31",
                       "status_set_manually": false,
+                      "overage": false,
                       "urls": {
                         "vulnerabilities": "https://api.kennasecurity.com/assets/183/vulnerabilities"
                       },
@@ -14694,6 +15010,14 @@
             "description": "An array of booleans for filtering your vulnerabilities by those that have seen high levels of exploitation recently."
           },
           {
+            "name": "fields",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "description": "A comma separated list of fields to be returned in the response."
+          },
+          {
             "name": "has_known_exploits[]",
             "in": "query",
             "schema": {
@@ -14742,7 +15066,7 @@
             "in": "query",
             "description": "Find all vulnerabilities on assets with priority levels less than this value.",
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           },
           {
@@ -14750,7 +15074,7 @@
             "in": "query",
             "description": "Find all vulnerabilities on assets with priority levels greater than this value.",
             "schema": {
-              "type": "string"
+              "type": "integer"
             }
           },
           {
@@ -14908,6 +15232,17 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "remote_code_exection[]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "An array of booleans for filtering your vulnerabilities by those that be executed remotely."
           },
           {
             "name": "search_id",
@@ -17345,3 +17680,4 @@
     }
   }
 }
+

@@ -5,8 +5,8 @@ name: User Audit
 #    - cron: "45 5 * * *"  
 
 # default syntax is an on-demand task that can be manually initiated 
-on: workflow_dispatch
-jobs:
+#on: workflow_dispatch
+#jobs:
   user_audit_job:
     build:
       runs-on: ubuntu-latest

@@ -2,7 +2,7 @@
   "openapi": "3.0.1",
   "info": {
     "title": "Kenna Platform API",
-    "description": "Swagger POC",
+    "description": "OpenAPI specification for Kenna Security",
     "version": "1.0"
   },
   "components": {
@@ -1051,7 +1051,7 @@
               },
               "q": {
                 "type": "string",
-                "description": "This can be any query string you want to search for, including a regex. We also have our own search syntax that enables you to search assets based on specific locators and fields. For more detailed documentation on our search syntax visit our Help Center. Below is an example of our search syntax being used to find all assets with the hostname foobar. As stated in our Help Center, it is also possible to use our search syntax on vulnerability fields. In order to apply a query for a vulnerability field to an asset search you must nest the query string under a vulnerability key. The example below shows how to search for all assets that relate to vulnerabilities that are connected to the Heartbleed CVE."
+                "description": "Additional text search parameters, as documented at: [Kenna Search Terms](https://help.kennasecurity.com/hc/en-us/articles/206280593-Kenna-Search-Terms).  Example q=tag:(mytag+AND+thetag).  See [code example](https://github.com/KennaSecurity/blog_samples/blob/8e26fb9a9e77fe6c31648f4425c58f4d80b756ec/python/cisa_risk_meter/build_cisa_risk_meter.py#L152-L156)."
               },
               "service_ports": {
                 "type": "array",
@@ -1508,7 +1508,11 @@
             "properties": {
               "application": {
                 "type": "string",
-                "description": "The application name"
+                "description": "The application name.  Either `application` or `application_id` may be specified."
+              },
+              "application_id": {
+                "type": "string",
+                "description": "The application locator of the asset.  Either `application_id` or `application` may be specified."
               },
               "external_id": {
                 "type": "string",
@@ -1639,10 +1643,6 @@
               },
               "notes": {
                 "type": "string"
-              },
-              "created_at": {
-                "type": "string",
-                "format": "date-time"
               },
               "operating_system": {
                 "type": "string"
@@ -2599,23 +2599,16 @@
         "properties": {
           "cve_id": {
             "type": "string",
-            "description": "A National Vulnerability Database CVE identifier,"
+            "description": "A National Vulnerability Database CVE identifier, 'CVE-YYYY-NNNN', 'CVE-YYYY-NNNNN', or 'CVE-YYYY-NNNNNNN'.  One of the following fields, `cve_id`, `cwe_id`, or `wasc_id`, is required."
           },
           "cwe_id": {
             "type": "string",
-            "description": "A CWE - Common Weakness Enumeration identifier"
+            "description": "A CWE - Common Weakness Enumeration identifier, 'CWE-<number>'.  One of the following fields, `cve_id`, `cwe_id`, or `wasc_id`, is required."
           },
           "closed_at": {
             "type": "string",
             "description": "The datetime(as a UTC timestamp) to mark when a vulnerability was closed in the format (2013-09-01)",
             "format": "date-time"
-          },
-          "custom_fields": {
-            "type": "object",
-            "description": "Custom Fields are defined by Custom Field Definitions which can be set up in the UI for your account. When updating a vulnerability's custom fields, reference them by their custom_field_definition_id, the key in the `CUSTOM_FIELDS_OBJECT`.  Only IDs that are present in the UPDATE request will be modified (ie: leaving out custom fields in the UPDATE request will not delete them on the server). To remove a vulnerability's custom field value, UPDATE it with an empty string. { \"777\": \"\" }",
-            "additionalProperties": {
-              "type": "string"
-            }
           },
           "database": {
             "type": "string",
@@ -2671,11 +2664,6 @@
           "mac_address": {
             "type": "string",
             "description": "Whichever locator was specified as the primary_locator above must have a value set that matches the primary_locator of the associated asset."
-          },
-          "override_score": {
-            "type": "integer",
-            "description": "An integer (0 - 100) representing the risk score for a vulnerability. Kenna continuously updates risk scores as the threat landscape changes. If you manually override this score, the vulnerability will no longer be updated dynamically and the change will be logged for audit purposes.",
-            "format": "int32"
           },
           "port": {
             "type": "integer",
@@ -2735,7 +2723,7 @@
           },
           "wasc_id": {
             "type": "string",
-            "description": "A WASC 2.0 Threat Classification ID"
+            "description": "A WASC 2.0 Threat Classification ID. One of the following fields, `cve_id`, `cwe_id`, or `wasc_id`, is required."
           }
         }
       },
@@ -2836,6 +2824,64 @@
               "type": "string",
               "example": "CVE-2001-0911"
             }
+          }
+        }
+      },
+      "cvss_v2_schema": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "number",
+            "format": "float",
+            "description": "Numerical score indicates the severity of a vulnerability relative to other vulnerabilities.",
+            "example": 7.5
+          },
+          "exploit_subscore": {
+            "type": "number",
+            "format": "float",
+            "description": "Numerical score reflects the ease and technical means by which the vulnerability can be exploited. The Exploitability sub-score equation is derived from the Base Exploitability metrics.",
+            "example": 10.0
+          },
+          "impact_subscore": {
+            "type": "number",
+            "format": "float",
+            "description": "Numerical score reflects the direct consequence of a successful exploit, and represents the consequence to the thing that suffers the impact. The Impact sub-score equation is derived from the Base Impact metrics.",
+            "example": 6.4
+          },
+          "temporal_score": {
+            "type": "number",
+            "format": "float",
+            "description": "Numerical score reflects the characteristics of a vulnerability that may change over time but not across user environments.",
+            "example": 7.5
+          }
+        }
+      },
+      "cvss_v3_schema": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "number",
+            "format": "float",
+            "description": "Numerical score indicates the severity of a vulnerability relative to other vulnerabilities.",
+            "example": 7.5
+          },
+          "exploit_subscore": {
+            "type": "number",
+            "format": "float",
+            "description": "Numerical score reflects the ease and technical means by which the vulnerability can be exploited. The Exploitability sub-score equation is derived from the Base Exploitability metrics.",
+            "example": 3.9
+          },
+          "impact_subscore": {
+            "type": "number",
+            "format": "float",
+            "description": "Numerical score reflects the direct consequence of a successful exploit, and represents the consequence to the thing that suffers the impact. The Impact sub-score equation is derived from the Base Impact metrics.",
+            "example": 3.6
+          },
+          "temporal_score": {
+            "type": "number",
+            "format": "float",
+            "description": "Numerical score reflects the characteristics of a vulnerability that may change over time but not across user environments.",
+            "example": 9.4
           }
         }
       },
@@ -3156,13 +3202,290 @@
               }
             }
           },
+          "id": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "*Valid for asset, vulnerability, and fix models.*  Denpendent on the `model`, an array of asset, vulnerability, or fix IDs"
+          },
+          "max_priority": {
+            "type": "integer",
+            "description": "*Valid for asset, vulnerablibilty, and fix models.*  Search for all assets that have a priority less than this value."
+          },
+          "max_risk_meter_score": {
+            "type": "integer",
+            "description": "*Valid for asset, vulnerability, and fix models.*  Search for all assets that have a risk meter score less than this value."
+          },
+          "min_priority": {
+            "type": "integer",
+            "description": "*Valid for asset, vulnerability, and fix models.*  Search for all assets that have a priority greater than this value."
+          },
+          "min_risk_meter_score": {
+            "type": "integer",
+            "description": "*Valid for asset, vulnerability, and fix models.*  Search for all assets that have a risk meter score greater than this value."
+          },
+          "q": {
+            "type": "string",
+            "description": "*Valid for asset, vulnerability, and fix models.*  Additional text search parameters, as documented at: [Kenna Search Terms](https://help.kennasecurity.com/hc/en-us/articles/206280593-Kenna-Search-Terms).  Use the section that matches the model.*  Example q=tag:(mytag+AND+thetag)."
+          },
           "records_updated_since": {
             "type": "string",
-            "description": "Supports **Incremental Exports**. It will fetch all records updated since that time. This can be added to both asset and vulnerabilities.  The format can be an offset date (\"now-2d\") following [this format](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math), a date (\"2020-09-09\") or a date-time (\"2020-10-10 12:30:00\")."
+            "description": "*Valid for asset, vulnerability, and fix models.*  Supports **Incremental Exports**. It will fetch all records updated since that time. This can be added to both asset and vulnerabilities.  The format can be an offset date (\"now-2d\") following [this format](https://www.elastic.co/guide/en/elasticsearch/reference/current/common-options.html#date-math), a date (\"2020-09-09\") or a date-time (\"2020-10-10 12:30:00\")."
           },
           "records_updated_until": {
             "type": "string",
-            "description": "Effective only when `records_updated_since` is specified. It will fetch all records updated since `records_updated_since` (inclusive) datetime until `records_update_until` datetime (exclusive). The format is the same to `records_update_since` parameter."
+            "description": "*Valid for asset, vulnerability, and fix models.*  Effective only when `records_updated_since` is specified. It will fetch all records updated since `records_updated_since` (inclusive) datetime until `records_update_until` datetime (exclusive). The format is the same to `records_update_since` parameter."
+          },
+          "status": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "active",
+                "inactive",
+                "open",
+                "closed",
+                "risk accepted",
+                "false positive"
+              ]
+            },
+            "description": "*Valid for asset, vulnerability, and fix models.*  An array of statuses. For the asset model, 'active' and 'open' are valid.  The asset model default is 'active'.  For the vulnerability and fix models, 'open', 'close', 'risk accpeted', and 'false positive' are valid.  The vulnerability and fix models default is 'open'."
+          },
+          "exclude_child_filter": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "*Valid for asset model.*  If you want to include all assets regardless of vulnerability filters, pass a value of `[\"Include all assets\"]`; otherwise, omit this parameter."
+          },
+          "operating_system": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "*Valid for asset model.*  An array of the names of the operating systems associated with a set of assets."
+          },
+          "primary_locator": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "*Valid for asset model.*  The primary locator used for an asset. This should be one of the following values: ip_address, hostname, database, url, mac_address, netbios, fqdn, file, or application"
+          },
+          "search_id": {
+            "type": "integer",
+            "description": "*Valid for asset model.*  Search values specified in the risk meter group definition will override their respective values provided in this request when search_id is provided."
+          },
+          "service_names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "*Valid for asset model.*  An array of service names relating to your assets. Make sure all letters are lowercase."
+          },
+          "service_ports": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "*Valid for asset model.*  An array of ports relating to your assets."
+          },
+          "service_products": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "*Valid for asset model.*  An array of service products relating to your assets. Make sure all letters are lowercase."
+          },
+          "service_protocols": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "*Valid for asset model.*  An array of service protocols relating to your assets. Make sure all letters are lowercase."
+          },
+          "status_set_manually": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "description": "*Valid for asset model.*  A boolean to indicate whether an asset\"s active/inactive status was set automatically by Kenna or manually by a human."
+          },
+          "tag_boolean_mode": {
+            "type": "string",
+            "description": "*Valid for asset model.*  Set this to \"all\" if you would like to return assets that contain all of the tags in your query rather than assets that contain any of the tags."
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "*Valid for asset model.*  An array of tag names associated with your assets."
+          },
+          "classification": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Informational",
+                "CVE",
+                "CWE",
+                "WASC"
+              ]
+            },
+            "description": "*Valid for vulnerability and fixes models.*  Find all vulnerabilities matching the specified classifications."
+          },
+          "connector_names": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of connector names related to your vulnerabilities."
+          },
+          "connector_types": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of connector types related to your vulnerabilities."
+          },
+          "custom_fields": {
+            "type": "string",
+            "description": "*Valid for vulnerability and fixes models.*  Search for all vulnerabilities that have a specific custom field and its value.  The proper format for a custom field query is `custom_fields:`, the name of the custom field you are searching on, and the value you are searching for.  For example: `custom_fields:Category=good`.  <br>Note the following: <ol><li>Testing <code>custom_fields</code> in the \"Try It!\" pane does not work.</li><li>Use the example above as a guide in <code>curl</code> or some other language.</li><li>To search multiple custom fields, add another query parameter.</li><li>Search must have a value and there is no wildcarding.</li></ol>"
+          },
+          "has_known_exploits": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of booleans for filtering vulnerabilities by those that have have known exploits."
+          },
+          "has_known_malware": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of booleans for filtering your vulnerabilities by those that have known malware."
+          },
+          "max_rounded_risk_meter_score": {
+            "type": "integer",
+            "description": "*Valid for vulnerability and fixes models.*  Similar to max_risk_meter_score, rounded to the nearest integer."
+          },
+          "max_severity": {
+            "type": "integer",
+            "description": "*Valid for vulnerability and fixes models.*  Find all vulnerabilities with severity levels less than this value."
+          },
+          "max_threat": {
+            "type": "integer",
+            "description": "*Valid for vulnerability and fixes models.*  Find all vulnerabilities with threat levels less than this value."
+          },
+          "min_rounded_risk_meter_score": {
+            "type": "integer",
+            "description": "*Valid for vulnerability and fixes models.*  Similar to min_risk_meter_score, rounded to the nearest integer."
+          },
+          "min_severity": {
+            "type": "integer",
+            "description": "*Valid for vulnerability and fixes models.*  Find all vulnerabilities with severity levels greater than this value."
+          },
+          "min_threat": {
+            "type": "integer",
+            "description": "*Valid for vulnerability and fixes models.*  Find all vulnerabilities with threat levels greater than this value."
+          },
+          "no_vulnerability_definition_id": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  Exclude all vulnerabilities for the identified definition IDs."
+          },
+          "pci_related": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of booleans for filtering your vulnerabilities by those that are PCI related"
+          },
+          "port": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of ports associated with your vulnerabilities."
+          },
+          "predicted_exploitable": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of booleans for filtering your vulnerabilities by those that have been predicted to be exploited."
+          },
+          "prioritized": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of booleans for filtering your vulnerabilities by those that are prioritized."
+          },
+          "remote_code_exection": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of booleans for filtering your vulnerabilities by those that be executed remotely."
+          },
+          "service_ticket_status": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of strings that represent the statuses of all service tickets connected to your vulnerabilities."
+          },
+          "top_exploit": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of booleans to filter by vulnerabilities whose exploits are actively being used for internet breaches."
+          },
+          "trending": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of booleans for filtering by vulnerabilities that are trending."
+          },
+          "vulnerability_class": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "Web app",
+                "Host or network"
+              ]
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of strings for filtering by vulnerability classification."
+          },
+          "vulnerability_definition_id": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  Find all vulnerabilities for the identified definition IDs."
+          },
+          "wasc_classification": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array to filter your vulnerabilities by specified WASC classifications."
+          },
+          "zero_day": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            },
+            "description": "*Valid for vulnerability and fixes models.*  An array of booleans for filtering by vulnerabilities that have zero days."
           }
         }
       },
@@ -6522,6 +6845,14 @@
           },
           "status": {
             "type": "string",
+            "enum": [
+              "closed",
+              "closed_by_human",
+              "false_positive_by_human",
+              "open",
+              "open_by_api",
+              "risk_accepted_by_human"
+            ],
             "example": "open"
           },
           "closed_at": {
@@ -6736,6 +7067,12 @@
           "closed": {
             "type": "boolean",
             "example": false
+          },
+          "cvss_v2": {
+            "$ref": "#/components/schemas/cvss_v2_schema"
+          },
+          "cvss_v3": {
+            "$ref": "#/components/schemas/cvss_v3_schema"
           }
         }
       },
@@ -9928,7 +10265,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "type": "integer"
+                "type": "string"
               }
             },
             "description": "An array of service products relating to your assets. Make sure all letters are lowercase."
@@ -11494,7 +11831,8 @@
                       "database": null,
                       "ip_address": "127.0.0.1",
                       "mac_address": null,
-                      "risk_meter_score": 0
+                      "risk_meter_score": 0,
+                      "overage": false
                     }
                   ],
                   "meta": {
@@ -11554,7 +11892,7 @@
       },
       "post": {
         "summary": "Request Data Export",
-        "description": "<p>Filters client data by a given set of parameters the exact same way the search endpoints do. The request is processed in the background.</p><p>User must specify the format of the data, including the model type (\"asset\", \"fix\", or \"vulnerability\"), and data format (\"json\", \"jsonl\", \"xml\").</p><p>Due to the async nature of the request, a search_id is returned which can be used to get the results of the search once the processing of the request is complete. Search IDs are valid for 30 days after the initial request is made.</p><p>For a full list of query parameters to search by, see the search parameter section for your chosen model type:<ul>  <li><a href=\"https://apidocs.kennasecurity.com/reference/search-assets\">asset</li>  <li><a href=\"https://apidocs.kennasecurity.com/reference/search-fixes\">fix</li>  <li><a href=\"https://apidocs.kennasecurity.com/reference/search-vulnerabilities\">vulnerability</li></ul></p>",
+        "description": "<p>Filters client data by a given set of parameters the exact same way the search endpoints do. The request is processed in the background.</p><p>User must specify the format of the data, including the model type (\"asset\", \"fix\", or \"vulnerability\"), and data format (\"json\", \"jsonl\", \"xml\").</p><p>Due to the async nature of the request, a search_id is returned which can be used to get the results of the search once the processing of the request is complete. Search IDs are valid for 30 days after the initial request is made.</p><p>The <code>model</code> field in <code>export_settings</code> is referred to as \"model\" in the filter body parameters below.  Each filter body parameter contains information on which model or models the filter body parameter is valid.</p>",
         "operationId": "request-data-export",
         "security": [
           {
@@ -11626,7 +11964,7 @@
     "/data_exports/status": {
       "get": {
         "summary": "Check Data Export Status",
-        "description": "<p>Get the status message from a previously created asynchronous search using the search_id. The following messages may be returned:<ul>  <li>\"Export ready for download\".</li>  <li>\"The export is currently processing. Try again later.\"</li>  <li>\"The export is currently enqueued. Try again later.\"</li>  <li>\"The search has expired and is no longer available\"</li>  <li>\"There was an error getting your search data. Please contact tech support for more details.\"</li>  <li>\"Search not available\"</li>  <li>\"No search found\"</li></ul></p>",
+        "description": "<p>Get the status message from a previously created asynchronous search using the search_id. </p><p>The following messages are currently returned with the appropriate HTTP response status code:<table>  <tr>    <th>HTTP Status Code</th>    <th>Message</th>  </tr>  <tr>    <td>200</td>    <td>Export ready for download</td>  </tr>  <tr>    <td>206</td>    <td>The export is currently enqueued. Try again later.</td>  </tr>  <tr>    <td>206</td>    <td>The export is currently processing. Try again later.</td>  </tr>  <tr>    <td>404</td>    <td>No search found.</td>  </tr>  <tr>    <td>410</td>    <td>The search has expired and is no longer available.</td>  </tr>  <tr>    <td>500</td>    <td>There was an error getting your search data. Please contact tech support for more details.</td>  </tr></table>Error handling in client code should be based on the HTTP status code.</p>",
         "operationId": "check-data-export-status",
         "security": [
           {
@@ -11651,7 +11989,7 @@
         ],
         "responses": {
           "200": {
-            "description": "200",
+            "description": "Export complete",
             "content": {
               "application/json": {
                 "example": {
@@ -11664,7 +12002,7 @@
             }
           },
           "206": {
-            "description": "206",
+            "description": "Export not complete",
             "content": {
               "application/json": {
                 "example": {
@@ -11676,11 +12014,38 @@
               }
             }
           },
-          "400": {
-            "description": "400",
+          "404": {
+            "description": "Cannot find a search",
             "content": {
               "application/json": {
                 "example": {
+                  "message": "No search found"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Expired search",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "The search has expired and is no longer available."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected error",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "There was an error getting your search data. Please contact tech support for more details."
                 },
                 "schema": {
                   "$ref": "#/components/schemas/error_response"
@@ -14532,7 +14897,19 @@
                     "first_found_on": "2021-02-23T13:38:57Z",
                     "top_priority": true,
                     "risk_meter_score": 100,
-                    "closed": false
+                    "closed": false,
+                    "cvss_v2": {
+                      "score": 7.5,
+                      "exploit_subscore": 10.0,
+                      "impact_subscore": 6.4,
+                      "temporal_score": 7.5
+                    },
+                    "cvss_v3": {
+                      "score": 7.5,
+                      "exploit_subscore": 3.9,
+                      "impact_subscore": 3.6,
+                      "temporal_score": 9.4
+                    }
                   }
                 },
                 "schema": {
@@ -14937,6 +15314,72 @@
             "description": "Search for vulnerabilities related to the specified asset ids."
           },
           {
+            "name": "asset[operating_system][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "An array of the names of the operating systems associated with a set of assets."
+          },
+          {
+            "name": "asset[primary_locator][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "The primary locator used for an asset. This should be one of the following values: ip_address, hostname, database, url, mac_address, netbios, fqdn, file, or application"
+          },
+          {
+            "name": "asset[service_names][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "An array of service names relating to your assets. Make sure all letters are lowercase."
+          },
+          {
+            "name": "asset[service_ports][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "description": "An array of ports relating to your assets."
+          },
+          {
+            "name": "asset[service_products][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "An array of service products relating to your assets. Make sure all letters are lowercase."
+          },
+          {
+            "name": "asset[service_protocols][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "An array of service protocols relating to your assets. Make sure all letters are lowercase."
+          },
+          {
             "name": "asset[status][]",
             "in": "query",
             "schema": {
@@ -14950,6 +15393,28 @@
               }
             },
             "description": "Search for vulnerabilities related to assets with the specified statuses."
+          },
+          {
+            "name": "asset[status_set_manually][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "boolean"
+              }
+            },
+            "description": "A boolean to indicate whether an asset's active/inactive status was set automatically by Kenna or manually by a human."
+          },
+          {
+            "name": "asset[tags][]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "An array of tag names associated with your assets."
           },
           {
             "name": "classification[]",
@@ -15428,7 +15893,19 @@
                       "first_found_on": "2020-03-04T01:30:36Z",
                       "risk_meter_score": 100,
                       "top_priority": false,
-                      "closed": false
+                      "closed": false,
+                      "cvss_v2": {
+                        "score": 7.5,
+                        "exploit_subscore": 10.0,
+                        "impact_subscore": 6.4,
+                        "temporal_score": 7.5
+                      },
+                      "cvss_v3": {
+                        "score": 7.5,
+                        "exploit_subscore": 3.9,
+                        "impact_subscore": 3.6,
+                        "temporal_score": 9.4
+                      }
                     },
                     {
                       "connectors": [
@@ -15495,7 +15972,14 @@
                       "first_found_on": "2020-03-06T21:47:15Z",
                       "risk_meter_score": 61,
                       "top_priority": false,
-                      "closed": false
+                      "closed": false,
+                      "cvss_v2": null,
+                      "cvss_v3": {
+                        "score": 7.8,
+                        "exploit_subscore": 3.5,
+                        "impact_subscore": 3.9,
+                        "temporal_score": 9.7
+                      }
                     }
                   ],
                   "meta": {
@@ -15597,8 +16081,8 @@
 
         ],
         "responses": {
-          "200": {
-            "description": "200",
+          "201": {
+            "description": "201",
             "content": {
               "application/json": {
                 "example": {
@@ -15636,13 +16120,6 @@
                     "identifiers": [
                       123
                     ],
-                    "custom_fields": [
-                      {
-                        "custom_field_definition_id": 123,
-                        "name": "my custom field",
-                        "value": "foo"
-                      }
-                    ],
                     "connectors": [
                       {
                         "id": 111,
@@ -15670,6 +16147,18 @@
                       "display_number": null,
                       "ticketing_configuration_id": null,
                       "due_date_override": null
+                    },
+                    "cvss_v2": {
+                      "score": 7.5,
+                      "exploit_subscore": 10.0,
+                      "impact_subscore": 6.4,
+                      "temporal_score": 7.5
+                    },
+                    "cvss_v3": {
+                      "score": 7.5,
+                      "exploit_subscore": 3.9,
+                      "impact_subscore": 3.6,
+                      "temporal_score": 9.4
                     }
                   }
                 },
@@ -15818,7 +16307,19 @@
                       "first_found_on": "2021-02-23T13:38:57Z",
                       "top_priority": true,
                       "risk_meter_score": 100,
-                      "closed": false
+                      "closed": false,
+                      "cvss_v2": {
+                        "score": 7.5,
+                        "exploit_subscore": 10.0,
+                        "impact_subscore": 6.4,
+                        "temporal_score": 7.5
+                      },
+                      "cvss_v3": {
+                        "score": 7.5,
+                        "exploit_subscore": 3.9,
+                        "impact_subscore": 3.6,
+                        "temporal_score": 9.4
+                      }
                     },
                     {
                       "id": 708136,
@@ -15886,7 +16387,14 @@
                       "first_found_on": "2021-02-23T13:38:49Z",
                       "top_priority": true,
                       "risk_meter_score": 46,
-                      "closed": false
+                      "closed": false,
+                      "cvss_v2": {
+                        "score": 5.5,
+                        "exploit_subscore": 10.0,
+                        "impact_subscore": 6.5,
+                        "temporal_score": 7.4
+                      },
+                      "cvss_v3": null
                     }
                   ],
                   "meta": {
@@ -17680,4 +18188,3 @@
     }
   }
 }
-

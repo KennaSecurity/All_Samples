@@ -2,8 +2,8 @@ parent_id,display_name,rm_query,parent_ref,child_ref
 ,Reporting,,,reporting_child
 ,SLA Metrics,,reporting_child,sla_child
 ,Overdue vulnerabilities,not_closed_by_due_date:true,sla_child,
-,Due in the next 7 days,due_date:>now-7d,sla_child,
-,Due in the next 30 days,due_date:>now-30d,sla_child,
+,Due in the next 7 days,due_date:>now-1d AND due_date:<now+7d,sla_child,
+,Due in the next 30 days,due_date:>now-1d AND due_date:<now+30d,sla_child,
 ,Asset Types,,reporting_child,asset_type_child
 ,Servers,"tag:""Servers""",asset_type_child,servers_child
 ,Linux,"tag:""Linux""",servers_child,linux_child
@@ -55,7 +55,7 @@ parent_id,display_name,rm_query,parent_ref,child_ref
 ,Finance (Jane Doe),,team_child,finance_child
 ,SLA,,finance_child,finance_sla_child
 ,Overdue vulnerabilities,not_closed_by_due_date:true,finance_sla_child,
-,Due in the next 7 days,due_date:>now-7d,finance_sla_child,
-,Due in the next 30 days,due_date:>now-30d,finance_sla_child,
+,Due in the next 7 days,due_date:>now-1d AND due_date:<now+7d,finance_sla_child,
+,Due in the next 30 days,due_date:>now-1d AND due_date:<now+30d,finance_sla_child,
 ,Recently Discovered,vulnerability_created:>now-14d,finance_child,
 ,High Risk,vulnerability_score:>65,finance_child,

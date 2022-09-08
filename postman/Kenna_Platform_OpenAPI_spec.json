@@ -10425,7 +10425,6 @@
             }
           },
           {
-
             "name": "vulnerability[max_severity]",
             "in": "query",
             "description": "Vulnerabilities with serverity levels less that this value.",
@@ -10638,7 +10637,6 @@
             "schema": {
               "type": "array",
               "items": {
-
                 "type": "boolean"
               }
             },
@@ -11164,7 +11162,7 @@
     "/connectors/{id}/data_file": {
       "post": {
         "summary": "Upload Data File",
-        "description": "Uploads a data file to a file based connector.  Including the parameter \"Content-Type: application/json\" If including the parameter \"run: true, refer to the response from the Run Connector endpoint.",
+        "description": "<p>Uploads a data file to a file based connector.  <ul><li>Including the parameter \"Content-Type: application/json\" in the header will result in a HTTP status code 400.</li><li>If including the parameter \"run: true, refer to the response from the <a href=https://apidocs.kennasecurity.com/reference/run-connector>Run Connector</a> API.</li></ul></p>",
         "operationId": "upload-data-file",
         "security": [
           {
@@ -11207,6 +11205,9 @@
             "content": {
               "application/json": {
                 "example": {
+                  "success": "false",
+                  "error": "bad request",
+                  "message": "unexpected token"
                 },
                 "schema": {
                   "$ref": "#/components/schemas/error_response"

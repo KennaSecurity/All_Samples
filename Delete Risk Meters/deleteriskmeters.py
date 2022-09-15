@@ -7,6 +7,7 @@ file = sys.argv[2]
 
 headers = {"Accept": "application/json", "X-Risk-Token": token}
 
+# The base_url variable may need to be changed depending on your environment. The API base URL for your instance is available on the API keys page in the GUI.
 base_url = "https://api.kennasecurity.com"
 rm_url= base_url + "/asset_groups/"
 

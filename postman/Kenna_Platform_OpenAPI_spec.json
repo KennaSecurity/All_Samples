@@ -1802,6 +1802,12 @@
             "example": false,
             "default": true
           },
+          "overage": {
+            "type": "boolean",
+            "example": false,
+            "default": false,
+            "description": "Indicates if the asset is in overage. If true, no vulnerabilities will be imported for this asset until client overage is resolved."
+          },
           "urls": {
             "type": "object",
             "properties": {
@@ -2289,42 +2295,7 @@
                 "default": "false"
               },
               "service_ticket": {
-                "type": "object",
-                "description": "A service ticket to associate with these vulnerabilities. A null service ticket will unassociate the service ticket associated with these vulnerabilities.",
-                "properties": {
-                  "external_identifier": {
-                    "type": "string",
-                    "description": "Required for non-null service_ticket objects. The service ticket's external ID in its ticketing provider, e.g. \"JR-123\".",
-                    "example": "abc123"
-                  },
-                  "ticket_type": {
-                    "type": "string",
-                    "enum": [
-                      "jira",
-                      "service_now",
-                      "api"
-                    ],
-                    "description": "Required for non-null service_ticket objects. Valid ticket types are \"jira\", \"service_now\", or \"api\". API type tickets are not integrated with ticketing connectors.",
-                    "example": "service_now"
-                  },
-                  "system_id": {
-                    "type": "string",
-                    "description": "The service ticket's internal ID in its ticketing provider; e.g. \"JR-123\" for Jira or \"12abcd345e6789101112f1g21h3ijk14\" for ServiceNow. Required for Jira and ServiceNow tickets for clients with the relevant ticketing connectors to allow the service ticket to be automatically updated in Kenna. Note that this value is the same as external_identifier for Jira type service tickets.",
-                    "example": "12abcd345e6789101112f1g21h3ijk14"
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "Will be ignored for jira or service_now type tickets when the client has the corresponding ticketing connector(s) in place. Will be honored for API type tickets.",
-                    "example": "Active"
-                  },
-                  "due_date": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "ISO 8601 format. Will be ignored for jira or service_now type tickets when the client has the corresponding ticketing connector(s) in place. Will be honored for API type tickets.",
-                    "example": "2021-08-12T03:14:57Z",
-                    "default": null
-                  }
-                }
+                "$ref": "#/components/schemas/service_ticket_request_schema"
               },
               "status": {
                 "type": "string",
@@ -2675,42 +2646,7 @@
             "description": "The primary locator used for the corresponding asset. This is required to associate the vulnerability with the asset it was found on. This should be one of the following values: ip_address, hostname, database, url, mac_address, netbios, or fqdn"
           },
           "service_ticket": {
-            "type": "object",
-            "description": "A service ticket to associate with this vulnerability.",
-            "properties": {
-              "external_identifier": {
-                "type": "string",
-                "description": "Required for non-null service_ticket objects. The service ticket's external ID in its ticketing provider, e.g. \"JR-123\".",
-                "example": "abc123"
-              },
-              "ticket_type": {
-                "type": "string",
-                "enum": [
-                  "jira",
-                  "service_now",
-                  "api"
-                ],
-                "description": "Required for non-null service_ticket objects. Valid ticket types are \"jira\", \"service_now\", or \"api\". API type tickets are not integrated with ticketing connectors.",
-                "example": "service_now"
-              },
-              "system_id": {
-                "type": "string",
-                "description": "The service ticket's internal ID in its ticketing provider; e.g. \"JR-123\" for Jira or \"12abcd345e6789101112f1g21h3ijk14\" for ServiceNow. Required for Jira and ServiceNow tickets for clients with the relevant ticketing connectors to allow the service ticket to be automatically updated in Kenna. Note that this value is the same as external_identifier for Jira type service tickets.",
-                "example": "12abcd345e6789101112f1g21h3ijk14"
-              },
-              "status": {
-                "type": "string",
-                "description": "Will be ignored for jira or service_now type tickets when the client has the corresponding ticketing connector(s) in place. Will be honored for API type tickets.  The default value is 'New'.",
-                "example": "New"
-              },
-              "due_date": {
-                "type": "string",
-                "format": "date-time",
-                "description": "ISO 8601 format. Will be ignored for jira or service_now type tickets when the client has the corresponding ticketing connector(s) in place. Will be honored for API type tickets.",
-                "example": "2021-08-12T03:14:57Z",
-                "default": null
-              }
-            }
+            "$ref": "#/components/schemas/service_ticket_request_schema"
           },
           "threat": {
             "type": "integer",
@@ -3501,18 +3437,23 @@
       },
       "file_request_body_schema": {
         "type": "object",
+        "required": [
+          "file"
+        ],
         "properties": {
           "encoding": {
             "type": "string",
-            "description": "Compression encoding of the file input. (Currently 'deflate' is the only valid.)"
+            "description": "Compression encoding of the file input. Currently 'deflate' is the only valid value, which implies Python's `zlib.compressobj()`.  Default is null."
           },
           "file": {
             "type": "string",
-            "description": "File to be uploaded and associated with connector."
+            "format": "binary",
+            "description": "File name to be uploaded to the associated connector.  This is a fully qualifed path name.",
+            "example": "/users/kenna/connectors/burp/kdi.json"
           },
           "run": {
             "type": "boolean",
-            "description": "true if you want the connector to run immediately after the file has been uploaded."
+            "description": "The value `true` implies that the connector will run immediately after the file has been uploaded.  Default is `false`."
           }
         }
       },
@@ -3523,10 +3464,14 @@
             "type": "boolean",
             "example": true
           },
-          "connector_run_id": {
+          "data_file": {
             "type": "integer",
             "format": "int32",
             "example": 16180
+          },
+          "run_url": {
+            "type": "string",
+            "example": "https://api.kennasecurity.com/connectors/155304/run"
           }
         }
       },
@@ -4835,6 +4780,96 @@
           ]
         }
       },
+      "service_ticket_request_schema": {
+        "type": "object",
+        "required": [
+          "external_identifier",
+          "ticket_type"
+        ],
+        "description": "A service ticket to associate with a vulnerability. A null service_ ticket value will unassociate the service ticket associated with these vulnerabilities.",
+        "properties": {
+          "external_identifier": {
+            "type": "string",
+            "description": "Required for non-null service_ticket objects. The service ticket's external ID in its ticketing provider, e.g. \"JR-123\".",
+            "example": "abc123"
+          },
+          "ticket_type": {
+            "type": "string",
+            "enum": [
+              "jira",
+              "service_now",
+              "api"
+            ],
+            "description": "Required for non-null service_ticket objects. `api` type tickets are not integrated with ticketing connectors.",
+            "example": "service_now"
+          },
+          "system_id": {
+            "type": "string",
+            "description": "The service ticket's internal ID in its ticketing provider; e.g. \"JR-123\" for Jira or \"12abcd345e6789101112f1g21h3ijk14\" for ServiceNow. Required for Jira and ServiceNow tickets for clients with the relevant ticketing connectors to allow the service ticket to be automatically updated in Kenna. Note that this value is the same as external_identifier for Jira type service tickets.",
+            "example": "12abcd345e6789101112f1g21h3ijk14"
+          },
+          "status": {
+            "type": "string",
+            "description": "Will be ignored for jira or service_now type tickets when the client has the corresponding ticketing connector(s) in place. Will be honored for `api` type tickets.",
+            "example": "Active"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Will be ignored for jira or service_now type tickets when the client has the corresponding ticketing connector(s) in place. Will be honored for `api` type tickets.",
+            "example": "2021-08-12T03:14:57Z",
+            "default": null
+          }
+        }
+      },
+      "service_ticket_response_schema": {
+        "type": "object",
+        "required": [
+          "external_identifier",
+          "ticket_type"
+        ],
+        "description": "Service ticket object to associate with a vulnerability.",
+        "properties": {
+          "external_identifier": {
+            "type": "string",
+            "description": "The service ticket's external ID in its ticketing provider.",
+            "example": "JR-678"
+          },
+          "ticket_type": {
+            "type": "string",
+            "enum": [
+              "api",
+              "jira",
+              "service_now"
+            ],
+            "description": "The service ticket type.  `api` type tickets are not integrated with ticketing connectors.",
+            "example": "service_now"
+          },
+          "system_id": {
+            "type": "string",
+            "description": "The service ticket's internal ID in its ticketing provider.  Required for Jira and ServiceNow tickets for clients with the relevant ticketing connectors to allow the service ticket to be automatically updated in Kenna. Note that this value is the same as external_identifier for Jira type service tickets.",
+            "example": "12abcd345e6789101112f1g21h3ijk14"
+          },
+          "status": {
+            "type": "string",
+            "description": "The service ticket status.  Will be honored for `api` type tickets.",
+            "example": "Active"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "May contain a default due date for internal use, so please refer to `due_date_override` for the service ticket's actual due date",
+            "example": "2021-08-12T03:14:57Z",
+            "default": null
+          },
+          "due_date_override": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Actual due date.",
+            "example": "2021-08-12T03:14:57Z"
+          }
+        }
+      },
       "show_top_fix_groups_schema": {
         "type": "object",
         "properties": {
@@ -5329,7 +5364,16 @@
           }
         }
       },
-      "success_get_response_schema": {
+      "success_put_response_schema": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "success_run_get_response_schema": {
         "properties": {
           "connector_run_id": {
             "type": "integer",
@@ -5340,15 +5384,6 @@
           "success": {
             "type": "boolean",
             "description": "The connector run status.",
-            "example": true
-          }
-        }
-      },
-      "success_put_response_schema": {
-        "type": "object",
-        "properties": {
-          "success": {
-            "type": "boolean",
             "example": true
           }
         }
@@ -5600,46 +5635,19 @@
                 "default": "false"
               },
               "service_ticket": {
-                "type": "object",
-                "description": "A service ticket to associate with this vulnerability. A null service ticket will unassociate the service ticket associated with this vulnerability.",
-                "properties": {
-                  "external_identifier": {
-                    "type": "string",
-                    "description": "Required for non-null service_ticket objects. The service ticket's external ID in its ticketing provider, e.g. \"JR-123\".",
-                    "example": "abc123"
-                  },
-                  "ticket_type": {
-                    "type": "string",
-                    "enum": [
-                      "jira",
-                      "service_now",
-                      "api"
-                    ],
-                    "description": "Required for non-null service_ticket objects. Valid ticket types are \"jira\", \"service_now\", or \"api\". API type tickets are not integrated with ticketing connectors.",
-                    "example": "service_now"
-                  },
-                  "system_id": {
-                    "type": "string",
-                    "description": "The service ticket's internal ID in its ticketing provider; e.g. \"JR-123\" for Jira or \"12abcd345e6789101112f1g21h3ijk14\" for ServiceNow. Required for Jira and ServiceNow tickets for clients with the relevant ticketing connectors to allow the service ticket to be automatically updated in Kenna. Note that this value is the same as external_identifier for Jira type service tickets.",
-                    "example": "12abcd345e6789101112f1g21h3ijk14"
-                  },
-                  "status": {
-                    "type": "string",
-                    "description": "Will be ignored for jira or service_now type tickets when the client has the corresponding ticketing connector(s) in place. Will be honored for API type tickets.",
-                    "example": "Active"
-                  },
-                  "due_date": {
-                    "type": "string",
-                    "format": "date-time",
-                    "description": "ISO 8601 format. Will be ignored for jira or service_now type tickets when the client has the corresponding ticketing connector(s) in place. Will be honored for API type tickets.",
-                    "example": "2021-08-12T03:14:57Z",
-                    "default": null
-                  }
-                }
+                "$ref": "#/components/schemas/service_ticket_request_schema"
               },
               "status": {
                 "type": "string",
-                "description": "The status of a vulnerability (open, closed, risk_accepted, false_positive).",
+                "enum": [
+                  "closed",
+                  "closed_by_human",
+                  "false_positive_by_human",
+                  "open",
+                  "open_by_api",
+                  "risk_accepted_by_human"
+                ],
+                "description": "The status of this vulnerability.",
                 "default": "open"
               }
             }
@@ -6062,21 +6070,7 @@
                   "default": 0
                 },
                 "service_ticket": {
-                  "type": "object",
-                  "properties": {
-                    "ticket_type": {
-                      "type": "string",
-                      "example": "service_now"
-                    },
-                    "external_identifier": {
-                      "type": "string",
-                      "example": "abc123"
-                    },
-                    "status": {
-                      "type": "string",
-                      "example": "Active"
-                    }
-                  }
+                  "$ref": "#/components/schemas/service_ticket_response_schema"
                 },
                 "port": {
                   "type": "integer",
@@ -6953,36 +6947,7 @@
             }
           },
           "service_ticket": {
-            "type": "object",
-            "properties": {
-              "external_identifier": {
-                "type": "string",
-                "example": "abc123"
-              },
-              "system_id": {
-                "type": "string",
-                "example": "12abcd345e6789101112f1g21h3ijk14"
-              },
-              "ticket_type": {
-                "type": "string",
-                "example": "service_now"
-              },
-              "status": {
-                "type": "string",
-                "example": "Active"
-              },
-              "due_date": {
-                "type": "string",
-                "format": "date-time",
-                "example": "2021-08-12T03:14:57Z",
-                "description": "May contain a default due date for internal use, so please refer to `due_date_override` for the service ticket's actual due date."
-              },
-              "due_date_override": {
-                "type": "string",
-                "format": "date-time",
-                "example": "2021-08-12T03:14:57Z"
-              }
-            }
+            "$ref": "#/components/schemas/service_ticket_response_schema"
           },
           "urls": {
             "type": "object",
@@ -11162,7 +11127,7 @@
     "/connectors/{id}/data_file": {
       "post": {
         "summary": "Upload Data File",
-        "description": "<p>Uploads a data file to a file based connector.  <ul><li>Including the parameter \"Content-Type: application/json\" in the header will result in a HTTP status code 400.</li><li>If including the parameter \"run: true, refer to the response from the <a href=https://apidocs.kennasecurity.com/reference/run-connector>Run Connector</a> API.</li></ul></p>",
+        "description": "<p>Uploads a data file to a file based connector specified by the <code>id</code>.</p><p>The <code>id</code> can be found from the <a href=\"https://apidocs.kennasecurity.com/reference/list-connectors\">List Connectors API</a>.</p><p>The file format is dependent on the connector specified by the <code>id</code>.  In most cases, the file format is the <a href=\"https://help.kennasecurity.com/hc/en-us/articles/360026413111-Kenna-Data-Importer-JSON-Connector-\">Kenna Data Importer (KDI)</a> format.  This is a JSON format that specifies assets and vulnerabilities.  Another file format is a <a href=\"https://help.kennasecurity.com/hc/en-us/articles/115004451566-How-to-import-data-from-CSV\">CSV</a> format for the \"Custom CSV\" connector.<ul><li>Including the parameter \"Content-Type: application/json\" in the header will result in a HTTP status code 400.</li><li>If including the parameter \"run: true, refer to the response from the <a href=https://apidocs.kennasecurity.com/reference/run-connector>Run Connector</a> API.</li></ul></p>",
         "operationId": "upload-data-file",
         "security": [
           {
@@ -11178,7 +11143,8 @@
           {
             "name": "id",
             "in": "path",
-            "description": "The connector ID.",
+            "example": "6626",
+            "description": "The connector ID.  The connector ID can found in [List Connectors](ref:list-connector).",
             "required": true,
             "schema": {
               "type": "integer"
@@ -11187,15 +11153,29 @@
         ],
         "responses": {
           "200": {
-            "description": "200",
+            "description": "With run as `false` and run as `true`",
             "content": {
               "application/json": {
-                "example": {
-                  "success": "true",
-                  "connector_run_id": 16180
-                },
+                "example": [
+                  {
+                    "success": "true",
+                    "connector_run_id": 16180
+                  },
+                  {
+                    "success": "true",
+                    "run_url": "https://api.kennasecurity.com/connectors/155304/run",
+                    "data_file": 18878368
+                  }
+                ],
                 "schema": {
-                  "$ref": "#/components/schemas/file_upload_response_schema"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/file_upload_response_schema"
+                    },
+                    {
+                      "$ref": "#/components/schemas/success_run_get_response_schema"
+                    }
+                  ]
                 }
               }
             }
@@ -11214,11 +11194,26 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "422",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": "false",
+                  "error": "Unprocessable_entity",
+                  "message": "HttpError"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
           }
         },
         "requestBody": {
           "content": {
-            "application/json": {
+            "multipart/form-data": {
               "schema": {
                 "$ref": "#/components/schemas/file_request_body_schema"
               }
@@ -11274,7 +11269,7 @@
                   "connector_run_id": 123
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/success_get_response_schema"
+                  "$ref": "#/components/schemas/success_run_get_response_schema"
                 }
               }
             }
@@ -12317,7 +12312,7 @@
     "/findings": {
       "get": {
         "summary": "Search Findings",
-        "description": "<p>Filters findings by a given set of parameters and returns those filtered findings as well as the total number of findings in the filtered set.</p><p>If no filters are specified, then \"Search Findings\" is \"List Findings\".</p><p>Each unique parameter is combined using AND while each of values passed in a single array will be combined using OR. For example, if you search for all findings with <code>status=[\"new\", \"resolved\"]</code> and <code>sort_by=\"score\"</code>, you will receive all findings with either status \"new\" or \"resolved,\" sorted by score in the response.  </p><p><table>  <tr>    <th>Attribute</th>    <th>Value</th>  </tr>  <tr>    <td>Maximum Pages Allowed</td>    <td>&infin;</td>  </tr>  <tr>    <td>Maximum Page Size</td>    <td>100</td>  </tr>  <tr>    <td>Default Page Size</td>    <td>100</td>  </tr>  <tr>    <td>Total Count Present in <code>meta</code> object</td>    <td>Yes</td>  </tr></table>See the <a href=\"https://apidocs.kennasecurity.com/reference/pagination\">Pagination Section</a> for more details. </p><p>To avoid ambiguity with regards to dates, this endpoint accepts strings formatted according to a stricter version of ISO 8601: \"YYYY-MM-DDThh:mm:ss.sssTZD\". All fields besides nanoseconds and timezone are required.  If time is omitted, UTC is used.See <a href=\"https://www.w3.org/TR/NOTE-datetime\">ISO 8601 formats</a> for more details.</p>",
+        "description": "<p>Filters findings by a given set of parameters and returns those filtered findings as well as the total number of findings in the filtered set.</p><p>If no filters are specified, then \"Search Findings\" is \"List Findings\".</p><p>Each unique parameter is combined using AND while each of values passed in a single array will be combined using OR. For example, if you search for all findings with <code>status=[\"new\", \"resolved\"]</code> and <code>sort_by=\"score\"</code>, you will receive all findings with either status \"new\" or \"resolved,\" sorted by score in the response.  </p><p><table>  <tr>    <th>Attribute</th>    <th>Value</th>  </tr>  <tr>    <td>Maximum Pages Allowed</td>    <td>2,000</td>  </tr>  <tr>    <td>Maximum Page Size</td>    <td>100</td>  </tr>  <tr>    <td>Default Page Size</td>    <td>100</td>  </tr>  <tr>    <td>Total Count Present in <code>meta</code> object</td>    <td>Yes</td>  </tr></table>See the <a href=\"https://apidocs.kennasecurity.com/reference/pagination\">Pagination Section</a> for more details. </p><p>To avoid ambiguity with regards to dates, this endpoint accepts strings formatted according to a stricter version of ISO 8601: \"YYYY-MM-DDThh:mm:ss.sssTZD\". All fields besides nanoseconds and timezone are required.  If time is omitted, UTC is used.See <a href=\"https://www.w3.org/TR/NOTE-datetime\">ISO 8601 formats</a> for more details.</p>",
         "operationId": "search-findings",
         "security": [
           {
@@ -15921,7 +15916,14 @@
                       ],
                       "notes": null,
                       "fix_id": 46299,
-                      "service_ticket": null,
+                      "service_ticket": {
+                        "status": "Active",
+                        "ticket_type": "jira",
+                        "external_identifier": "JR-248",
+                        "system_id": "12abcd345e6789101112f1g21h3ijk14",
+                        "due_date": "2021-08-12T03:14:57Z",
+                        "due_date_override": "2022-07-11T03:15:57Z"
+                      },
                       "created_at": "2020-03-06T21:47:15Z",
                       "asset_id": 47906,
                       "id": 31770054,
@@ -16138,18 +16140,12 @@
                       }
                     ],
                     "service_ticket": {
+                      "status": "Active",
                       "ticket_type": "jira",
-                      "external_identifier": "JR-123",
-                      "status": "New",
-                      "created_at": "2022-03-01T16:51:20.000Z",
-                      "updated_at": "2022-03-01T16:51:20.000Z",
-                      "external_url": null,
-                      "connector_id": null,
-                      "system_id": "JR-123",
-                      "due_date": null,
-                      "display_number": null,
-                      "ticketing_configuration_id": null,
-                      "due_date_override": null
+                      "external_identifier": "JR-468",
+                      "system_id": "12abcd345e6789101112f1g21h3ijk14",
+                      "due_date": "2021-08-12T03:14:57Z",
+                      "due_date_override": "2022-08-12T03:14:57Z"
                     },
                     "cvss_v2": {
                       "score": 7.5,

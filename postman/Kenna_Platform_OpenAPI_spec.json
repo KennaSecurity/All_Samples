@@ -15767,6 +15767,22 @@
             "description": "Search for vulnerabilities related to the specified asset ids."
           },
           {
+            "name": "asset[max_priority]",
+            "in": "query",
+            "description": "Find vulnerabilities related to assets with priority levels less than this value.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "asset[min_priority]",
+            "in": "query",
+            "description": "Find vulnerabilities related to assets with priority levels greater than this value.",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
             "name": "asset[operating_system][]",
             "in": "query",
             "schema": {
@@ -15978,22 +15994,6 @@
               }
             },
             "description": "An array of booleans for filtering your vulnerabilities by those that have had pieces of malware identified."
-          },
-          {
-            "name": "max_priority",
-            "in": "query",
-            "description": "Find all vulnerabilities on assets with priority levels less than this value.",
-            "schema": {
-              "type": "integer"
-            }
-          },
-          {
-            "name": "min_priority",
-            "in": "query",
-            "description": "Find all vulnerabilities on assets with priority levels greater than this value.",
-            "schema": {
-              "type": "integer"
-            }
           },
           {
             "name": "max_risk_meter_score",

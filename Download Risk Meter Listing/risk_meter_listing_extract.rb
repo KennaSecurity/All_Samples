@@ -44,7 +44,7 @@ no_of_pages, no_of_risk_meters  = [JSON.parse(risk_meter_listing_response)['meta
 puts "The details of #{no_of_risk_meters} risk meters over #{no_of_pages} pages will now be downloaded"
 
 # Now iterate through all the pages of the risk meter listing and extract relevant info
-csv_headers = ["Risk Meter", "Risk Meter ID", "Parent ID?", "Score", "True Risk Score", "# of Vulns", "Unique CVE count", "Child RM IDs", "Created Time", "Query String"]
+csv_headers = ["Risk Meter", "Risk Meter ID", "Parent ID?", "Score", "True Risk Score", "# of Vulns", "Vuln Density", "Unique CVE count", "Child RM IDs", "Created Time", "Query String"]
 
 csv = CSV.open(@csv_file, 'w')
 csv << csv_headers
@@ -72,6 +72,7 @@ csv << csv_headers
       "#{page_risk_meters[array_index]["risk_meter_score"]}",
       "#{page_risk_meters[array_index]["true_risk_meter_score"]}",
       "#{page_risk_meters[array_index]["vulnerability_count"]}",
+      "#{page_risk_meters[array_index]["vulnerability_density"]}",
       "#{page_risk_meters[array_index]["unique_open_cve_count"]}",
       "#{page_risk_meters[array_index]["child_ids"]}",
       "#{page_risk_meters[array_index]["created_at"]}",

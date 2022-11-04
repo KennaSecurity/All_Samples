@@ -95,7 +95,7 @@ def forge_tags(field_map):
 
     return joined_tags
 
-# Read and process the meta mapping file.
+# Read and process the meta mapping file into a dictionary (hash).
 def map_fields(mapping_csv_file):
     
     field_map = {}
@@ -113,12 +113,13 @@ def map_fields(mapping_csv_file):
     # Tags and tag prefixes are a list of strings.  Join them into an array of strings.
     field_map['tags'] = forge_tags(field_map)
 
-    # Mappings within the map
+    # Mappings within score_map
     if field_map['score_map'] is None or field_map['score_map'] == "":
         print_verbose("score_map is empty", 1)
     else:
         field_map['score_map'] = json.loads(field_map['score_map'])
 
+    # Mappings within status_map
     if field_map['status_map'] is None or field_map['status_map'] == "":
         print_verbose("status_map is empty", 1)
     else:
@@ -163,8 +164,8 @@ def set_datetime_value(a_dict, row, field_map, a_field, to_field=None):
     a_dict[to_field] = kdi_date
     return True
 
-# Remove white space and verify against a constant.
-# Return a list cononical list.
+# Remove white space and verify against a constant in a list in a dictionary.
+# Set a cononical list in the dictionay.
 def standardize_and_verify(a_dict, a_field, validating_constant):
     try:
         a_list = a_dict[a_field]
@@ -179,7 +180,7 @@ def standardize_and_verify(a_dict, a_field, validating_constant):
         if element.startswith(validating_constant):
             verified_list.append(element)
 
-    return ','.join(verified_list)
+    a_dict[a_field] = ','.join(verified_list)
 
 # Add a vulnerability to an asset.
 def add_vuln_to_asset(asset_vulns, row, field_map):
@@ -195,7 +196,7 @@ def add_vuln_to_asset(asset_vulns, row, field_map):
     set_value(vuln, row, field_map, "details")
     set_datetime_value(vuln, row, field_map, "created", "created_at")
 
-    # The scanner_score field is a special cause using score_map.
+    # The scanner_score field is a special case using score_map.
     try:
         if field_map['score_map'] is None or field_map['score_map'] == "":
             set_value(vuln, row, field_map, "scanner_score")
@@ -231,6 +232,7 @@ def add_vuln_to_asset(asset_vulns, row, field_map):
 
     asset_vulns.append(vuln)
 
+# Create an asset entry in the KDI JSON dictionary.
 def create_asset(row, kdi_json, field_map, host_domain_suffix, assets_only):
     asset = {}
 
@@ -255,11 +257,12 @@ def create_asset(row, kdi_json, field_map, host_domain_suffix, assets_only):
         print(f"ERROR: no locator")   # Add row in error output?
         return
 
+    # Check if the asset has a valid primary asset.
     if field_map['locator'] in row: 
         primary_locator = row[field_map['locator']]
         if primary_locator is None or primary_locator == "":
             print(f"WARNING: Primary locator points to unspecified locator.")
-    else:
+    if asset[field_map['locator']] is None or asset[field_map['locator']] == "":
         print(f"WARNING: No primary locator specified.")
 
     # The tag field is not mapped.  The value is an array of tags.
@@ -277,7 +280,7 @@ def create_asset(row, kdi_json, field_map, host_domain_suffix, assets_only):
 
     kdi_json['assets'].append(asset)
 
-# Create a vulnerabilitiy definition entry.
+# Create a vulnerabilitiy definition entry in the KDI JSON dictionary.
 def create_vuln_def(row, kdi_json, field_map):
     vuln_def = {}
 
@@ -302,6 +305,7 @@ def create_vuln_def(row, kdi_json, field_map):
 
     kdi_json['vuln_defs'].append(vuln_def)
 
+# Process the CSV input file into a KDI JSON dictionary.
 def process_input_file(csv_input_file_name, kdi_json, field_map, host_domain_suffix, assets_only):
 
     try:

@@ -5,7 +5,7 @@
 This directory contains [OpenAPI version 3](https://swagger.io/specification/)
 specifications for Kenna Platform and Kenna Inference APIs.
 The OpenAPI specification files should used as they will be kept up to date.  The Postman
-collection file is present for compatibility purposes and will not be updated.  Both OpenAPI
+collection file is __deprecated__, but present for compatibility purposes.  Both OpenAPI
 specification files and
 Postman collection files can be used in the Postman app or in the browser environment.
 
@@ -14,7 +14,8 @@ As of July 2022, the Inference APIs were moved to their own separate specificati
 ## Import OpenAPI Specification or Collection
 
 You can import via Postman's GitHub interface or you can clone the `All_Samples` repository and import
-`postman/Kenna_API_postman_collection.json`.  To import via GitHub, do:
+`postman/Kenna_Inference_OpenAPI_spec.json` for Inference APIs and
+`postman/Kenna_Platform_OpenAPI_spec.json` for all other APIs.  To import via GitHub, do:
 
 1. Click the "Import" button.
 1. Click "Code Respository"
@@ -23,8 +24,9 @@ You can import via Postman's GitHub interface or you can clone the `All_Samples`
    1. For __GitHub organization__, Kenna Security
    1. For __repository__, All Samples
    1. For __branch__, master
-1. Click "Continue"
-1. Select the collection, and click "Import"
+1. Click "Continue".
+1. Select the APIs you want, like `Kenna Platform API` and `Kenna Inference API`. Unselect `Kenna Security API` under Collections. 
+1. Click the orange "Import" button.
 
 You should be ready to go.
 

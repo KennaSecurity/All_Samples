@@ -7,8 +7,9 @@ specifications for Kenna Platform and Kenna Inference APIs, and the Kenna Securi
 API Postman collection.  Both OpenAPI specification files and Postman collection
 files can be used in the Postman app or in the browser environment.
 
-The OpenAPI specification files will be kept up to date; however, it is recommended
-to use [Kenna API documentation](https://apidocs.kennasecurity.com/reference/welcome).
+The OpenAPI specification files will be a best effort to be kept up to date;
+however, it is recommended to use
+[Kenna API documentation](https://apidocs.kennasecurity.com/reference/welcome).
 These OpenAPI specification files can be used to import into your favorite API
 documentation app or API code generator.  Updates for these files will be on an
 ad hoc basis.

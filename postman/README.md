@@ -3,18 +3,27 @@
 ## Introduction
 
 This directory contains [OpenAPI version 3](https://swagger.io/specification/)
-specifications for Kenna Platform and Kenna Inference APIs.
-The OpenAPI specification files should used as they will be kept up to date.  The Postman
-collection file is present for compatibility purposes and will not be updated.  Both OpenAPI
-specification files and
-Postman collection files can be used in the Postman app or in the browser environment.
+specifications for Kenna Platform and Kenna Inference APIs, and the Kenna Security
+API Postman collection.  Both OpenAPI specification files and Postman collection
+files can be used in the Postman app or in the browser environment.
+
+The OpenAPI specification files will be a best effort to be kept up to date;
+however, it is recommended to use
+[Kenna API documentation](https://apidocs.kennasecurity.com/reference/welcome).
+These OpenAPI specification files can be used to import into your favorite API
+documentation app or API code generator.  Updates for these files will be on an
+ad hoc basis.
+
+The Postman collection file is __deprecated__, and will not be updated.  However,
+since it is Postman native, it has some nice example features.
 
 As of July 2022, the Inference APIs were moved to their own separate specification.
 
 ## Import OpenAPI Specification or Collection
 
 You can import via Postman's GitHub interface or you can clone the `All_Samples` repository and import
-`postman/Kenna_API_postman_collection.json`.  To import via GitHub, do:
+`postman/Kenna_Inference_OpenAPI_spec.json` for Inference APIs and
+`postman/Kenna_Platform_OpenAPI_spec.json` for all other APIs.  To import via GitHub, do:
 
 1. Click the "Import" button.
 1. Click "Code Respository"
@@ -23,8 +32,9 @@ You can import via Postman's GitHub interface or you can clone the `All_Samples`
    1. For __GitHub organization__, Kenna Security
    1. For __repository__, All Samples
    1. For __branch__, master
-1. Click "Continue"
-1. Select the collection, and click "Import"
+1. Click "Continue".
+1. Select the API files you want, like `Kenna Platform API` and `Kenna Inference API`.
+1. Click the orange "Import" button.
 
 You should be ready to go.
 
@@ -60,3 +70,4 @@ Test the set-up, on the left side menu:
 1. Click the blue "Send" button on the right.
 
 Success is indicated by a list assets.
+

@@ -2663,6 +2663,15 @@
           }
         }
       },
+      "custom_field_definitions_delete_response_schema": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Deletion has be enqueued."
+          }
+        }
+      },
       "custom_fields_schema": {
         "description": "The custom field array.",
         "type": "array",
@@ -4856,6 +4865,220 @@
           }
         }
       },
+      "show_vulnerability_get_response_schema": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 709836
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "closed",
+              "closed_by_human",
+              "false_positive_by_human",
+              "open",
+              "open_by_api",
+              "risk_accepted_by_human"
+            ],
+            "example": "open"
+          },
+          "closed_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2021-08-12T03:14:57Z"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2021-02-23T13:38:57Z"
+          },
+          "due_date": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2021-08-01T12:00:00Z"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "port": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "priority": {
+            "type": "integer",
+            "example": 10
+          },
+          "identifiers": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "example": "133531"
+            }
+          },
+          "custom_fields": {
+            "$ref": "#/components/schemas/custom_fields_schema"
+          },
+          "last_seen_time": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2021-02-04T21:47:50.000Z"
+          },
+          "scanner_score": {
+            "type": "integer",
+            "example": 4
+          },
+          "fix_id": {
+            "type": "integer",
+            "example": 1841225
+          },
+          "scanner_vulnerabilities": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "port": {
+                },
+                "external_unique_id": {
+                  "type": "string",
+                  "example": "133531"
+                },
+                "open": {
+                  "type": "boolean",
+                  "example": true
+                }
+              }
+            }
+          },
+          "asset_id": {
+            "type": "integer",
+            "example": 12312
+          },
+          "connectors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "example": 157604
+                },
+                "name": {
+                  "type": "string",
+                  "example": "Nessus API Importer"
+                },
+                "connector_definition_name": {
+                  "type": "string",
+                  "example": "Nessus API Importer"
+                },
+                "vendor": {
+                  "type": "string",
+                  "example": "Tenable"
+                }
+              }
+            }
+          },
+          "service_ticket": {
+            "$ref": "#/components/schemas/service_ticket_response_schema"
+          },
+          "urls": {
+            "type": "object",
+            "properties": {
+              "asset": {
+                "type": "string",
+                "example": "api.kennasecurity.com/assets/12312"
+              }
+            }
+          },
+          "solution": {
+            "type": "string",
+            "example": "Upgrade to macOS 10.13.6, 10.14.6, 10.15.3 or later"
+          },
+          "patch": {
+            "type": "boolean",
+            "example": true
+          },
+          "patch_published_at": {
+          },
+          "cve_id": {
+            "type": "string",
+            "example": "CVE-2019-11043"
+          },
+          "cve_description": {
+            "type": "string",
+            "example": "In PHP versions 7.1.x below 7.1.33, 7.2.x below 7.2.24 and 7.3.x below 7.3.11 in certain configurations of FPM setup it is possible to cause FPM module to write past allocated buffers into the space reserved for FCGI protocol data, thus opening the possibility of remote code execution."
+          },
+          "cve_published_at": {
+            "type": "string",
+            "example": "2019-10-28T15:15:00.000Z"
+          },
+          "description": {
+          },
+          "wasc_id": {
+          },
+          "severity": {
+            "type": "integer",
+            "example": 8
+          },
+          "threat": {
+            "type": "integer",
+            "example": 10
+          },
+          "popular_target": {
+            "type": "boolean",
+            "example": false
+          },
+          "active_internet_breach": {
+            "type": "boolean",
+            "example": true
+          },
+          "easily_exploitable": {
+            "type": "boolean",
+            "example": true
+          },
+          "malware_exploitable": {
+            "type": "boolean",
+            "example": false
+          },
+          "remote_code_execution": {
+            "type": "boolean",
+            "example": true
+          },
+          "predicted_exploitable": {
+            "type": "boolean",
+            "example": false
+          },
+          "first_found_on": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2021-02-23T13:38:57Z"
+          },
+          "top_priority": {
+            "type": "boolean",
+            "example": true
+          },
+          "risk_meter_score": {
+            "type": "integer",
+            "example": 100
+          },
+          "closed": {
+            "type": "boolean",
+            "example": false
+          },
+          "cvss_v2": {
+            "$ref": "#/components/schemas/cvss_v2_schema"
+          },
+          "cvss_v3": {
+            "$ref": "#/components/schemas/cvss_v3_schema"
+          },
+          "talos_zero_day": {
+            "$ref": "#/components/schemas/talos_zero_day_schema"
+          }
+        }
+      },
       "sla_adherence_get_response_schema": {
         "type": "object",
         "properties": {
@@ -5393,6 +5616,43 @@
                   }
                 }
               }
+            }
+          }
+        }
+      },
+      "talos_zero_day_schema": {
+        "type": "object",
+        "description": "This object will only appear when there is a Talos Zero Day vulnerability and in the premium tier subscription",
+        "properties": {
+          "talos_id": {
+            "type": "string",
+            "example": "TALOS-2019-5555",
+            "description": "Talos internal identifier for the Zero Day vulnerability"
+          },
+          "cve": {
+            "type": "string",
+            "example": "CVE-2019-11043",
+            "description": "Talos provided CVE for the Zero Day vulnerability, it may not have been published yet"
+          },
+          "cvss": {
+            "type": "string",
+            "example": "CVSS:3.1/AB:C/DE:F/HI:J/KL:M/N:O/P:Q/R:S/T:U",
+            "description": "Talos provided CVSS vector for the Zero Day vulnerability"
+          },
+          "cpes": {
+            "type": "array",
+            "description": "Talos provided CPEs for the Zero Day vulnerability",
+            "items": {
+              "type": "string",
+              "example": "cpe:2.3:h:test:a12345:3.3.0:*:*:*:*:*:*:*"
+            }
+          },
+          "snort_rules": {
+            "type": "array",
+            "description": "Talos Snort rules for the Zero Day vulnerability",
+            "items": {
+              "type": "string",
+              "example": "12345"
             }
           }
         }
@@ -6624,7 +6884,7 @@
           "chatter_count": {
             "type": "integer",
             "format": "int32",
-            "example": 1
+            "example": 17
           },
           "popular_target": {
             "type": "boolean",
@@ -6653,42 +6913,42 @@
           },
           "stride_threat": {
             "type": "array",
+            "enum": [
+              "spoofing",
+              "tampering",
+              "repudiation",
+              "information disclosure",
+              "denial of service",
+              "escalation of privilege"
+            ],
+            "description": "STRIDE is a model of threats, used to help reason and find threats to a system.",
+            "example": "denial of service",
             "items": {
-              "type": "string",
-              "description": "STRIDE is a model of threats, used to help reason and find threats to a system.",
-              "example": "denial of service",
-              "enum": [
-                "spoofing",
-                "tampering",
-                "repudiation",
-                "information disclosure",
-                "denial of service",
-                "escalation of privilege"
-              ]
+              "type": "string"
             }
           },
           "vulnerability_type": {
             "type": "array",
+            "description": "Vulnerability type could include: 'use after free', 'buffer overflow', 'out of bounds write', 'out of bounds', ...",
+            "example": "Heap-based Buffer Overflow",
             "items": {
-              "type": "string",
-              "description": "Vulnerability type could include: use after free, buffer overflow, out of bounds write, out of bounds, ...",
-              "example": "Heap-based Buffer Overflow"
+              "type": "string"
             }
           },
           "exploitation_methodology": {
             "type": "array",
+            "description": "Exploitation methodology could include: 'heap corruption', 'out of bounds memory access', 'bypass navigation restrictions', 'sandbox escape', ...",
+            "example": "configured with storm control profiling",
             "items": {
-              "type": "string",
-              "description": "Exploitation methodology could include: heap corruption, out of bounds memory access, bypass navigation restrictions, sandbox escape, ...",
-              "example": "configured with storm control profiling"
+              "type": "string"
             }
           },
           "affected_source_file_module": {
             "type": "array",
+            "description": "The affected source files or modules by the vulnerability. Examples are: 'PDFium', 'netfilter subsystem', 'mm/gup.c', ...",
+            "example": "packet forwarding engine",
             "items": {
-              "type": "string",
-              "description": "The affected source files or modules by the vulnerability. Examples: PDFium, netfilter subsystem, mm/gup.c, ...",
-              "example": "packet forwarding engine"
+              "type": "string"
             }
           }
         }
@@ -11545,6 +11805,59 @@
         }
       }
     },
+    "/custom_fields/definitions/{id}": {
+      "delete": {
+        "summary": "Custom field definitions",
+        "description": "Deletes a custom field definition by its ID.",
+        "operationId": "delete-custom-field-definition",
+        "security": [
+          {
+            "X-Risk-Token": [
+
+            ]
+          }
+        ],
+        "tags": [
+          "CUSTOM_FIELD_DEFINITIONS"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Custom Field Definition ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "202",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_0": {
+                    "value": {
+                      "message": "Deletion has be enqueued."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/custom_field_definitions_delete_response_schema"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "401"
+          },
+          "404": {
+            "description": "404"
+          }
+        }
+      }
+    },
     "/dashboard_groups/{id}": {
       "delete": {
         "summary": "Delete Dashboard Group",
@@ -12328,18 +12641,9 @@
             "name": "export_id",
             "in": "query",
             "example": "2358",
-            "description": "An ID returned by Request Data Export that identifies the data_export to terminate.",
+            "description": "The `search_id` returned by [Request Data Export](ref:request-data-export) that identifies the data_export to terminate.",
             "schema": {
               "type": "integer"
-            }
-          },
-          {
-            "name": "job_uuid",
-            "in": "query",
-            "example": "ec4defe28b956c6697aee25b2674c170",
-            "description": "A job UUID that identifies the data_export to terminate.",
-            "schema": {
-              "type": "string"
             }
           }
         ],
@@ -15330,6 +15634,19 @@
                           "exploit_subscore": 3.9,
                           "impact_subscore": 3.6,
                           "temporal_score": 9.4
+                        },
+                        "talos_zero_day": {
+                          "talos_id": "TALOS-2019-5555",
+                          "cve": "CVE-2019-11043",
+                          "cvss": "CVSS:3.1/AB:C/DE:F/HI:J/KL:M/N:O/P:Q/R:S/T:U",
+                          "cpes": [
+                            "cpe:2.3:h:test:a12345:3.3.0:*:*:*:*:*:*:*",
+                            "cpe:2.3:h:test:a12345:3.3.1:*:*:*:*:*:*:*"
+                          ],
+                          "snort_rules": [
+                            "12345",
+                            "54321"
+                          ]
                         }
                       }
                     }
@@ -15339,7 +15656,7 @@
                   "type": "object",
                   "properties": {
                     "vulnerability": {
-                      "$ref": "#/components/schemas/vulnerability_get_response_schema"
+                      "$ref": "#/components/schemas/show_vulnerability_get_response_schema"
                     }
                   }
                 }
@@ -18069,9 +18386,9 @@
     },
     "/vulnerability_definitions": {
       "get": {
-        "summary": "Show Vulnerability Definitions",
+        "summary": "List Vulnerability Definitions",
         "description": "<p>Return one or more vulnerability definitions by CVE ID.</p><div class=\"pin\"><blockquote class=\"callout callout_warn\" theme=\"🚧\"><h3 class=\"callout-heading false\"><span class=\"callout-icon\">🚧</span><p>Restricted Access</p></h3><p>This API endpoint is a premium feature and requires access to the Kenna.VI+ API.</p></blockquote></div>",
-        "operationId": "show-vulnerability-definitions",
+        "operationId": "list-vulnerability-definitions",
         "security": [
           {
             "X-Risk-Token": [

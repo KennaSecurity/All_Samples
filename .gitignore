@@ -5,5 +5,5 @@
 .DS_Store
 
 # Output files from ./KDI Importer/tests/execute_tests
-**/KDI\ Importer/tests/py_kdi.json
-**/KDI\ Importer/tests/ruby_kdi.json
+KDI\ Importer/tests/**/py_kdi.json
+KDI\ Importer/tests/**/ruby_kdi.json

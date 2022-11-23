@@ -5,8 +5,8 @@ These scripts will transform CSV files into JSON that can be consumed by the
 This copy has been updated to optionally import asset data only.
 
 ## Ruby Usage
-```
-csv_KDI_json.rb source_vuln_file.csv has_header? metafile.csv skip_autoclose? output.json assets_only? domain_suffix?
+```ruby
+ruby csv_KDI_json.rb source_vuln_file.csv has_header? metafile.csv skip_autoclose? output.json assets_only? domain_suffix?
 ```
  
 - has_header? => either "true" or "false"; defaults to true, does the source csv file have a header row? used to map the columns in metafile.csv
@@ -17,7 +17,7 @@ csv_KDI_json.rb source_vuln_file.csv has_header? metafile.csv skip_autoclose? ou
 - domain_suffix? => OPTIONAL parameter to provide a domain suffix to append to hostnames. (Still experimental)
 
 ## Python Usage
-```
+```python
 python csv_to_kdi.py [input_file] [option]...
 
 positional arguments:
@@ -35,22 +35,23 @@ optional arguments:
   -p, --precheck        Use this parameter to precheck parameters and input file. (Not currently implemented.)
   -s, --skip_autoclose  If vulnerability not in scan, do you want to close the vulnerability?
 ```
+
 ### Python Examples
 
 Get help:
-`python csv_to_kdi.py --help`y
+`python csv_to_kdi.py --help`
 
 Process CSV input, `input_data.csv`. Defaults meta file to `input_data_meta.csv` and KDI output to `input_data_kdi.json`.
-`python csv_to_kdi.py input_data.csv`
+- `python csv_to_kdi.py input_data.csv`
 
 Process CSV input specifying meta and output files.
-`python csv_to_kdi.py input_data.csv -m meta_map.csv -o kdi_output.json`
+- `python csv_to_kdi.py input_data.csv -m meta_map.csv -o kdi_output.json`
 
 Process CSV input specifying meta and output files with assets only.
-`python csv_to_kdi.py input_data.csv -m meta_map.csv -o kdi_output.json -a`
+- `python csv_to_kdi.py input_data.csv -m meta_map.csv -o kdi_output.json -a`
 
 Process CSV input specifying meta and output files with domain suffix.
-`python csv_to_kdi.py input_data.csv -m meta_map.csv -o kdi_output.json --domain_suffix dune.gal`
+- `python csv_to_kdi.py input_data.csv -m meta_map.csv -o kdi_output.json --domain_suffix dune.gal`
 
 ## Meta Data file
 

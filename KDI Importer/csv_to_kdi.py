@@ -263,17 +263,17 @@ def add_vuln_to_asset(asset_vulns, row, field_map):
 def create_asset(row, kdi_json, field_map, host_domain_suffix, assets_only):
     asset = {}
 
+    # Set locator fields if available.
     set_value(asset, row, field_map, "file")
     set_value(asset, row, field_map, "ip_address")
     set_value(asset, row, field_map, "mac_address")
     hostname = set_value(asset, row, field_map, "hostname")
-    #if hostname != None and hostname != "" and host_domain_suffix != None and host_domain_suffix != "":
-    #    asset['hostname'] += f".{host_domain_suffix }"
-    if (hostname == None or hostname == "") and (host_domain_suffix == None or host_domain_suffix == ""):
-        pass
-    else:
-        asset['hostname'] = f"{hostname}.{host_domain_suffix }"
+    if hostname != None and hostname != "": 
+        # Check for domain suffix.
+        if host_domain_suffix != None and host_domain_suffix != "":
+            asset['hostname'] += f".{host_domain_suffix }"
 
+    # Set more locator fields if available.
     set_value(asset, row, field_map, "ec2")
     set_value(asset, row, field_map, "netbios")
     set_value(asset, row, field_map, "url")
@@ -283,20 +283,19 @@ def create_asset(row, kdi_json, field_map, host_domain_suffix, assets_only):
     set_value(asset, row, field_map, "container_id")
     set_value(asset, row, field_map, "image_id")
     
-    # Get the locator from the field map. and set the value.
+    # Get the locator from the field map, and set the value.
     locator_type = field_map['locator']
     if locator_type == None or locator_type == "":
         print(f"ERROR: no locator in field map (meta map)")
         sys.exit(1)
 
     # Check if the asset has a valid primary asset.
-    #primary_locator = set_value(asset, row, field_map, locator_type)
     primary_locator = asset[locator_type]
     if primary_locator == None or primary_locator == "":
         print(f"ERROR: No primary locator specified for locator type {locator_type}.")
         sys.exit(1)
     
-    # Check if the asset exists.
+    # Check if the asset exists.  If the asset doesn't exist, complete the asset.
     possible_asset = asset_exists(locator_type, primary_locator, kdi_json['assets'])
     if possible_asset == None:
         # The tag field is not mapped.  The value is an array of tags.
@@ -345,6 +344,7 @@ def create_vuln_def(row, kdi_json, field_map):
     if possible_vuln != None:
         return
 
+    # Set the rest of the vulnerability definition values.
     set_value(vuln_def, row, field_map, "cve_id", "cve_identifiers")
     standardize_and_verify(vuln_def, "cve_identifiers", "CVE")
 

@@ -1,4 +1,3 @@
-from ctypes import ArgumentError
 import os
 import sys
 import re
@@ -16,7 +15,7 @@ verbose = 0
 def print_json(json_obj):
     print(json.dumps(json_obj, sort_keys=True, indent=2))
 
-def print_verbose(line, fence):
+def print_verbose(fence, line):
     if verbose >= fence:
         print(line)
  
@@ -32,30 +31,25 @@ def get_command_line_options():
     arg_parser.add_argument("-a", "--assets_only",
                             dest='assets_only',
                             required=False,
-                            action='store_true',
-                            help="Create a KDI file with only assets, not vulnerabilities.")
+                            action='store_true', help="Create a KDI file with only assets, not vulnerabilities.")
     arg_parser.add_argument("--domain_suffix",
                             dest='domain_suffix',
                             required=False,
                             default="",
                             help="Optional domain suffix for hostnames.")
-    arg_parser.add_argument("--has_no_header",
-                            required=False,
-                            action='store_true',
-                            help="Does the input file have a header?")
     arg_parser.add_argument("-m", "--meta_file",
                             dest='meta_file_name',
                             required=False,
-                            help="File to map input to Kenna fields.")
+                            help="File to map input to Kenna fields.  Default is '<input_file_name_root>_meta.csv'")
     arg_parser.add_argument("-o", "--output_file",
                             dest='output_file_name',
                             required=False,
-                            help="Output file containing KDI JSON.")
+                            help="Output file containing KDI JSON.  Default is '<input_file_name_root>_kdi.json'")
     arg_parser.add_argument("-p", "--precheck",
                             dest='precheck',
                             required=False,
                             action='store_true',
-                            help="Use this parameter to precheck parms and input file.")
+                            help="Use this parameter to precheck parameters and input file.  (Not currently implemented.)")
     arg_parser.add_argument("-s", "--skip_autoclose",
                             dest='skip_autoclose',
                             required=False,
@@ -65,36 +59,56 @@ def get_command_line_options():
                             type=int,
                             required=False,
                             default=0,
-                            help="Output verbosity indicator.")
+                            help="Output verbosity level.")
 
     # Parse and return results.
     args = arg_parser.parse_args()
     return args
 
-# Forge an array of tags from a comman separated list of tag strings
-# and a comma separated list of tag prefix strings.
-def forge_tags(field_map):
+# Set the asset tag field base on tags and tag prefixes.
+def set_tag_value(asset, row, tags, tag_prefixes):
+    if tags is None or len(tags) == 0:
+        return False
+
+    prefix_exists = not(tag_prefixes is None or len(tag_prefixes) == 0)
+
+    asset_tags = [] 
+    #tags_in_row = set(row).intersection(tags)
+    for tag in tags:
+        for column in row.keys():
+            column = re.sub(r"\A['\"]+|['\"]+\Z", "", column)
+            if column != tag:
+                continue
+            tag_value = row[column]
+            if tag_value == None or tag_value == "":
+                continue
+            if prefix_exists:
+                asset_tags.append(tag_prefixes[tags.index(tag)] + tag_value)
+            else:
+                asset_tags.append(tag_value)
+
+    # If there are no tags
+    if len(asset_tags) > 0:
+        asset['tags'] = asset_tags
+    return True
+
+# Create arrays for tags and tag prefixes from comma separated strings.
+def process_tags(field_map):
     if field_map['tags'] is None or field_map['tags'] == "":
-        return []
+        return ([], [])
+
     tags_array = field_map['tags'].split(',')
     tags_array_len = len(tags_array)
 
     if field_map['tag_prefix'] is None or field_map['tag_prefix'] == "":
-        tag_prefix_array = [""] * tags_array_len
-    else:
-        tag_prefix_array = field_map['tag_prefix'].split(',')
-        if len(tag_prefix_array) != tags_array_len:
-            print(f"WARNING: tags array and tags prefix array lengths are not equal: (len{tag_prefix_array}, {tags_array_len}).")
-    
-    joined_tags = []
-    for tag, tag_prefix in zip(tags_array, tag_prefix_array):
-        tag = re.sub(r"\A['\"]+|['\"]+\Z", "", tag)
-        tag_prefix = re.sub(r"\A['\"]+|['\"]+\Z", "", tag_prefix)
+        return (tags_array, [])
 
-        joined_tags.append(tag_prefix + tag)
+    tag_prefix_array = field_map['tag_prefix'].split(',')
+    if len(tag_prefix_array) != tags_array_len:
+        print(f"WARNING: tags array and tags prefix array lengths are not equal: (len{tag_prefix_array}, {tags_array_len}).")
 
-    return joined_tags
-
+    return (tags_array, tag_prefix_array)
+      
 # Read and process the meta mapping file into a dictionary (hash).
 def map_fields(mapping_csv_file):
     
@@ -111,17 +125,17 @@ def map_fields(mapping_csv_file):
         sys.exit(1)
 
     # Tags and tag prefixes are a list of strings.  Join them into an array of strings.
-    field_map['tags'] = forge_tags(field_map)
+    (field_map['tags'], field_map['tag_prefix']) = process_tags(field_map)
 
     # Mappings within score_map
     if field_map['score_map'] is None or field_map['score_map'] == "":
-        print_verbose("score_map is empty", 1)
+        print_verbose(1, "score_map is empty")
     else:
         field_map['score_map'] = json.loads(field_map['score_map'])
 
     # Mappings within status_map
     if field_map['status_map'] is None or field_map['status_map'] == "":
-        print_verbose("status_map is empty", 1)
+        print_verbose(1, "status_map is empty")
     else:
         field_map['status_map'] = json.loads(field_map['status_map'])
 
@@ -130,13 +144,15 @@ def map_fields(mapping_csv_file):
 # If the field in the field map has no value, return False.
 # If the mapped field does not have a value, print error and return False.
 def verify_value(row, field_map, a_field):
+    if not a_field in field_map:
+        return False
     if field_map[a_field] is None or field_map[a_field] == "":
         return False
     if not field_map[a_field] in row:
-        print(f"ERROR: {field_map[a_field]} is not a CSV row column (key).")
+        print_verbose(1, f"{field_map[a_field]} is not a CSV row column (key).")
         return False
     if row[field_map[a_field]] is None:
-        print(f"ERROR: {row[field_map[a_field]]} has no value.")
+        print_verbose(1, f"{row[field_map[a_field]]} has no value.")
         return False
     
     return True
@@ -144,17 +160,17 @@ def verify_value(row, field_map, a_field):
 # Set a value in a dictionary from a field in a field map.
 def set_value(a_dict, row, field_map, a_field, to_field=None):
     if not verify_value(row, field_map, a_field):
-        return False
+        return None
 
     # if the to_field is present, use it instead of a_field.
     to_field = a_field if to_field is None else to_field
     a_dict[to_field] = row[field_map[a_field]] 
-    return True
+    return a_dict[to_field]
 
 # Set a datetime value in a dictionary from a field in a field map.
 def set_datetime_value(a_dict, row, field_map, a_field, to_field=None):
     if not verify_value(row, field_map, a_field):
-        return False
+        return None
 
     # Make a date.
     date_time_in = datetime.strptime(row[field_map[a_field]], field_map['date_format'])
@@ -162,7 +178,7 @@ def set_datetime_value(a_dict, row, field_map, a_field, to_field=None):
 
     to_field = a_field if to_field is None else to_field
     a_dict[to_field] = kdi_date
-    return True
+    return a_dict[to_field]
 
 # Remove white space and verify against a constant in a list in a dictionary.
 # Set a cononical list in the dictionay.
@@ -181,6 +197,17 @@ def standardize_and_verify(a_dict, a_field, validating_constant):
             verified_list.append(element)
 
     a_dict[a_field] = ','.join(verified_list)
+
+# Check if an asset exists in the array of assets in the KDI JSON.
+# Asset validation occurs when locator type and primary locator match.
+# Note: This could be a dictionary, but decided against it, because the
+#       dictionary would have to be coverted to an array chewing up more
+#       space.  We have CPU cycles to burn.
+def asset_exists(locator_type, primary_locator, assets):
+    for asset in assets:
+        if asset[locator_type] == primary_locator:
+            return asset
+    return None
 
 # Add a vulnerability to an asset.
 def add_vuln_to_asset(asset_vulns, row, field_map):
@@ -236,49 +263,72 @@ def add_vuln_to_asset(asset_vulns, row, field_map):
 def create_asset(row, kdi_json, field_map, host_domain_suffix, assets_only):
     asset = {}
 
-    locator_exists = False
+    set_value(asset, row, field_map, "file")
+    set_value(asset, row, field_map, "ip_address")
+    set_value(asset, row, field_map, "mac_address")
+    hostname = set_value(asset, row, field_map, "hostname")
+    #if hostname != None and hostname != "" and host_domain_suffix != None and host_domain_suffix != "":
+    #    asset['hostname'] += f".{host_domain_suffix }"
+    if (hostname == None or hostname == "") and (host_domain_suffix == None or host_domain_suffix == ""):
+        pass
+    else:
+        asset['hostname'] = f"{hostname}.{host_domain_suffix }"
 
-    locator_exists |= set_value(asset, row, field_map, "file")
-    locator_exists |= set_value(asset, row, field_map, "ip_address")
-    locator_exists |= set_value(asset, row, field_map, "mac_address")
-    hostname_exists = set_value(asset, row, field_map, "hostname")
-    if hostname_exists:
-        asset['hostname'] += host_domain_suffix 
-        locator_exists |= hostname_exists
-    locator_exists |= set_value(asset, row, field_map, "ec2")
-    locator_exists |= set_value(asset, row, field_map, "netbios")
-    locator_exists |= set_value(asset, row, field_map, "url")
-    locator_exists |= set_value(asset, row, field_map, "fqdn")
-    locator_exists |= set_value(asset, row, field_map, "external_id")
-    locator_exists |= set_value(asset, row, field_map, "database")
+    set_value(asset, row, field_map, "ec2")
+    set_value(asset, row, field_map, "netbios")
+    set_value(asset, row, field_map, "url")
+    set_value(asset, row, field_map, "fqdn")
+    set_value(asset, row, field_map, "external_id")
+    set_value(asset, row, field_map, "database")
+    set_value(asset, row, field_map, "container_id")
+    set_value(asset, row, field_map, "image_id")
     
-    # If there is no locator, we don't have an asset.
-    if not locator_exists:
-        print(f"ERROR: no locator")   # Add row in error output?
-        return
+    # Get the locator from the field map. and set the value.
+    locator_type = field_map['locator']
+    if locator_type == None or locator_type == "":
+        print(f"ERROR: no locator in field map (meta map)")
+        sys.exit(1)
 
     # Check if the asset has a valid primary asset.
-    if field_map['locator'] in row: 
-        primary_locator = row[field_map['locator']]
-        if primary_locator is None or primary_locator == "":
-            print(f"WARNING: Primary locator points to unspecified locator.")
-    if asset[field_map['locator']] is None or asset[field_map['locator']] == "":
-        print(f"WARNING: No primary locator specified.")
+    #primary_locator = set_value(asset, row, field_map, locator_type)
+    primary_locator = asset[locator_type]
+    if primary_locator == None or primary_locator == "":
+        print(f"ERROR: No primary locator specified for locator type {locator_type}.")
+        sys.exit(1)
+    
+    # Check if the asset exists.
+    possible_asset = asset_exists(locator_type, primary_locator, kdi_json['assets'])
+    if possible_asset == None:
+        # The tag field is not mapped.  The value is an array of tags.
+        set_tag_value(asset, row, field_map['tags'], field_map['tag_prefix'])
+    
+        set_value(asset, row, field_map, "application")
+        set_value(asset, row, field_map, "owner")
+        set_value(asset, row, field_map, "os")
+        set_value(asset, row, field_map, "os_version")
+        set_value(asset, row, field_map, "priority")
 
-    # The tag field is not mapped.  The value is an array of tags.
-    asset['tags'] = field_map['tags']
+        # Append new asset into the KDI and initialize the vulns section.
+        kdi_json['assets'].append(asset)
+        asset['vulns'] = []
 
-    set_value(asset, row, field_map, "application")
-    set_value(asset, row, field_map, "owner")
-    set_value(asset, row, field_map, "os")
-    set_value(asset, row, field_map, "os_version")
-    set_value(asset, row, field_map, "priority")
+    else:
+        asset = possible_asset
 
-    asset['vulns'] = []
     if not assets_only:
         add_vuln_to_asset(asset['vulns'], row, field_map)
 
-    kdi_json['assets'].append(asset)
+
+# Check if a vulnerability exists in the array of vuln_defs in the KDI JSON.
+# Vulnerability validation occurs when both the scanner type and scanner ID match.
+# Note: This could be a dictionary, but decided against it, because the
+#       dictionary would have to be coverted to an array chewing up more
+#       space.  We have CPU cycles to burn.
+def vuln_exists(scanner_type, scanner_id, vuln_defs):
+    for vuln_def in vuln_defs:
+        if vuln_def['scanner_type'] == scanner_type and vuln_def['scanner_identifier'] == scanner_id:
+            return vuln_def
+    return None
 
 # Create a vulnerabilitiy definition entry in the KDI JSON dictionary.
 def create_vuln_def(row, kdi_json, field_map):
@@ -288,7 +338,12 @@ def create_vuln_def(row, kdi_json, field_map):
         vuln_def['scanner_type'] = field_map['scanner_type']
     else:
         set_value(vuln_def, row, field_map, "scanner_type")
-    set_value(vuln_def, row, field_map, "scanner_id", "scanner_identifier")
+    scanner_id = set_value(vuln_def, row, field_map, "scanner_id", "scanner_identifier")
+    
+    # If vulnerability already exists, then don't add it to the vuln_def array.
+    possible_vuln = vuln_exists(vuln_def['scanner_type'], scanner_id, kdi_json['vuln_defs'])
+    if possible_vuln != None:
+        return
 
     set_value(vuln_def, row, field_map, "cve_id", "cve_identifiers")
     standardize_and_verify(vuln_def, "cve_identifiers", "CVE")
@@ -313,8 +368,9 @@ def process_input_file(csv_input_file_name, kdi_json, field_map, host_domain_suf
             reader = csv.DictReader(input_file, delimiter=',')
             for row in reader:
                 create_asset(row, kdi_json, field_map, host_domain_suffix, assets_only)
-                if not assets_only:
-                    create_vuln_def(row, kdi_json, field_map)
+                if assets_only:
+                    continue
+                create_vuln_def(row, kdi_json, field_map)
     except FileNotFoundError:
         print(f"ERROR: CSV input file, {csv_input_file_name} not found.")
         sys.exit(1)
@@ -332,19 +388,18 @@ if __name__ == "__main__":
     host_domain_suffix = args.domain_suffix
 
     # Get the flags.
-    has_header = not args.has_no_header
     skip_autoclose = args.skip_autoclose
     assets_only = args.assets_only
     precheck = args.precheck
     verbose = args.verbose
 
-    print(f"Input CSV: {csv_input_file_name}  Output JSON: {json_output_file_name}")
-    print(f"Meta Input File: {meta_file_name}  Domain Suffix: {host_domain_suffix}")
-    print(f"header: {has_header}  skip_autoclose: {skip_autoclose}  assets_only: {assets_only}  precheck: {precheck}")
-    print("")
+    print_verbose(1, f"Input CSV: {csv_input_file_name}  Output JSON: {json_output_file_name}")
+    print_verbose(1, f"Meta Input File: {meta_file_name}  Domain Suffix: {host_domain_suffix}")
+    print_verbose(1, f"skip_autoclose: {skip_autoclose}  assets_only: {assets_only}  precheck: {precheck}")
+    print_verbose(1, "")
 
     field_map = map_fields(meta_file_name)
-    if verbose >= 1:
+    if verbose >= 2:
         print(f"Field map:")
         print_json(field_map)
 

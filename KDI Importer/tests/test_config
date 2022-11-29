@@ -1,0 +1,38 @@
+# Executes python and ruby scripts that convert CSV to KDI JSON,
+# and compares the output.
+#!/bin/bash
+
+if (( $# == 0 ))
+then
+    echo "Requires the test directory"
+    exit
+fi
+
+ASSETS_ONLY="false"
+
+# Get the test directory and initialize input and output file names.
+test_dir=$1
+data_input=${test_dir}/input_data.csv
+meta_map=${test_dir}/meta_map.csv
+ruby_kdi_output=${test_dir}/ruby_kdi.json
+py_kdi_output=${test_dir}/py_kdi.json
+params_config=${test_dir}/params.config
+
+echo ""
+echo "Input File:   ${data_input}"
+echo "Meta File:    ${meta_map}"
+echo "Output Files: ${ruby_kdi_output}, ${py_kdi_output}"
+echo ""
+
+if test -f ${params_config}
+then
+    source ${params_config}
+fi
+
+echo "Assets Only: ${ASSETS_ONLY}"
+
+if [[ ${ASSETS_ONLY} == "true" ]]
+then
+    echo "Processing assets only"
+fi
+echo ""

@@ -1,0 +1,5 @@
+Hostname,Tag Sync,Issue ID,Last Seen,Current Status,QCT_CSTYPE,QCT_PRIMARYCONTACT
+assetsync3,Second Only,123,10/2/2022,open,admin,Jared
+assetsync4,"Initial, Second",456,10/2/2022,open,developer
+assetsync5,First,457,10/2/2022,open,developer,David
+assetsync5,Last,458,10/2/2022,open,developer,David

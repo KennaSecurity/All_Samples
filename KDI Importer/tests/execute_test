@@ -1,0 +1,95 @@
+#!/bin/bash
+
+# Executes python and ruby scripts that convert CSV to KDI JSON,
+# and compares the output.
+
+if (( $# == 0 ))
+then
+    echo "Requires the test directory"
+    echo "./execute_test <test_dir>"
+    exit
+fi
+
+# Get the test directory and initialize input and output file names.
+test_dir=$1
+data_input=${test_dir}/input_data.csv
+meta_map=${test_dir}/meta_map.csv
+ruby_kdi_output=${test_dir}/ruby_kdi.json
+py_kdi_output=${test_dir}/py_kdi.json
+params_config=${test_dir}/params.config
+
+# Process the config file if present.
+if test -f ${params_config}
+then
+    source ${params_config}
+fi
+
+# Display the parameters we're using.
+echo ""
+echo "Input File:   ${data_input}"
+echo "Meta File:    ${meta_map}"
+echo "Output Files: ${ruby_kdi_output}, ${py_kdi_output}"
+
+# So far, there are only two optional parameters from the config file.
+if [ ! -z $ASSETS_ONLY ]
+then
+    echo "Assets Only: ${ASSETS_ONLY}"
+fi
+if [ ! -z $DOMAIN_SUFFIX ]
+then
+    echo "Assets Only: ${DOMAIN_SUFFIX}"
+fi
+echo ""
+
+# Build the ruby command with optional parameters.
+ruby_cmd="../csv_KDI_json.rb ${data_input} true ${meta_map} false ${ruby_kdi_output}"
+if [ ! -z $ASSETS_ONLY ]
+then
+    ruby_cmd+=" true"
+fi
+if [ ! -z $DOMAIN_SUFFIX ] && [ ! -z $ASSETS_ONLY ]
+then
+    ruby_cmd+=" ${DOMAIN_SUFFIX}"
+else
+    ruby_cmd+=" false ${DOMAIN_SUFFIX}"
+fi
+
+# Run ruby script
+#ruby ../csv_KDI_json.rb ${data_input} true ${meta_map} false ${ruby_kdi_output}
+#echo "ruby ${ruby_cmd}"
+ruby $ruby_cmd
+if [ $? -ne 0 ]
+then
+    echo "Ruby CSV to KDI JSON error"
+    exit
+fi
+
+# Build the python command with optional parameters.
+py_cmd="../csv_to_kdi.py ${data_input} -m ${meta_map} -o ${py_kdi_output}"
+if [ ! -z $ASSETS_ONLY ]
+then
+    py_cmd+=" -a"
+fi
+if [ ! -z $DOMAIN_SUFFIX ]
+then
+    py_cmd+=" --domain_suffix ${DOMAIN_SUFFIX}"
+fi
+
+# Run python script
+#python ../csv_to_kdi.py ${data_input} -m ${meta_map} -o ${py_kdi_output}
+#echo "python ${py_cmd}"
+python $py_cmd
+if [ $? -ne 0 ]
+then
+    echo "Python CSV to KDI JSON error"
+    exit
+fi
+
+# Compare output files
+echo "Diffing output files"
+python diff_json.py ${ruby_kdi_output} ${py_kdi_output}
+if [ $? -eq 0 ]
+then
+    echo "Files match"
+fi
+echo ""

@@ -1,5 +1,6 @@
 require 'json'
 require 'csv'
+require 'pry'
 # require 'URI'
 
 @data_file = ARGV[0]
@@ -55,7 +56,7 @@ module KdiHelpers
       when "url"
         return success unless $assets.select{|a| a[:url] == url}.empty?
       else
-        puts "Error: main locator not provided" if @debug
+        puts "Error: main locator not provided in create_asset()" if @debug
         success = false
 
     end
@@ -79,7 +80,6 @@ module KdiHelpers
     tmpassets << {:vulns => []}
 
     success = false if file.to_s.empty? && ip_address.to_s.empty? && mac_address.to_s.empty? && hostname.to_s.empty? && ec2.to_s.empty? && netbios.to_s.empty? && url.to_s.empty? && database.to_s.empty? && external_id.to_s.empty? && fqdn.to_s.empty? && application.to_s.empty?
-
 
     $assets << tmpassets.reduce(&:merge) unless !success
 
@@ -112,7 +112,7 @@ module KdiHelpers
       when "database"
         asset = $assets.select{|a| a[:database] == database }.first
       else
-        "Error: main locator not provided" if @debug
+        "Error: main locator not provided in create_asset_vuln()" if @debug
     end
 
     puts "Unknown asset, can't associate a vuln!" unless asset
@@ -184,7 +184,6 @@ map_owner = "#{$mapping_array.assoc('owner').last}"
 map_os = "#{$mapping_array.assoc('os').last}"                
 map_os_version = "#{$mapping_array.assoc('os_version').last}"                  
 map_priority = "#{$mapping_array.assoc('priority').last}" 
-
 
 if @assets_only == "false" then # DBro - Added for ASSET ONLY Run 
   map_scanner_source = "#{$mapping_array.assoc('scanner_source').last}"                   
@@ -337,7 +336,7 @@ end
 
   ### CREATE THE ASSET
   done  = create_asset(file,ip_address,mac_address,hostname,ec2,netbios,url,fqdn,external_id,database,application,tags,owner,os,os_version,priority)
-  #puts "create assset = #{done}"
+  #puts "create asset = #{done}"
   next if !done
   
   ### ASSOCIATE THE ASSET TO THE VULN

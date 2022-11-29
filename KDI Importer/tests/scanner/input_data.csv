@@ -1,0 +1,12 @@
+Hostname,ip,Issue Type,Issue ID,Last Seen,Current Status,os,os version,QCT_PRIMARYCONTACT
+assetsync3,192.168.1.3,KDIAssetSyncTest,123,10/2/2022,open,Windows,11,Joe
+assetsync4,192.168.1.4,KDIAssetSyncTest,456,10/2/2022,open,Windows,11,Joe
+assetsync5,192.168.1.5,KDIAssetSyncTest,457,10/2/2022,open,Unbuntu,20.04,Joe
+assetsync5,192.168.1.5,KDIAssetSyncTest,458,10/2/2022,open,Unbuntu,20.04,Joe
+assetsync2,192.168.1.2,KDIAssetSyncTest,123,10/2/2022,open,Joe
+rle_laptop,192.168.5.1,Imaginative Physics,123,10/2/2022,open,Mac,13.0.1,Rick
+dbro_laptop,192.168.5.2,Imaginative Physics,1234,10/2/2022,open,Mac,13.0.1,David
+assetsync4,192.168.1.4,Imaginative Physics,1456,10/2/2022,open,Windows,11,Joe
+jk_laptop,192.168.5.5,KDIAssetSyncTest,1234,10/2/2022,open,Windows,11,Jared
+assetsync4,192.168.1.4,Imaginative Physics,1459,10/2/2022,open,Windows,11,Joe
+rle_laptop,192.168.5.1,Nexus,1235,10/2/2022,open,Mac,13.0.1,Rick

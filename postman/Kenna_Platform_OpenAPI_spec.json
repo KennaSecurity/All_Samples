@@ -483,54 +483,59 @@
       "application_update_request_body_schema": {
         "type": "object",
         "properties": {
-          "business_units": {
-            "type": "string",
-            "description": "Business units for the application"
-          },
-          "external_facing": {
-            "type": "boolean",
-            "description": "Set this to true if your application is external facing.",
-            "default": "true"
-          },
-          "identifiers": {
-            "type": "array",
-            "description": "Array of identifiers for the application",
-            "default": [
+          "application": {
+            "type": "object",
+            "properties": {
+              "business_units": {
+                "type": "string",
+                "description": "Business units for the application"
+              },
+              "external_facing": {
+                "type": "boolean",
+                "description": "Set this to true if your application is external facing.",
+                "default": "true"
+              },
+              "identifiers": {
+                "type": "array",
+                "description": "Array of identifiers for the application",
+                "default": [
 
-            ],
-            "items": {
-              "type": "string"
+                ],
+                "items": {
+                  "type": "string"
+                }
+              },
+              "host_name": {
+                "type": "string",
+                "description": "Name of the host where the application is deployed"
+              },
+              "name": {
+                "type": "string",
+                "description": "Name of the application"
+              },
+              "notes": {
+                "type": "string",
+                "description": "Any notes regarding the application"
+              },
+              "owner": {
+                "type": "string",
+                "description": "Name of the application owner"
+              },
+              "priority": {
+                "type": "integer",
+                "description": "The priority of your application, on a scale of 1 (low priority) to 10 (high priority).",
+                "default": "10",
+                "format": "int32"
+              },
+              "repo_url": {
+                "type": "string",
+                "description": "URL to the code repository for the application"
+              },
+              "team_name": {
+                "type": "string",
+                "description": "Name of the team responsible for the application"
+              }
             }
-          },
-          "host_name": {
-            "type": "string",
-            "description": "Name of the host where the application is deployed"
-          },
-          "name": {
-            "type": "string",
-            "description": "Name of the application"
-          },
-          "notes": {
-            "type": "string",
-            "description": "Any notes regarding the application"
-          },
-          "owner": {
-            "type": "string",
-            "description": "Name of the application owner"
-          },
-          "priority": {
-            "type": "integer",
-            "description": "The priority of your application, on a scale of 1 (low priority) to 10 (high priority).",
-            "default": "10",
-            "format": "int32"
-          },
-          "repo_url": {
-            "type": "string",
-            "description": "URL to the code repository for the application"
-          },
-          "team_name": {
-            "type": "string",
-            "description": "Name of the team responsible for the application"
           }
         }
       },
@@ -2299,8 +2304,13 @@
               },
               "status": {
                 "type": "string",
-                "description": "The status of a vulnerability (open, closed, risk_accepted, false_positive).",
-                "default": "open"
+                "enum": [
+                  "closed",
+                  "false_positive",
+                  "open",
+                  "risk_accepted"
+                ],
+                "description": "The status to be updated for requested vulnerabilities."
               },
               "threat": {
                 "type": "integer",
@@ -2703,6 +2713,9 @@
           "drop_down_options": {
             "type": "array",
             "description": "Selectable options for dropdown data types",
+            "items": {
+              "type": "string"
+            },
             "example": [
               "Chicago",
               "Los Angeles",
@@ -2752,6 +2765,9 @@
           "drop_down_options": {
             "type": "array",
             "description": "Selectable options for dropdown data types, null for other data types",
+            "items": {
+              "type": "string"
+            },
             "default": null,
             "example": [
               "Chicago",
@@ -4902,6 +4918,7 @@
       },
       "service_ticket_request_schema": {
         "type": "object",
+        "nullable": true,
         "description": "A service ticket to associate with a vulnerability. A null service_ ticket value will unassociate the service ticket associated with these vulnerabilities.",
         "properties": {
           "external_identifier": {
@@ -6006,13 +6023,11 @@
                 "type": "string",
                 "enum": [
                   "closed",
-                  "closed_by_human",
-                  "false_positive_by_human",
+                  "false_positive",
                   "open",
-                  "open_by_api",
-                  "risk_accepted_by_human"
+                  "risk_accepted"
                 ],
-                "description": "The status of this vulnerability.  Default is 'open'."
+                "description": "The status to be updated to for this vulnerability."
               }
             }
           }

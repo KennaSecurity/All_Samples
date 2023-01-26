@@ -9,14 +9,8 @@ require 'ipaddr'
 #These are the arguments we are expecting to get - header file can be send as third parameter if not included as row 1 in csv
 @token = ARGV[0]
 @meta_file = ARGV[1] # source CSV file data
-@rm_id_column = "rmid" # default name of risk meter ID column in CSV file
-@priority_column = "priority" # default name of priority column in CSV file 
-unless ARGV[2].nil?
-  @rm_id_column = ARGV[2] # name of rm id column in CSV file
-end
-unless ARGV[3].nil?
-  @priority_column = ARGV[3] # name of priority column in CSV file 
-end
+ARGV[2].nil? ? @rm_id_column = "rmid" : @rm_id_column = ARGV[2]
+ARGV[3].nil? ? @priority_id_column = "priority" : @priority_id_column = ARGV[3]
 
 #Variables we'll need later
 @asset_api_url = 'https://api.kennasecurity.com/assets'
@@ -44,7 +38,7 @@ def bulkUpdate(assets, priority)
   puts "made it to bulk update"
   post_url = "#{@asset_api_url}#{@asset_bulk_url}"
   puts post_url
-  holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"priority\": #{priority}},\"realtime\": true}"
+  holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"priority\": #{priority}},\"realtime\": false}"
   puts holder if @debug
 
   begin

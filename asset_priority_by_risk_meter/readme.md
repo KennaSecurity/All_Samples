@@ -2,17 +2,19 @@
 
 Set All Assets in a given Risk Meter to a priority
 
-This script will process a meta data file to set all assets in each listed risk meter to the designated priority
+This script will process a CSV file to set all assets in each listed risk meter to the specified priority.
+It is multi-threaded.
 
-Usage:
+Usage
 
-    kenna-priority-by-risk-meter.rb <Kenna API token> <risk meter meta data.csv> risk_meter_column priority_column
+    kenna-priority-by-risk-meter.rb <Kenna API token> <CSV file> [<risk meter ID column name> <risk meter priority column name>]
     
+    <risk meter ID column name> is optional and defaults to "rmid".
+    <risk_meter priority column name> is optional and defaults to "priority".
     
 Tested on:
 
-    ruby 2.0.0p648 (2015-12-16 revision 53162) [universal.x86_64-darwin15]
-    
+    ruby 2.6.10p210 (2022-04-12 revision 67958) [universal.x86_64-darwin22]
     
 Required Ruby classes/gems:
 

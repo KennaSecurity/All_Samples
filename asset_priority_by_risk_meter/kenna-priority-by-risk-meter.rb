@@ -10,7 +10,7 @@ require 'ipaddr'
 @token = ARGV[0]
 @meta_file = ARGV[1] # source CSV file data
 ARGV[2].nil? ? @rm_id_column = "rmid" : @rm_id_column = ARGV[2]
-ARGV[3].nil? ? @priority_id_column = "priority" : @priority_id_column = ARGV[3]
+ARGV[3].nil? ? @priority_column = "priority" : @priority_column = ARGV[3]
 
 #Variables we'll need later
 @asset_api_url = 'https://api.kennasecurity.com/assets'

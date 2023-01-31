@@ -37,7 +37,7 @@ roles_url = base_url + "/roles"
 
 #print(users_url)
 
-headers = {"Accept": "application/json", "X-Risk-Token":token}
+headers = {"Accept": "application/json", "X-Risk-Token":token, "User-Agent": 'user_audit/1.0.0 (Kenna Security)'}
 
 users_response = requests.get(users_url, headers=headers).json()
 

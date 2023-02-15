@@ -325,8 +325,9 @@ def create_asset(row, kdi_json, field_map, host_domain_suffix, assets_only):
 #       space.  We have CPU cycles to burn.
 def vuln_exists(scanner_type, scanner_id, vuln_defs):
     for vuln_def in vuln_defs:
-        if vuln_def['scanner_type'] == scanner_type and vuln_def['scanner_identifier'] == scanner_id:
-            return vuln_def
+        if "scanner_type" in vuln_def and "scanner_identifier" in vuln_def:
+            if vuln_def['scanner_type'] == scanner_type and vuln_def['scanner_identifier'] == scanner_id:
+                return vuln_def
     return None
 
 # Create a vulnerabilitiy definition entry in the KDI JSON dictionary.
@@ -364,7 +365,7 @@ def create_vuln_def(row, kdi_json, field_map):
 def process_input_file(csv_input_file_name, kdi_json, field_map, host_domain_suffix, assets_only):
 
     try:
-        with open(csv_input_file_name, newline='') as input_file:
+        with open(csv_input_file_name, newline='', mode='r', encoding='utf-8-sig') as input_file:
             reader = csv.DictReader(input_file, delimiter=',')
             for row in reader:
                 create_asset(row, kdi_json, field_map, host_domain_suffix, assets_only)
@@ -398,6 +399,7 @@ if __name__ == "__main__":
     print_verbose(1, f"skip_autoclose: {skip_autoclose}  assets_only: {assets_only}  precheck: {precheck}")
     print_verbose(1, "")
 
+    # Map the user fields to Kenna fields.
     field_map = map_fields(meta_file_name)
     if verbose >= 2:
         print(f"Field map:")

@@ -2,19 +2,17 @@
 
 Kenna CSV import to update vulns using multi-threading
 
-This script will process a CSV file, retrieve vulnerabilities, then update data, including custom fields on each vulnerability targeted. 
+This script will process a CSV file, retrieve vulnerabilities, then update data, including custom fields on each vulnerability targeted. If the amount of vulnerabilities is over 10,000, then data exports are used.
 
-Example Usage:
+## Example Usage:
 
     Kenna-vuln-updater.rb <Kenna API token> <Import data CSV file> <meta file for custom fields> <vuln type> <vuln column in data file> <host lookup type> <IP column in data file> <hostname column in data file> <notes type> <notes value> <duedate> <status type> <status value> <vuln status> <base url>
     
-    
-Tested on:
+### Tested on:
 
     ruby 2.0.0p648 (2015-12-16 revision 53290) [universal.x86_64-darwin15]
     
-    
-Required Ruby classes/gems:
+### Required Ruby classes/gems:
 
     rest-client
     json
@@ -23,11 +21,11 @@ Required Ruby classes/gems:
     thread
     monitor
     
-Expected Parameters:
+### Expected Parameters:
 
     @token = ARGV[0]
     @csv_file = ARGV[1] #source data
-    @data_column_file = ARGV[2] #custom field id's and columns with data
+    @data_column_file = ARGV[2] #custom field ID's and columns with data
     @vuln_type = ARGV[3] # cve or cwe or wasc or scanner_id or vuln_id or empty string
     @vuln_column = ARGV[4] # column that holds the vuln key or empty string
     @host_search_field = ARGV[5] #field to use first for asset match ip_address or hostname or empty string
@@ -41,7 +39,7 @@ Expected Parameters:
     @vuln_status = ARGV[13] #vuln status all, open or other for retrieval 
     ARGV.length == 15 ? @base_url = ARGV[14] : @base_url = "https://api.kennasecurity.com/"
     
-Available for Modification on the code:
+### Available for Modification on the code:
 
     @debug #set to true to have additional debug lines sent to the console
     thread_count #set to 8 by default. Too high and code will be inefficient due to retries (max API calls 3/second), too low max API limit won't be hit. 

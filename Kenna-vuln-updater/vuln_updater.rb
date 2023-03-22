@@ -1,4 +1,5 @@
 # vuln updater multi-threaded
+require 'rest-client'
 require 'json'
 require 'csv'
 require 'ipaddr'

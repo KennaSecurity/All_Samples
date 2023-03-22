@@ -22,9 +22,7 @@ require 'monitor'
 @vuln_status = ARGV[13] #vuln status all, open or other for retrieval 
 ARGV.length == 15 ? @base_url = ARGV[14] : @base_url = "https://api.kennasecurity.com/"
 
-@enc_colon = "%3A"
 @enc_dblquote = "%22"
-@enc_space = "%20"
 
 @start_time = Time.now
 @output_filename = Logger.new("kenna_vuln_updater_log-#{@start_time.strftime("%Y%m%dT%H%M")}.txt")

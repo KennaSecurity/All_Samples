@@ -10,8 +10,7 @@ This script uses a metadata CSV file that contains one or more risk meter IDs at
     
 ### Tested on:
 
-    ruby 2.0.0p648 (2015-12-16 revision 53162) [universal.x86_64-darwin15]
-    
+    ruby 2.6.10p210 (2022-04-12 revision 67958) [universal.x86_64-darwin22]
     
 ### Required Ruby classes/gems:
 

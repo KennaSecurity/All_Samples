@@ -17,7 +17,7 @@ require 'ipaddr'
 @search_url = "/search?" 
 @headers = {'Content-Type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json'}
 
-start_time = Time.now
+$start_time = Time.now
 
 def find_json_status?(json)
   begin
@@ -33,7 +33,11 @@ def bulkUpdate(assets)
   puts "made it to bulk update"
   post_url = "#{@asset_api_url}#{@asset_bulk_url}"
   puts post_url
-  holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"inactive\": \"true\"},\"realtime\": true}"
+  if assets.length() < 100
+    holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"inactive\": \"true\"},\"realtime\": true}"
+  else
+    holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"inactive\": \"true\"}}"
+  end
   puts holder if @debug
 
   begin
@@ -44,16 +48,17 @@ def bulkUpdate(assets)
       :headers => @headers
     )
   rescue RestClient::UnprocessableEntity 
-    log_output = File.open(output_filename,'a+')
-    log_output << "UnprocessableEntity: #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+    log_output = File.open($output_filename,'a+')
+    log_output << "UnprocessableEntity: #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{$start_time.to_s})\n"
     log_output.close
-    puts "UnprocessableEntity: #{e.message}"
+    puts "Bulk Update UnprocessableEntity: #{e.message}"
 
   rescue RestClient::BadRequest => e
-    log_output = File.open(output_filename,'a+')
-    log_output << "BadRequest: #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+    log_output = File.open($output_filename,'a+')
+    log_output << "BadRequest: #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{$start_time.to_s})\n"
     log_output.close
-    puts "BadRequest: #{e.message}"
+    puts "Bulk Update BadRequest: #{e.message}"
+    puts JSON.parse(query_post_return.body)
   rescue RestClient::Exception => e
     @retries ||= 0
     if @retries < @max_retries
@@ -61,8 +66,8 @@ def bulkUpdate(assets)
       sleep(15)
       retry
     else
-      log_output = File.open(output_filename,'a+')
-      log_output << "General RestClient error #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+      log_output = File.open($output_filename,'a+')
+      log_output << "General RestClient error #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{$start_time.to_s})\n"
       log_output.close
       puts "Unable to get vulns: #{e.message}"
     end
@@ -72,7 +77,7 @@ def bulkUpdate(assets)
   puts JSON.parse(query_post_return.body)
 end
 
-output_filename = "kenna_asset_inactivation-#{start_time.strftime("%Y%m%dT%H%M")}.txt"
+$output_filename = "kenna_asset_inactivation-#{$start_time.strftime("%Y%m%dT%H%M")}.txt"
 
 @max_retries = 5
 @debug = false
@@ -114,15 +119,15 @@ producer_thread = Thread.new do
       puts("TooManyRequests: #{e.message}")
       retry
     rescue RestClient::UnprocessableEntity 
-      log_output = File.open(output_filename,'a+')
-      log_output << "UnprocessableEntity: #{query_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+      log_output = File.open($output_filename,'a+')
+      log_output << "UnprocessableEntity: #{query_url}... (time: #{Time.now.to_s}, start time: #{$start_time.to_s})\n"
       log_output.close
-      puts "BadRequest: #{query_url}"
+      puts "Search Asset UnprocessableEntity: #{query_url}"
     rescue RestClient::BadRequest
-      log_output = File.open(output_filename,'a+')
-      log_output << "BadRequest: #{query_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+      log_output = File.open($output_filename,'a+')
+      log_output << "BadRequest: #{query_url}... (time: #{Time.now.to_s}, start time: #{$start_time.to_s})\n"
       log_output.close
-      puts "BadRequest: #{query_url}"
+      puts "Search Asset BadRequest: #{query_url}"
     rescue RestClient::Exception
       @retries ||= 0
       if @retries < @max_retries
@@ -130,8 +135,8 @@ producer_thread = Thread.new do
         sleep(15)
         retry
       else
-        log_output = File.open(output_filename,'a+')
-        log_output << "General RestClient error #{query_url}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+        log_output = File.open($output_filename,'a+')
+        log_output << "General RestClient error #{query_url}... (time: #{Time.now.to_s}, start time: #{$start_time.to_s})\n"
         log_output.close
         puts "Unable to get assets: #{query_url}"
         next
@@ -141,7 +146,7 @@ producer_thread = Thread.new do
     tot_assets = meta_response_json.fetch("total_count")
     next if tot_assets == 0
     pages = meta_response_json.fetch("pages")
-    log_output = File.open(output_filename,'a+')
+    log_output = File.open($output_filename,'a+')
     log_output << "Checking #{query_url}. Total assets = #{tot_assets}\n"
     log_output.close
 
@@ -154,7 +159,7 @@ producer_thread = Thread.new do
       puts("Page size modified to #{asset_page_size}\n")
     end
 
-    log_output = File.open(output_filename,'a+')
+    log_output = File.open($output_filename,'a+')
     log_output << "Starting Thread for #{query_url} Total assets = #{tot_assets}\n"
     log_output.close
 
@@ -222,7 +227,7 @@ consumer_thread = Thread.new do
       
         meta_response_json = JSON.parse(query_response.body)["meta"]
         tot_assets = meta_response_json.fetch("total_count")
-        log_output = File.open(output_filename,'a+')
+        log_output = File.open($output_filename,'a+')
         log_output << "Processing = #{query_url}. Total assets = #{tot_assets}\n"
         log_output.close
         if @debug then puts "Processing #{query_url} Total assets = #{tot_assets}" end
@@ -245,7 +250,7 @@ consumer_thread = Thread.new do
           query_response_json.each do |item|
             asset_id = item["id"]
             assets_array << asset_id
-            if assets_array.length == 30000 then
+            if assets_array.length == 5000 then
               bulkUpdate(assets_array)
               assets_array = []
             end
@@ -259,15 +264,15 @@ consumer_thread = Thread.new do
       rescue RestClient::TooManyRequests =>e
         retry
       rescue RestClient::UnprocessableEntity => e
-        log_output = File.open(output_filename,'a+')
-        log_output << "UnprocessableEntity: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+        log_output = File.open($output_filename,'a+')
+        log_output << "UnprocessableEntity: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{$start_time.to_s})\n"
         log_output.close
-        puts "BadRequest: #{e.message}"
+        puts "Thread UnprocessableEntity: #{e.message}"
       rescue RestClient::BadRequest => e
-        log_output = File.open(output_filename,'a+')
-        log_output << "BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+        log_output = File.open($output_filename,'a+')
+        log_output << "BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{$start_time.to_s})\n"
         log_output.close
-        puts "BadRequest: #{e.message}"
+        puts "Thread BadRequest: #{e.message}"
       rescue RestClient::Exception => e
         @retries ||= 0
         puts "one #{@retries}"
@@ -276,8 +281,8 @@ consumer_thread = Thread.new do
           sleep(15)
           retry
         else
-          log_output = File.open(output_filename,'a+')
-          log_output << "General RestClient error #{query_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{start_time.to_s})\n"
+          log_output = File.open($output_filename,'a+')
+          log_output << "General RestClient error #{query_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{$start_time.to_s})\n"
           log_output.close
           puts "Unable to get vulns: #{e.message}"
           next

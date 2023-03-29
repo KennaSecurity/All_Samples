@@ -6,7 +6,7 @@ This script uses a metadata CSV file that contains one or more risk meter IDs at
 
 ## Usage:
 
-    asset_inacivation-by-risk-meter.rb <Kenna API token> <risk meter meta data.csv> risk_meter_column
+    asset_inacivation-by-risk-meter.rb <Kenna API token> <risk meter meta data.csv> <risk_meter_column>
     
 ### Tested on:
 

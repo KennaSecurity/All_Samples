@@ -2,8 +2,8 @@
 
 These scripts will clear out all due dates from an instance:
 
-`clear_due_date.rb`: uses data exports to retrieve all vulnerabilities - good for smaller data sets
-`clear_due_date_via_assets.rb`: uses list of assets to portion out updates into batches for better performance on larger files
+* `clear_due_date.rb`: uses data exports to retrieve all vulnerabilities - good for smaller data sets
+* `clear_due_date_via_assets.rb`: uses list of assets to portion out updates into batches for better performance on larger files
 
 Data export APIs are used to obtain the data.
 

@@ -22,7 +22,8 @@ start_time = Time.now
 @debug = false
 
 def bulkUpdate(vulnids)
-  puts "starting bulk update" if @debug
+  puts "Updating #{vulnids.length()} vulnerabilities"
+
   json_string = nil
   json_string = "{\"vulnerability_ids\": #{vulnids}, "
   json_string = "#{json_string}\"vulnerability\": {"
@@ -97,6 +98,7 @@ def get_data(get_url)
   return query_return
 end
 
+# get_bulk_assets() uses data exports APIs.
 def get_bulk_assets()
   puts "starting bulk query" if @debug
   q = "_exists_:due_date"
@@ -174,9 +176,12 @@ def get_bulk_assets()
     @output_filename.error("General Exception:...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})")
     puts "BadRequest: #{e.backtrace.inspect}"
   end
+
   File.delete output_results
   return json_data
 end
+
+# main
 asset_array = []
 asset_json = get_bulk_assets
 if !asset_json.nil? then
@@ -211,7 +216,7 @@ if !asset_json.nil? then
 
         vuln_page += 1
       end
-      vuln_array.each_slice(7000) do |b|
+      vuln_array.each_slice(5000) do |b|
         bulkUpdate(b)
       end 
     end

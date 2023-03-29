@@ -58,7 +58,13 @@ def bulkUpdate(assets, tag_value)
   puts "tag value in bulk update = #{tag_value}"
   post_url = "#{@asset_api_url}#{@asset_bulk_url}"
   puts post_url
-  holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"tags\": [\"#{tag_value}\"]},\"realtime\": true}"
+
+  # See API documentation for details.
+  if assets.length() < 100
+    holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"tags\": [\"#{tag_value}\"]},\"realtime\": true}"
+  else
+    holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"tags\": [\"#{tag_value}\"]}}"
+  end
   puts holder if @debug
 
   begin
@@ -129,11 +135,13 @@ producer_thread = Thread.new do
       log_output << "BadRequest: #{query_url}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
       log_output.close
       puts "BadRequest: #{query_url}"
-    rescue RestClient::Exception
+    rescue RestClient::Exception => e
+      puts "Search Asset API Exception: #{e.message} for #{query_url}"
       @retries ||= 0
       if @retries < @max_retries
         @retries += 1
         sleep(15)
+        puts "Sleeping 15 seconds"
         retry
       else
         log_output = File.open(@output_filename,'a+')
@@ -257,7 +265,7 @@ consumer_thread = Thread.new do
           query_response_json.each do |item|
             asset_id = item["id"]
             assets_array << asset_id
-            if assets_array.length == 30000 then
+            if assets_array.length == 5000 then
               bulkUpdate(assets_array,tag_value)
               assets_array = []
             end

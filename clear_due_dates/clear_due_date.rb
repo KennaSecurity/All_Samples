@@ -17,7 +17,7 @@ start_time = Time.now
 @debug = false
 
 def bulkUpdate(vulnids)
-  puts "starting bulk update" if @debug
+  puts "Updating #{vulnids.length()} vulnerabilities"
   json_string = nil
   json_string = "{\"vulnerability_ids\": #{vulnids}, "
   json_string = "#{json_string}\"vulnerability\": {"
@@ -32,10 +32,11 @@ def bulkUpdate(vulnids)
       :payload => json_string,
       :headers => @headers
     )
-  rescue RestClient::TooManyRequests =>e
+  rescue RestClient::TooManyRequests
     retry
   rescue RestClient::UnprocessableEntity => e
-
+    @output_filename.error("Async UnprocessableEntity: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n")
+    puts "Async BadRequest: #{e.message}"
   rescue RestClient::BadRequest => e
     @output_filename.error("Async BadRequest: #{post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n")
     puts "Async BadRequest: #{e.message}"
@@ -109,12 +110,13 @@ begin
       results_json.each do |item|
         id_array << item["id"]
       end
+
       id_array.each_slice(5000) do |list|
         bulkUpdate(list)
       end
     end
   end
-rescue RestClient::TooManyRequests =>e
+rescue RestClient::TooManyRequests
   retry
 rescue RestClient::UnprocessableEntity => e
   @output_filename.error("UnprocessableEntity: ...#{e.message} (time: #{Time.now.to_s}, start time: #{start_time.to_s})\n")

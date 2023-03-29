@@ -370,7 +370,7 @@ consumer_thread = Thread.new do
           Thread.exit
         rescue RestClient::BadRequest => e
           @output_filename.error("BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
-          puts "BadRequest: #{e.message}"
+          puts "BadRequest: #{e.message} for #{query_url}"
           Thread.exit
         rescue RestClient::Exception => e
           @retries ||= 0
@@ -565,7 +565,7 @@ consumer_thread = Thread.new do
           Thread.exit
         rescue RestClient::BadRequest => e
           @output_filename.error("BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
-          puts "BadRequest: #{e.message}"
+          puts "BadRequest: #{e.message} for #{query_url}"
           Thread.exit
         rescue RestClient::Exception => e
           @retries ||= 0

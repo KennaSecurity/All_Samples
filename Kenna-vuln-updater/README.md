@@ -4,13 +4,13 @@ Kenna CSV import to update vulns using multi-threading
 
 This script will process a CSV file, retrieve vulnerabilities, then update data, including custom fields on each vulnerability targeted. If the amount of vulnerabilities is over 10,000, then data exports are used.
 
-## Example Usage:
+## Usage:
 
-    Kenna-vuln-updater.rb <Kenna API token> <Import data CSV file> <meta file for custom fields> <vuln type> <vuln column in data file> <host lookup type> <IP column in data file> <hostname column in data file> <notes type> <notes value> <duedate> <status type> <status value> <vuln status> <base url>
+    vuln-updater.rb <Kenna API token> <Import data CSV file> <meta file for custom fields> <vuln type> <vuln column in data file> <host lookup type> <IP column in data file> <hostname column in data file> <notes type> <notes value> <due date> <status type> <status value> <vuln status> [base url]
     
 ### Tested on:
 
-    ruby 2.0.0p648 (2015-12-16 revision 53290) [universal.x86_64-darwin15]
+    ruby 2.6.10p210 (2022-04-12 revision 67958) [universal.x86_64-darwin22]
     
 ### Required Ruby classes/gems:
 

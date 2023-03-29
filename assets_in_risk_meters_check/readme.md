@@ -6,13 +6,11 @@ This script will process a metadata CSV file to create tags for all assets in re
 
 ## Usage:
 
-    assets_in_risk_meters_check.rb <Kenna API token> <risk meter meta data.csv> risk_meter_column tagname_column
-    
+    assets_in_risk_meters_check.rb <Kenna API token> <risk meter meta data.csv> <risk_meter_column> <tagname_column>
     
 ### Tested on:
 
-    ruby 2.0.0p648 (2015-12-16 revision 53162) [universal.x86_64-darwin15]
-    
+    ruby 2.6.10p210 (2022-04-12 revision 67958) [universal.x86_64-darwin22]
     
 ### Required Ruby classes/gems:
 

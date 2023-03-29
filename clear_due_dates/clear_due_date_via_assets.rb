@@ -8,11 +8,10 @@ require 'json'
 ARGV.length == 3 ? @add_query = ARGV[2] : @add_query = nil #unencoded query string to add to search
 ARGV.length == 4 ? @base_url = ARGV[3] : @base_url = "https://api.kennasecurity.com/" #set only for KPD or EU
 
-
 #Variables we'll need later
 @post_url = "#{@base_url}vulnerabilities/bulk"
 @vuln_url = "#{@base_url}vulnerabilities/search"
-@bulk_url = "#{@base_url}data_exports"
+@data_export_url = "#{@base_url}data_exports"
 
 @headers = {'Content-type' => 'application/json', 'X-Risk-Token' => @token }
 
@@ -22,14 +21,9 @@ start_time = Time.now
 @output_filename = Logger.new("clear_due_date-#{start_time.strftime("%Y%m%dT%H%M")}.txt")
 @debug = false
 
-
-# Encoding characters
-enc_colon = "%3A"
-enc_dblquote = "%22"
-enc_space = "%20"
-
 def bulkUpdate(vulnids)
-  puts "starting bulk update" if @debug
+  puts "Updating #{vulnids.length()} vulnerabilities"
+
   json_string = nil
   json_string = "{\"vulnerability_ids\": #{vulnids}, "
   json_string = "#{json_string}\"vulnerability\": {"
@@ -66,45 +60,47 @@ def bulkUpdate(vulnids)
     @output_filename.error("Unable to get vulns - general exception: #{e.backtrace.inspect}... (time: #{Time.now.to_s}, start time: #{start_time.to_s})")
     puts "Unable to get vulns: #{e.message} #{e.backtrace.inspect}"
   end
+
+  @output_filename.error("bulk vuln update status: #{JSON.parse(query_post_return.body)}... time: #{Time.now.to_s}\n")
 end
 
 def get_data(get_url)
   puts "starting query" if @debug
   puts "get data url = #{get_url}" if @debug
   query_return = ""
-   begin
-      query_return = RestClient::Request.execute(
-        :method => :get,
-        :url => get_url,
-        :headers => @headers
-      )
-      rescue RestClient::TooManyRequests =>e
+    begin
+    query_return = RestClient::Request.execute(
+      :method => :get,
+      :url => get_url,
+      :headers => @headers
+    )
+    rescue RestClient::TooManyRequests =>e
+      retry
+    rescue RestClient::UnprocessableEntity => e
+      puts "unprocessible entity: #{e.message}"
+    rescue RestClient::BadRequest => e
+      @output_filename.error("BadRequest: #{@post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})")
+      puts "BadRequest: #{e.backtrace.inspect}"
+    rescue RestClient::Exception => e
+      @retries ||= 0
+      if @retries < @max_retries
+        @retries += 1
+        sleep(15)
         retry
-      rescue RestClient::UnprocessableEntity => e
-        puts "unprocessible entity: #{e.message}"
-      rescue RestClient::BadRequest => e
-        @output_filename.error("BadRequest: #{@post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})")
-        puts "BadRequest: #{e.backtrace.inspect}"
-      rescue RestClient::Exception => e
-        @retries ||= 0
-        if @retries < @max_retries
-          @retries += 1
-          sleep(15)
-          retry
-        else
-          @output_filename.error("General RestClient error #{@post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})")
-          puts "Unable to get vulns: #{e.backtrace.inspect}"
-        end
-      rescue Exception => e
-        @output_filename.error("BadRequest: #{@post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})")
-        puts "BadRequest: #{e.backtrace.inspect}"
+      else
+        @output_filename.error("General RestClient error #{@post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})")
+        puts "Unable to get vulns: #{e.backtrace.inspect}"
+      end
+    rescue Exception => e
+      @output_filename.error("BadRequest: #{@post_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})")
+      puts "BadRequest: #{e.backtrace.inspect}"
     end
   return query_return
 end
 
+# get_bulk_assets() uses data exports APIs.
 def get_bulk_assets()
   puts "starting bulk query" if @debug
-  query_return = ""
   q = "_exists_:due_date"
   q = "#{q} AND #{@add_query}" unless @add_query.nil? || @add_query.empty?
   bulk_query_json_string = "{\"status\": [\"active\"],"
@@ -118,7 +114,7 @@ def get_bulk_assets()
   begin
     query_response = RestClient::Request.execute(
       :method => :post,
-      :url => @bulk_url,
+      :url => @data_export_url,
       :headers => @headers,
       :payload => bulk_query_json
     ) 
@@ -132,24 +128,28 @@ def get_bulk_assets()
 
     while searchComplete == false
       
-      status_code = RestClient.get("#{@bulk_url}/status?search_id=#{searchID}", @headers).code
+      status_code = RestClient.get("#{@data_export_url}/status?search_id=#{searchID}", @headers).code
 
       puts "status code =#{status_code}" if @debug
       if status_code != 200 then 
-        puts "sleeping for async query" if @debug
+        puts "sleeping for async query (data export)" if @debug
         sleep(60)
         next
       else
-        puts "ansyc query complete" if @debug
+        puts "ansyc query complete (data export)" if @debug
         searchComplete = true
+
+        # Download the gzip file.
         File.open(output_results, 'w') {|f|
           block = proc { |response|
             response.read_body do |chunk| 
               f.write chunk
             end
           }
-          RestClient::Request.new(:method => :get, :url => "#{@bulk_url}?search_id=#{searchID}", :headers => @headers, :block_response => block).execute
+          RestClient::Request.new(:method => :get, :url => "#{@data_export_url}?search_id=#{searchID}", :headers => @headers, :block_response => block).execute
         }
+        
+        # Open the gzip file and process.
         gzfile = open(output_results)
         gz = Zlib::GzipReader.new(gzfile)
         json_data = JSON.parse(gz.read)["assets"]
@@ -176,9 +176,12 @@ def get_bulk_assets()
     @output_filename.error("General Exception:...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})")
     puts "BadRequest: #{e.backtrace.inspect}"
   end
+
   File.delete output_results
   return json_data
 end
+
+# main
 asset_array = []
 asset_json = get_bulk_assets
 if !asset_json.nil? then
@@ -213,7 +216,7 @@ if !asset_json.nil? then
 
         vuln_page += 1
       end
-      vuln_array.each_slice(7000) do |b|
+      vuln_array.each_slice(5000) do |b|
         bulkUpdate(b)
       end 
     end

@@ -16,13 +16,7 @@ require 'ipaddr'
 @asset_api_url = 'https://api.kennasecurity.com/assets'
 @asset_bulk_url = '/bulk'
 @search_url = "/search?" 
-@async_api_url = 'https://api.kennasecurity.com/assets/create_async_search'
 @headers = {'Content-Type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json'}
-
-# Encoding characters
-@enc_colon = "%3A"
-@enc_dblquote = "%22"
-@enc_space = "%20"
 
 @start_time = Time.now
 
@@ -51,9 +45,9 @@ sysexit = false
 
 def find_json_status?(json)
   begin
-    json.fetch("status") == "incomplete"
-    return true
+    return json.fetch("status") == "incomplete"
   rescue Exception => e
+    puts("json.fetch(): #{e.message}")
     return false
   end
 end
@@ -64,7 +58,13 @@ def bulkUpdate(assets, tag_value)
   puts "tag value in bulk update = #{tag_value}"
   post_url = "#{@asset_api_url}#{@asset_bulk_url}"
   puts post_url
-  holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"tags\": [\"#{tag_value}\"]},\"realtime\": true}"
+
+  # See API documentation for details.
+  if assets.length() < 100
+    holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"tags\": [\"#{tag_value}\"]},\"realtime\": true}"
+  else
+    holder = "{\"asset_ids\": #{assets.to_s}, \"asset\": {\"tags\": [\"#{tag_value}\"]}}"
+  end
   puts holder if @debug
 
   begin
@@ -74,31 +74,31 @@ def bulkUpdate(assets, tag_value)
       :payload => holder,
       :headers => @headers
     )
-    rescue RestClient::UnprocessableEntity => e
-      log_output = File.open(@output_filename,'a+')
-      log_output << "UnprocessableEntity: #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-      log_output.close
-      puts "UnprocessableEntity: #{e.message}"
+  rescue RestClient::UnprocessableEntity => e
+    log_output = File.open(@output_filename,'a+')
+    log_output << "UnprocessableEntity: #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
+    log_output.close
+    puts "UnprocessableEntity: #{e.message}"
 
-    rescue RestClient::BadRequest => e
+  rescue RestClient::BadRequest => e
+    log_output = File.open(@output_filename,'a+')
+    log_output << "BadRequest: #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
+    log_output.close
+    puts "BadRequest: #{e.message}"
+  rescue RestClient::Exception => e
+    @retries ||= 0
+    if @retries < @max_retries
+      @retries += 1
+      sleep(15)
+      retry
+    else
       log_output = File.open(@output_filename,'a+')
-      log_output << "BadRequest: #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
+      log_output << "General RestClient error #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
       log_output.close
-      puts "BadRequest: #{e.message}"
-    rescue RestClient::Exception => e
-      @retries ||= 0
-      if @retries < @max_retries
-        @retries += 1
-        sleep(15)
-        retry
-      else
-        log_output = File.open(@output_filename,'a+')
-        log_output << "General RestClient error #{post_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-        log_output.close
-        puts "Unable to get vulns: #{e.message}"
-      end
-    rescue Exception => e
-      puts "Exception: #{e.message}"
+      puts "Unable to get vulns: #{e.message}"
+    end
+  rescue Exception => e
+    puts "Exception: #{e.message}"
   end
   puts JSON.parse(query_post_return.body)
 end
@@ -109,66 +109,73 @@ producer_thread = Thread.new do
   CSV.foreach(@meta_file, :headers => true) do |row|
     rm_id = row["#{@rm_id_column}"]
     tag_value = row["#{@tag_column}"]
-
     puts "got tag value #{tag_value}"
 
+    # Search for assets in a risk meter by ID (rm_id).
     query_url = "#{@asset_api_url}#{@search_url}search_id=#{rm_id}"
 
-    async_query = false
     begin
       query_response = RestClient::Request.execute(
         :method => :get,
         :url => query_url,
         :headers => @headers
       )
-      rescue RestClient::TooManyRequests =>e
-                retry
-      rescue RestClient::UnprocessableEntity 
+    rescue RestClient::TooManyRequests
+      log_output = File.open(@output_filename,'a+')
+      log_output << "TooManyRequests: #{query_url}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
+      log_output.close
+      retry
+    rescue RestClient::UnprocessableEntity 
+      log_output = File.open(@output_filename,'a+')
+      log_output << "UnprocessableEntity: #{query_url}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
+      log_output.close
+      puts "BadRequest: #{query_url}"
+    rescue RestClient::BadRequest
+      log_output = File.open(@output_filename,'a+')
+      log_output << "BadRequest: #{query_url}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
+      log_output.close
+      puts "BadRequest: #{query_url}"
+    rescue RestClient::Exception => e
+      puts "Search Asset API Exception: #{e.message} for #{query_url}"
+      @retries ||= 0
+      if @retries < @max_retries
+        @retries += 1
+        sleep(15)
+        puts "Sleeping 15 seconds"
+        retry
+      else
         log_output = File.open(@output_filename,'a+')
-        log_output << "UnprocessableEntity: #{query_url}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
+        log_output << "General RestClient error #{query_url}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
         log_output.close
-        puts "BadRequest: #{query_url}"
-      rescue RestClient::BadRequest
-        log_output = File.open(@output_filename,'a+')
-        log_output << "BadRequest: #{query_url}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-        log_output.close
-        puts "BadRequest: #{query_url}"
-      rescue RestClient::Exception
-        @retries ||= 0
-        if @retries < @max_retries
-          @retries += 1
-          sleep(15)
-          retry
-        else
-          log_output = File.open(@output_filename,'a+')
-          log_output << "General RestClient error #{query_url}... (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-          log_output.close
-          puts "Unable to get assets: #{query_url}"
-          next
-        end
+        puts "Unable to get assets: #{query_url}"
+        next
+      end
     end
     puts query_response
+
     meta_response_json = JSON.parse(query_response.body)["meta"]
-    tot_vulns = meta_response_json.fetch("total_count")
-    next if tot_vulns == 0
+    tot_assets = meta_response_json.fetch("total_count")
+    next if tot_assets == 0
     pages = meta_response_json.fetch("pages")
     log_output = File.open(@output_filename,'a+')
-    log_output << "Checking #{query_url}. Total assets = #{tot_vulns}\n"
+    log_output << "Checking #{query_url}. Total assets = #{tot_assets}\n"
     log_output.close
-    # Put the row on the work queue
+
+    asset_page_size = 500
     if pages > 20 then
-      async_query = true
+      # Calculate new page size and round up to the nearest 100.
+      asset_page_size = tot_assets / 20
+      page_size_in_hundreds = (asset_page_size / 100) + 1
+      asset_page_size = page_size_in_hundreds * 100
+      puts("Page size modified to #{asset_page_size}\n")
     end
 
     log_output = File.open(@output_filename,'a+')
-    log_output << "Starting Thread for #{query_url} Total assets = #{tot_vulns}\n"
+    log_output << "Starting Thread for #{query_url} Total assets = #{tot_assets}\n"
     log_output.close
 
-    if async_query then
-      query_url = "#{@async_api_url}?search_id=#{rm_id}"
-    end
-
-    work_queue << Array[async_query,query_url,tag_value]
+    # Put the row on the work queue
+    work_queue << Array[asset_page_size, query_url, tag_value]
     
     # Tell the consumer to check the thread array so it can attempt to schedule the
     # next job if a free spot exists.
@@ -179,7 +186,6 @@ producer_thread = Thread.new do
   # Tell the consumer that we are finished downloading currencies
   sysexit = true
 end
-
 
 ## Iterate through CSV
 consumer_thread = Thread.new do
@@ -201,7 +207,7 @@ consumer_thread = Thread.new do
       # time a signal is sent to the "threads_available" variable
       threads_available.wait_while do
         threads.select { |thread| thread.nil? || thread.status == false  ||
-                                  thread["finished"].nil? == false}.length == 0
+                                  thread["finished"].nil? == false}.empty?
         if @debug then puts "in threads_available loop" end
       end
       # Once an available spot is found, get the index of that spot so we may
@@ -212,7 +218,7 @@ consumer_thread = Thread.new do
       if @debug then puts "i just found index = #{found_index}" end
     end
 
-    async_query = work_to_do[0]
+    asset_page_size = work_to_do[0]
     query_url = work_to_do[1]
     tag_value = work_to_do[2]
 
@@ -224,162 +230,80 @@ consumer_thread = Thread.new do
     threads[found_index] = Thread.new(work_to_do) do
       assets_array = []
 
-      if !async_query then 
-        puts "starting regular query" if @debug
-        begin
+      puts "starting regular query" if @debug
+      query_url = "#{query_url}&per_page=#{asset_page_size}"
+
+      begin
+        query_response = RestClient::Request.execute(
+          :method => :get,
+          :url => query_url,
+          :headers => @headers
+        )
+      
+        meta_response_json = JSON.parse(query_response.body)["meta"]
+        tot_assets = meta_response_json.fetch("total_count")
+        log_output = File.open(@output_filename,'a+')
+        log_output << "Processing = #{query_url}. Total assets = #{tot_assets}\n"
+        log_output.close
+        if @debug then puts "Processing #{query_url} Total assets = #{tot_assets}" end
+        pages = meta_response_json.fetch("pages")
+ 
+        endloop = pages + 1
+        (1...endloop).step(1) do |i|
+          puts "Currently processing page #{i} of #{pages}"
+          #query_url = "#{query_url}&page=#{i}"
+          puts "paging url = #{query_url}&page=#{i}" if @debug
+ 
           query_response = RestClient::Request.execute(
             :method => :get,
-            :url => query_url,
+            :url => "#{query_url}&page=#{i}",
             :headers => @headers
           )
-        
-          meta_response_json = JSON.parse(query_response.body)["meta"]
-          tot_assets = meta_response_json.fetch("total_count")
-          log_output = File.open(@output_filename,'a+')
-          log_output << "Processing = #{query_url}. Total assets = #{tot_assets}\n"
-          log_output.close
-          if @debug then puts "Processing #{query_url} Total assets = #{tot_assets}" end
-          pages = meta_response_json.fetch("pages")
-
-          endloop = pages + 1
-          (1...endloop).step(1) do |i|
-            puts "Currently processing page #{i} of #{pages}"
-            #query_url = "#{query_url}&page=#{i}"
-            puts "paging url = #{query_url}&page=#{i}" if @debug
-
-            query_response = RestClient::Request.execute(
-              :method => :get,
-              :url => "#{query_url}&page=#{i}",
-              :headers => @headers
-            )
-            # Build URL to set the custom field value for each vulnerability
-            #counter = 0
-            query_response_json = JSON.parse(query_response.body)["assets"]
-            query_response_json.each do |item|
-              asset_id = item["id"]
-              assets_array << asset_id
-              if assets_array.length == 30000 then
-                bulkUpdate(assets_array,tag_value)
-                assets_array = []
-              end
-            end
-            bulkUpdate(assets_array,tag_value)
-            Thread.current["finished"] = true
-            threads.synchronize do
-              threads_available.signal
+          # Build URL to set the custom field value for each vulnerability
+          #counter = 0
+          query_response_json = JSON.parse(query_response.body)["assets"]
+          query_response_json.each do |item|
+            asset_id = item["id"]
+            assets_array << asset_id
+            if assets_array.length == 5000 then
+              bulkUpdate(assets_array,tag_value)
+              assets_array = []
             end
           end
-        rescue RestClient::TooManyRequests =>e
-          retry
-        rescue RestClient::UnprocessableEntity => e
-          log_output = File.open(@output_filename,'a+')
-          log_output << "UnprocessableEntity: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-          log_output.close
-          puts "BadRequest: #{e.message}"
-        rescue RestClient::BadRequest => e
-          log_output = File.open(@output_filename,'a+')
-          log_output << "BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-          log_output.close
-          puts "BadRequest: #{e.message}"
-        rescue RestClient::Exception => e
-          @retries ||= 0
-          puts "one #{@retries}"
-          if @retries < @max_retries
-            @retries += 1
-            sleep(15)
-            retry
-          else
-            log_output = File.open(@output_filename,'a+')
-            log_output << "General RestClient error #{query_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-            log_output.close
-            puts "Unable to get vulns: #{e.message}"
-            next
+          bulkUpdate(assets_array,tag_value)
+          Thread.current["finished"] = true
+          threads.synchronize do
+            threads_available.signal
           end
         end
-      else
-        puts "starting async query" if @debug
-        begin
-          query_response = RestClient::Request.execute(
-            :method => :post,
-            :url => query_url,
-            :headers => @headers
-          ) 
-          query_response_json = JSON.parse(query_response.body)
-          searchID = query_response_json.fetch("search_id")
-          output_results = "myoutputfile_#{searchID}.json"
-          searchComplete = false
-
-          while searchComplete == false
-            puts "building the search"
-            File.open(output_results, 'w') {|f|
-              puts "file opened"
-                block = proc { |response|
-                  puts "in the block"
-                  response.read_body do |chunk| 
-                    f.write chunk
-                  end
-                }
-                RestClient::Request.new(:method => :get, :url => "https://api.kennasecurity.com/vulnerabilities/async_search?search_id=#{searchID}", :headers => @headers, :block_response => block).execute
-            }
-
-            results_json = JSON.parse(File.read(output_results))
-
-            if find_json_status?(results_json) then 
-              #results_json.fetch("status") == "incomplete" then
-              puts "sleeping for async query" if @debug
-              sleep(60)
-              next
-            #end
-            else
-              puts "ansyc query complete" if @debug
-              searchComplete = true
-              results_json = JSON.parse(File.read(output_results))["assets"]
-              results_json.each do |item|
-                puts "processing vulns"
-                asset_id = item["id"]
-                assets_array << asset_id
-                if assets_array.length == 30000 then
-                  bulkUpdate(assets_array,tag_value)
-                  assets_array = []
-                end
-              end
-              if assets_array.length == 30000 then
-                bulkUpdate(assets_array,tag_value)
-                assets_array = []
-              end
-              Thread.current["finished"] = true
-              threads.synchronize do
-                threads_available.signal
-              end
-            end
-          end
-        rescue RestClient::TooManyRequests =>e
+      rescue RestClient::TooManyRequests =>e
+        retry
+      rescue RestClient::UnprocessableEntity => e
+        log_output = File.open(@output_filename,'a+')
+        log_output << "UnprocessableEntity: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
+        log_output.close
+        puts "BadRequest: #{e.message}"
+      rescue RestClient::BadRequest => e
+        log_output = File.open(@output_filename,'a+')
+        log_output << "BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
+        log_output.close
+        puts "BadRequest: #{e.message}"
+      rescue RestClient::Exception => e
+        @retries ||= 0
+        puts "one #{@retries}"
+        if @retries < @max_retries
+          @retries += 1
+          sleep(15)
           retry
-        rescue RestClient::UnprocessableEntity => e
+        else
           log_output = File.open(@output_filename,'a+')
-          log_output << "UnprocessableEntity: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
+          log_output << "General RestClient error #{query_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
           log_output.close
-          puts "BadRequest: #{e.message}"
-        rescue RestClient::BadRequest => e
-          log_output = File.open(@output_filename,'a+')
-          log_output << "BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-          log_output.close
-          puts "BadRequest: #{e.message}"
-        rescue RestClient::Exception => e
-          @retries ||= 0
-          if @retries < @max_retries
-            @retries += 1
-            sleep(15)
-            retry
-          else
-            log_output = File.open(@output_filename,'a+')
-            log_output << "General RestClient error #{query_url}... #{e.message}(time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n"
-            log_output.close
-            puts "Unable to get assets: #{e.message}"
-            next
-          end
+          puts "Unable to get vulns: #{e.message}"
+          next
         end
       end
+
       Thread.current["finished"] = true
       threads.synchronize do
         threads_available.signal
@@ -399,6 +323,3 @@ threads.each do |thread|
     thread.join unless thread.nil?
 end
 puts "DONE!"
-
-
-

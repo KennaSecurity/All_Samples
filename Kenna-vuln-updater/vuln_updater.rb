@@ -23,9 +23,7 @@ require 'monitor'
 @vuln_status = ARGV[13] #vuln status all, open or other for retrieval 
 ARGV.length == 15 ? @base_url = ARGV[14] : @base_url = "https://api.kennasecurity.com/"
 
-@enc_colon = "%3A"
 @enc_dblquote = "%22"
-@enc_space = "%20"
 
 @start_time = Time.now
 @output_filename = Logger.new("kenna_vuln_updater_log-#{@start_time.strftime("%Y%m%dT%H%M")}.txt")
@@ -42,7 +40,6 @@ end
 @urlquerybit = 'q='
 @headers = {'content-type' => 'application/json', 'X-Risk-Token' => @token, 'accept' => 'application/json'}
 @custom_field_columns = [] 
-
 
 @max_retries = 5
 @debug = false
@@ -200,8 +197,6 @@ producer_thread = Thread.new do
 
     custom_field_string = custom_field_string[0...-1]
     
-    json_string = nil
-
     json_string = "{\"vulnerability\": {"
     if !@notes_type.empty? then
       if @notes_type == "static" then
@@ -240,6 +235,7 @@ producer_thread = Thread.new do
     #puts json_string if @debug
     #puts "#{vuln_query} = vuln_query" if @debug
 
+    # Put the row on the work queue
     work_queue << Array[hostname_query,ip_address_query,vuln_query,json_string]
     
     # Tell the consumer to check the thread array so it can attempt to schedule the
@@ -279,9 +275,8 @@ consumer_thread = Thread.new do
                                               thread["finished"].nil? == false }
       puts "i just found index = #{found_index}" if @debug
     end
+
     # Get a new unit of work from the work queue
-
-
     threads[found_index] = Thread.new(work_to_do) do
       puts "starting the thread loop" if @debug
 
@@ -352,7 +347,6 @@ consumer_thread = Thread.new do
             :headers => @headers
           ) 
           
-
           query_meta_json = JSON.parse(query_response)["meta"]
           tot_vulns = query_meta_json.fetch("total_count")
           pages = query_meta_json.fetch("pages")
@@ -376,7 +370,7 @@ consumer_thread = Thread.new do
           Thread.exit
         rescue RestClient::BadRequest => e
           @output_filename.error("BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
-          puts "BadRequest: #{e.message}"
+          puts "BadRequest: #{e.message} for #{query_url}"
           Thread.exit
         rescue RestClient::Exception => e
           @retries ||= 0
@@ -395,12 +389,13 @@ consumer_thread = Thread.new do
           Thread.exit
         end
 
-        # Put the row on the work queue
+        # Determine if we're going to use "Search Vulnerabilities" API or
+        # an async query via data export APIs.
         if pages > 20 then
           async_query = true
         end
 
-        puts "async query needed #{async_query}" if @debug
+        puts "async query needed: #{async_query}" if @debug
 
         begin
 
@@ -471,8 +466,7 @@ consumer_thread = Thread.new do
             post_data(post_url,json_data)
 
           else
-            puts "starting async query" if @debug
-
+            puts "starting async query using data exports" if @debug
 
             bulk_query_json_string = "{\"asset\": {\"status\": [\"active\"]}, \"status\": [\"#{@vuln_status}\"], "
 
@@ -495,6 +489,7 @@ consumer_thread = Thread.new do
             #bulk_query_json = JSON.parse(bulk_query_json_string)
 
             puts bulk_query_json_string
+            # Request a data export.
             query_response = RestClient::Request.execute(
               :method => :post,
               :url => "#{@base_url}data_exports",
@@ -508,6 +503,7 @@ consumer_thread = Thread.new do
             output_results = "myoutputfile_#{searchID}.json"
             searchComplete = false
 
+            # Wait for data export to be complete.
             while searchComplete == false
             
               status_code = RestClient.get("#{@base_url}data_exports/status?search_id=#{searchID}", @headers).code
@@ -518,7 +514,7 @@ consumer_thread = Thread.new do
                 sleep(60)
                 next
               else
-                puts "ansyc query complete" if @debug
+                puts "async query (data export) complete" if @debug
                 searchComplete = true
                 File.open(output_results, 'w') {|f|
                   block = proc { |response|
@@ -526,8 +522,11 @@ consumer_thread = Thread.new do
                       f.write chunk
                     end
                   }
+                  # Retrieve data exports in a gzip file.
                   RestClient::Request.new(:method => :get, :url => "#{@base_url}data_exports?search_id=#{searchID}", :headers => @headers, :block_response => block).execute
                 }
+
+                # Open gzip file and process.
                 gzfile = open(output_results)
                 gz = Zlib::GzipReader.new(gzfile)
                 vuln_ids = []
@@ -535,14 +534,13 @@ consumer_thread = Thread.new do
                 results_json.each do |item|
                   vuln_ids << item["id"]
                 end
-               
               end 
-                 
             end
+
             post_url = "#{@vuln_api_url}/#{@vuln_api_bulk}"
             puts "post_url = #{post_url}" if @debug
             
-
+            # Update vulnerabilities with "Bulk Vulnerabilities" API 5,000 vulnerabilities at a time.
             vuln_ids.each_slice(5000) do |a|
 
               json_data = json_data.insert(json_data.index('vulnerability')-1, "\"vulnerability_ids\": #{a},") 
@@ -553,8 +551,9 @@ consumer_thread = Thread.new do
 
               post_data(post_url,json_data)
 
-            
             end
+
+            # Delete gzip file.
             File.delete(output_results)
           end
 
@@ -566,7 +565,7 @@ consumer_thread = Thread.new do
           Thread.exit
         rescue RestClient::BadRequest => e
           @output_filename.error("BadRequest: #{query_url}...#{e.message} (time: #{Time.now.to_s}, start time: #{@start_time.to_s})\n")
-          puts "BadRequest: #{e.message}"
+          puts "BadRequest: #{e.message} for #{query_url}"
           Thread.exit
         rescue RestClient::Exception => e
           @retries ||= 0

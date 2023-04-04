@@ -339,7 +339,6 @@ consumer_thread = Thread.new do
         #puts "query url = #{query_url}" if @debug
         #puts "json data = #{json_data}" if @debug
 
-
         begin
           query_response = RestClient::Request.execute(
             :method => :get,
@@ -472,10 +471,10 @@ consumer_thread = Thread.new do
 
             if !api_query.empty? then
               if !vuln_query.empty? then
-                puts "here1"
+                puts "here1" if @debug
                 q = "\"#{vuln_query.gsub(/"/,'\"')}+AND+#{api_query}\""
               else
-                puts "here2"
+                puts "here2" if @debug
                 q = "\"#{api_query}\""
               end
             elsif !vuln_query.empty?

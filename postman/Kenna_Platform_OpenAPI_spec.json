@@ -995,118 +995,12 @@
             "type": "string",
             "description": "The name of the asset group and risk meter.  It can be a parent or child asset group."
           },
+          "historical": {
+            "type": "boolean",
+            "description": "Boolean value indicating if the asset search should be populated with historical data. Defaults to true."
+          },
           "query": {
-            "type": "object",
-            "properties": {
-              "exclude_child_filter": {
-                "type": "array",
-                "description": "Asset Groups and Risk Meters normally require that assets have open vulnerabilities.  If you would like to include all assets, including assets without open vulnerabilities, pass an array with the value of [\"Include all assets”].",
-                "default": [
-
-                ],
-                "items": {
-                  "type": "string"
-                }
-              },
-              "id": {
-                "type": "array",
-                "description": "Array of asset IDs.",
-                "default": [
-
-                ],
-                "items": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              },
-              "min_priority": {
-                "type": "integer",
-                "description": "Search for all assets that have a priority greater than this value.",
-                "format": "int32"
-              },
-              "max_priority": {
-                "type": "integer",
-                "description": "Search for all assets that have a priority less than this value.",
-                "format": "int32"
-              },
-              "min_risk_meter_score": {
-                "type": "integer",
-                "description": "Search for all assets that have a risk meter score greater than this value.",
-                "format": "int32"
-              },
-              "operating_system": {
-                "type": "array",
-                "description": "An array of the names of the operating systems associated with a set of assets.",
-                "default": [
-
-                ],
-                "items": {
-                  "type": "string"
-                }
-              },
-              "primary_locator": {
-                "type": "array",
-                "description": "The primary locator used for an asset. This should be one of the following values: ip_address, hostname, database, url, mac_address, netbios, fqdn, file, or application.",
-                "default": [
-
-                ],
-                "items": {
-                  "type": "string"
-                }
-              },
-              "q": {
-                "type": "string",
-                "description": "Additional text search parameters, as documented at: [Kenna Search Terms](https://help.kennasecurity.com/hc/en-us/articles/206280593-Kenna-Search-Terms).  Example q=tag:(mytag+AND+thetag).  See [code example](https://github.com/KennaSecurity/blog_samples/blob/8e26fb9a9e77fe6c31648f4425c58f4d80b756ec/python/cisa_risk_meter/build_cisa_risk_meter.py#L152-L156)."
-              },
-              "service_ports": {
-                "type": "array",
-                "description": "An array of ports relating to your assets.",
-                "default": [
-
-                ],
-                "items": {
-                  "type": "integer"
-                }
-              },
-              "service_protocols": {
-                "$ref": "#/components/schemas/service_protocols"
-              },
-              "status": {
-                "type": "array",
-                "description": "An array of statuses for your assets which can include active and/or inactive. NOTE: By default, only active assets are returned when searching. You must specify the asset status you want in order to override that default.",
-                "default": [
-
-                ],
-                "items": {
-                  "type": "string"
-                }
-              },
-              "tags": {
-                "type": "array",
-                "description": "An array of tag names associated with your assets.",
-                "default": [
-
-                ],
-                "items": {
-                  "type": "string"
-                }
-              },
-              "tag_boolean_mode": {
-                "type": "string",
-                "description": "Set this to 'all' if you would like to return assets that contain all of the tags in your query rather than assets that contain any tags."
-              },
-              "vulnerability: {id: []}": {
-                "type": "array",
-                "description": "Vulnerability IDs. Search for all assets that have vulnerabilities with these IDs.",
-                "default": [
-
-                ],
-                "items": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              }
-            }
+            "$ref": "#/components/schemas/asset_groups_query_schema"
           }
         }
       },
@@ -1247,129 +1141,125 @@
       },
       "asset_groups_put_request_body_schema": {
         "type": "object",
-        "required": [
-          "name"
-        ],
         "properties": {
           "name": {
             "type": "string",
             "description": "The name of of the child asset group and risk meter."
           },
-          "historical": {
-            "type": "boolean",
-            "description": "Boolean value indicating if the asset search should be populated with historical data. Defaults to true."
-          },
           "query": {
-            "type": "object",
-            "properties": {
-              "exclude_child_filter": {
-                "type": "array",
-                "description": "Asset Groups and Risk Meters normally require that assets have open vulnerabilities. If you would like to include all assets, including assets without open vulnerabilities, pass an array with the value of [\"Include all assets”].",
-                "default": [
+            "$ref": "#/components/schemas/asset_groups_query_schema"
+          }
+        }
+      },
+      "asset_groups_query_schema": {
+        "type": "object",
+        "properties": {
+          "exclude_child_filter": {
+            "type": "array",
+            "description": "Asset Groups and Risk Meters normally require that assets have open vulnerabilities. If you would like to include all assets, including assets without open vulnerabilities, pass an array with the value of [\"Include all assets”].",
+            "default": [
 
-                ],
-                "items": {
-                  "type": "string"
-                }
-              },
-              "id": {
-                "type": "array",
-                "description": "Array of asset IDs.",
-                "default": [
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "id": {
+            "type": "array",
+            "description": "Array of asset IDs.",
+            "default": [
 
-                ],
-                "items": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              },
-              "min_priority": {
-                "type": "integer",
-                "description": "Search for all assets that have a priority greater than this value.",
-                "format": "int32"
-              },
-              "max_priority": {
-                "type": "integer",
-                "description": "Search for all assets that have a priority less than this value.",
-                "format": "int32"
-              },
-              "min_risk_meter_score": {
-                "type": "integer",
-                "description": "Search for all assets that have a risk meter score greater than this value.",
-                "format": "int32"
-              },
-              "operating_system": {
-                "type": "array",
-                "description": "An array of the names of the operating systems associated with a set of assets.",
-                "default": [
+            ],
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "min_priority": {
+            "type": "integer",
+            "description": "Search for all assets that have a priority greater than this value.",
+            "format": "int32"
+          },
+          "max_priority": {
+            "type": "integer",
+            "description": "Search for all assets that have a priority less than this value.",
+            "format": "int32"
+          },
+          "min_risk_meter_score": {
+            "type": "integer",
+            "description": "Search for all assets that have a risk meter score greater than this value.",
+            "format": "int32"
+          },
+          "operating_system": {
+            "type": "array",
+            "description": "An array of the names of the operating systems associated with a set of assets.",
+            "default": [
 
-                ],
-                "items": {
-                  "type": "string"
-                }
-              },
-              "primary_locator": {
-                "type": "array",
-                "description": "The primary locator used for an asset. This should be one of the following values: ip_address, hostname, database, url, mac_address, netbios, fqdn, file, or application.",
-                "default": [
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "primary_locator": {
+            "type": "array",
+            "description": "The primary locator used for an asset. This should be one of the following values: ip_address, hostname, database, url, mac_address, netbios, fqdn, file, or application.",
+            "default": [
 
-                ],
-                "items": {
-                  "type": "string"
-                }
-              },
-              "q": {
-                "type": "string",
-                "description": "This can be any query string you want to search for, including a regex. We also have our own search syntax that enables you to search assets based on specific locators and fields. For more detailed documentation on our search syntax visit our Help Center. Below is an example of our search syntax being used to find all assets with the hostname foobar. As stated in our Help Center, it is also possible to use our search syntax on vulnerability fields. In order to apply a query for a vulnerability field to an asset search you must nest the query string under a vulnerability key. The example below shows how to search for all assets that relate to vulnerabilities that are connected to the Heartbleed CVE."
-              },
-              "service_ports": {
-                "type": "array",
-                "description": "An array of ports relating to your assets.",
-                "default": [
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "q": {
+            "type": "string",
+            "description": "This can be any query string you want to search for, including a regex. We also have our own search syntax that enables you to search assets based on specific locators and fields. For more detailed documentation on our search syntax visit our Help Center. Below is an example of our search syntax being used to find all assets with the hostname foobar. As stated in our Help Center, it is also possible to use our search syntax on vulnerability fields. In order to apply a query for a vulnerability field to an asset search you must nest the query string under a vulnerability key. The example below shows how to search for all assets that relate to vulnerabilities that are connected to the Heartbleed CVE."
+          },
+          "service_ports": {
+            "type": "array",
+            "description": "An array of ports relating to your assets.",
+            "default": [
 
-                ],
-                "items": {
-                  "type": "integer"
-                }
-              },
-              "service_protocols": {
-                "$ref": "#/components/schemas/service_protocols"
-              },
-              "status": {
-                "type": "array",
-                "description": "An array of statuses for your assets which can include active and/or inactive. NOTE: By default, only active assets are returned when searching. You must specify the asset status you want in order to override that default.",
-                "default": [
+            ],
+            "items": {
+              "type": "integer"
+            }
+          },
+          "service_protocols": {
+            "$ref": "#/components/schemas/service_protocols"
+          },
+          "status": {
+            "type": "array",
+            "description": "An array of statuses for your assets which can include active and/or inactive. NOTE: By default, only active assets are returned when searching. You must specify the asset status you want in order to override that default.",
+            "default": [
 
-                ],
-                "items": {
-                  "type": "string"
-                }
-              },
-              "tags": {
-                "type": "array",
-                "description": "An array of tag names associated with your assets.",
-                "default": [
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "tags": {
+            "type": "array",
+            "description": "An array of tag names associated with your assets.",
+            "default": [
 
-                ],
-                "items": {
-                  "type": "string"
-                }
-              },
-              "tag_boolean_mode": {
-                "type": "string",
-                "description": "Set this to 'all' if you would like to return assets that contain all of the tags in your query rather than assets that contain any tags."
-              },
-              "vulnerability: {id: []}": {
-                "type": "array",
-                "description": "Vulnerability IDs. Search for all assets that have vulnerabilities with these IDs.",
-                "default": [
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "tag_boolean_mode": {
+            "type": "string",
+            "description": "Set this to 'all' if you would like to return assets that contain all of the tags in your query rather than assets that contain any tags."
+          },
+          "vulnerability: {id: []}": {
+            "type": "array",
+            "description": "Vulnerability IDs. Search for all assets that have vulnerabilities with these IDs.",
+            "default": [
 
-                ],
-                "items": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              }
+            ],
+            "items": {
+              "type": "integer",
+              "format": "int32"
             }
           }
         }
@@ -3257,8 +3147,15 @@
               },
               "slim": {
                 "type": "boolean",
-                "description": "If `true`, the fields returned are reduced. Default is `false`.",
+                "description": "If `true`, the number of fields returned are reduced. This field only applies to the vulnerability model.",
                 "default": false
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "An array of fields that will be returned in requested export. If empty array is provided, all the supported fields are returned. Supported fields are located in the `Retrieve Data Exports` API `Responses` under the appropriate model. This option only applies to the asset model. For asset model, `id` field is always returned."
               }
             }
           },
@@ -3271,7 +3168,7 @@
           },
           "max_priority": {
             "type": "integer",
-            "description": "*Valid for asset, vulnerablibilty, and fix models.*  Search for all assets that have a priority less than this value."
+            "description": "*Valid for asset model.*  Search for all assets that have a priority less than this value."
           },
           "max_risk_meter_score": {
             "type": "integer",
@@ -3279,7 +3176,7 @@
           },
           "min_priority": {
             "type": "integer",
-            "description": "*Valid for asset, vulnerability, and fix models.*  Search for all assets that have a priority greater than this value."
+            "description": "*Valid for asset model.*  Search for all assets that have a priority greater than this value."
           },
           "min_risk_meter_score": {
             "type": "integer",
@@ -3310,14 +3207,14 @@
                 "false positive"
               ]
             },
-            "description": "*Valid for asset, vulnerability, and fix models.*  An array of statuses. For the asset model, 'active' and 'open' are valid.  The asset model default is 'active'.  For the vulnerability and fix models, 'open', 'close', 'risk accpeted', and 'false positive' are valid.  The vulnerability and fix models default is 'open'."
+            "description": "*Valid for asset, vulnerability, and fix models.*  An array of statuses. For the asset model, 'active' and 'inactive' are valid.  The asset model default is 'active'.  For the vulnerability and fix models, 'open', 'closed', 'risk accepted', and 'false positive' are valid.  The vulnerability and fix models default is 'open'."
           },
           "exclude_child_filter": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "*Valid for asset model.*  If you want to include all assets regardless of vulnerability filters, pass a value of `[\"Include all assets\"]`; otherwise, omit this parameter."
+            "description": "*Valid for asset model.*  If you want to include all assets regardless of vulnerability filters, pass a value of `[\"Include all assets\"]`; or if you want to include assets without vulnerabilities, pass the value `[\"Assets without Vulnerabilities\"]`.  Otherwise, omit this parameter."
           },
           "operating_system": {
             "type": "array",
@@ -3335,7 +3232,7 @@
           },
           "search_id": {
             "type": "integer",
-            "description": "*Valid for asset model.*  Search values specified in the risk meter group definition will override their respective values provided in this request when search_id is provided."
+            "description": "*Valid for asset and vulnerability models.*  A risk meter ID. Other risk meter parameters are ignored. Child risk meters are not supported."
           },
           "service_names": {
             "type": "array",
@@ -3354,7 +3251,7 @@
           "service_products": {
             "type": "array",
             "items": {
-              "type": "integer"
+              "type": "string"
             },
             "description": "*Valid for asset model.*  An array of service products relating to your assets. Make sure all letters are lowercase."
           },
@@ -3370,7 +3267,7 @@
             "items": {
               "type": "boolean"
             },
-            "description": "*Valid for asset model.*  A boolean to indicate whether an asset\"s active/inactive status was set automatically by Kenna or manually by a human."
+            "description": "*Valid for asset model.*  A boolean to indicate whether an asset's active/inactive status was set automatically by Kenna or manually by a human."
           },
           "tag_boolean_mode": {
             "type": "string",
@@ -3409,10 +3306,6 @@
               "type": "string"
             },
             "description": "*Valid for vulnerability and fixes models.*  An array of connector types related to your vulnerabilities."
-          },
-          "custom_fields": {
-            "type": "string",
-            "description": "*Valid for vulnerability and fixes models.*  Search for all vulnerabilities that have a specific custom field and its value.  The proper format for a custom field query is `custom_fields:`, the name of the custom field you are searching on, and the value you are searching for.  For example: `custom_fields:Category=good`.  <br>Note the following: <ol><li>Testing <code>custom_fields</code> in the \"Try It!\" pane does not work.</li><li>Use the example above as a guide in <code>curl</code> or some other language.</li><li>To search multiple custom fields, add another query parameter.</li><li>Search must have a value and there is no wildcarding.</li></ol>"
           },
           "has_known_exploits": {
             "type": "array",
@@ -3487,12 +3380,12 @@
             },
             "description": "*Valid for vulnerability and fixes models.*  An array of booleans for filtering your vulnerabilities by those that are prioritized."
           },
-          "remote_code_exection": {
+          "remote_code_execution": {
             "type": "array",
             "items": {
               "type": "boolean"
             },
-            "description": "*Valid for vulnerability and fixes models.*  An array of booleans for filtering your vulnerabilities by those that be executed remotely."
+            "description": "*Valid for vulnerability and fixes models.*  An array of booleans for filtering your vulnerabilities by those that can be executed remotely."
           },
           "service_ticket_status": {
             "type": "array",
@@ -3703,8 +3596,8 @@
           },
           "asset_id": {
             "type": "integer",
-            "example": 123,
-            "default": 0
+            "description": "The asset ID associated with this finding.",
+            "example": 123
           },
           "closed_at": {
           },
@@ -3713,8 +3606,8 @@
             "properties": {
               "id": {
                 "type": "integer",
-                "example": 789,
-                "default": 0
+                "description": "The connector ID.",
+                "example": 789
               },
               "name": {
                 "type": "string",
@@ -3724,10 +3617,12 @@
           },
           "created_at": {
             "type": "string",
+            "format": "date-time",
             "example": "2020-06-16T19:45:29.000Z"
           },
           "due_date": {
             "type": "string",
+            "format": "date-time",
             "example": "2020-06-17T00:00:00.000Z"
           },
           "external_unique_id": {
@@ -3740,8 +3635,8 @@
           },
           "id": {
             "type": "integer",
-            "example": 1,
-            "default": 0
+            "description": "The finding ID.",
+            "example": 1
           },
           "identifiers": {
             "type": "array",
@@ -3752,12 +3647,12 @@
           },
           "last_found_on": {
             "type": "string",
+            "format": "date-time",
             "example": "2020-06-15T12:28:10.000Z"
           },
           "score": {
             "type": "integer",
-            "example": 80,
-            "default": 0
+            "example": 80
           },
           "status": {
             "$ref": "#/components/schemas/finding_status",
@@ -3765,6 +3660,7 @@
           },
           "updated_at": {
             "type": "string",
+            "format": "date-time",
             "example": "2020-06-16T19:45:29.000Z"
           },
           "url_locator": {
@@ -3774,15 +3670,17 @@
             "properties": {
               "description": {
                 "type": "string",
+                "description": "The description of the vulnerability definition.",
                 "example": "The program calls a function that can never be guaranteed to work safely."
               },
               "id": {
                 "type": "integer",
-                "example": 12345,
-                "default": 0
+                "description": "The vulnerability definition ID.  Can be used in \"Search Vulnerabilities\".",
+                "example": 314159
               },
               "name": {
                 "type": "string",
+                "description": "The name of the vulnerability definition.",
                 "example": "CWE 242 - Use of Inherently Dangerous Function"
               }
             }
@@ -3828,22 +3726,22 @@
           "closed_at": {
             "type": "string",
             "description": "When the Finding was closed.",
-            "format": "date"
+            "format": "date-time"
           },
           "due_date": {
             "type": "string",
             "description": "When the Finding should be fixed.",
-            "format": "date"
+            "format": "date-time"
           },
           "found_on": {
             "type": "string",
             "description": "When the Finding was initially found.",
-            "format": "date"
+            "format": "date-time"
           },
           "last_found_on": {
             "type": "string",
             "description": "When the Finding was last seen.",
-            "format": "date"
+            "format": "date-time"
           },
           "remediation": {
             "type": "string",
@@ -4033,22 +3931,22 @@
           "closed_at": {
             "type": "string",
             "description": "When the Finding was closed.",
-            "format": "date"
+            "format": "date-time"
           },
           "due_date": {
             "type": "string",
             "description": "When the Finding should be fixed.",
-            "format": "date"
+            "format": "date-time"
           },
           "found_on": {
             "type": "string",
             "description": "When the Finding was initially found.",
-            "format": "date"
+            "format": "date-time"
           },
           "last_found_on": {
             "type": "string",
             "description": "When the Finding was last seen.",
-            "format": "date"
+            "format": "date-time"
           },
           "remediation": {
             "type": "string",
@@ -4101,30 +3999,6 @@
             "type": "integer",
             "description": "The historical mean time to remediate for low risk vulnerabilities in days.",
             "example": 121
-          }
-        }
-      },
-      "findings_request_search_identifier_schema": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "array",
-            "description": "An array of CVE, CWE, and WASCs. Example: [\"CWE-242\", \"CVE-2020-9524\"].",
-            "items": {
-              "type": "string"
-            }
-          }
-        }
-      },
-      "findings_request_search_status_schema": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "array",
-            "description": "Must be a subset of [\"closed\", \"duplicate\", \"false_positive\", \"in_progress\", \"new\", \"not_a_security_issue\", \"resolved\", \"risk_accepted\", \"triaged\"].  Default: [\"open\", \"in_progress\", \"new\", \"triaged\"].",
-            "items": {
-              "type": "string"
-            }
           }
         }
       },
@@ -4561,7 +4435,7 @@
                   "value": {
                     "type": "number",
                     "example": 358,
-                    "description": "Velocity measures the Mean Time to Remediate (MTTR) for both open and closed vulnerabilities (in days) within your organization capped at a year."
+                    "description": "Velocity measures the Mean Time to Remediate (MTTR) in days for both open and closed vulnerabilities within your organization capped at a year."
                   }
                 }
               },
@@ -4570,8 +4444,8 @@
                 "properties": {
                   "value": {
                     "type": "number",
-                    "example": 0,
-                    "description": "Capacity measures the mean monthly close rate over the last year. It excludes current month."
+                    "example": 15,
+                    "description": "Capacity is a percentage that measures the mean monthly close rate over the last year. It excludes current month."
                   }
                 }
               },
@@ -4581,7 +4455,7 @@
                   "value": {
                     "type": "number",
                     "example": 44,
-                    "description": "Combined is calculated through the above four metrics on an organization's vulnerabilities (both open and closed) related to the organization's assets, which is the Remediation Score. It is a measurement of how well an organization is addressing the risk on a group of assets. This is different than the Risk Score, which is not performance based, but the point-in-time level of risk on a group of assets."
+                    "description": "Combined is a weighted calculation of the above four metrics on an organization's vulnerabilities (both open and closed) related to the organization's assets, which is the Remediation Score. It is a measurement of how well an organization is addressing the risk on a group of assets. This is different than the Risk Score, which is not performance based, but the point-in-time level of risk on a group of assets."
                   }
                 }
               }
@@ -4901,6 +4775,166 @@
           "record_count": {
             "type": "integer",
             "description": "The number of records to be returned in the data export."
+          }
+        }
+      },
+      "service_now_fix_get_response_schema": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "The fix category.",
+            "example": "Windows"
+          },
+          "consequence": {
+            "type": "string",
+            "description": "The consequence if the fix is not enabled.",
+            "example": "Successful exploitation of these vulnerabilities could allow a denial-of-service condition or could lead to execution of arbitrary code."
+          },
+          "diagnosis": {
+            "type": "string",
+            "description": "Fix description.",
+            "example": "An OpenSSH server race condition."
+          },
+          "id": {
+            "type": "integer",
+            "description": "The fix ID.",
+            "example": 126890
+          },
+          "patch_publication_date": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The date in ISO-8601 format that the patch was available.",
+            "example": "2021-02-04T21:47:50.000Z"
+          },
+          "title": {
+            "type": "string",
+            "description": "The fix title.",
+            "example": "OpenSSH Signal Handling Vulnerability"
+          },
+          "solution": {
+            "type": "string",
+            "description": "The fix solution. Could be multiple solutions from different vendors."
+          },
+          "url": {
+            "type": "string",
+            "description": "The solution URL.",
+            "example": "https://www.cisa.gov/news-events/ics-advisories/icsa-22-349-21"
+          },
+          "vendor": {
+            "type": "string",
+            "description": "A comma separated list of solution vendors.",
+            "example": "ubuntu"
+          }
+        }
+      },
+      "service_now_vulnerability_get_response_schema": {
+        "type": "object",
+        "properties": {
+          "primary-locator": {
+            "type": "string",
+            "description": "The primary locator used for the corresponding asset. This is required to associate the vulnerability with the asset it was found on. This should be one of the following values: application, ec2, external_id, database, fqdn, hostname, ip-address, mac-address, netbios, or url.  Use this value with '-locator' to find the primary locator field.  For example, the value 'hostname' would have a field 'hostname-locator'."
+          },
+          "ec2-locator": {
+            "type": "string",
+            "description": "Asset Amazon EC2 identifier."
+          },
+          "url-locator": {
+            "type": "string",
+            "description": "Asset URL."
+          },
+          "file-locator": {
+            "type": "string",
+            "description": "File name of the asset."
+          },
+          "fqdn-locator": {
+            "type": "string",
+            "description": "Fully Qualified Domain Name (FQDN) of the asset."
+          },
+          "database-locator": {
+            "type": "string",
+            "description": "Asset database."
+          },
+          "application-locator": {
+            "type": "string",
+            "description": "Application name of the asset."
+          },
+          "ip-address-locator": {
+            "type": "string",
+            "description": "The IP address of the asset."
+          },
+          "mac-address-locator": {
+            "type": "string",
+            "description": "The MAC address of the asset"
+          },
+          "asset-id": {
+            "type": "integer",
+            "description": "The asset ID associated with the vulnerability.",
+            "example": 808408
+          },
+          "asset-score": {
+            "type": "integer",
+            "description": "The the asset score between 0 and 1000.",
+            "example": 1000
+          },
+          "id": {
+            "type": "integer",
+            "description": "The vulnerability ID.",
+            "example": 709836
+          },
+          "status": {
+            "type": "string",
+            "description": "The status of the vulnerability.",
+            "enum": [
+              "closed",
+              "closed_by_human",
+              "false_positive_by_human",
+              "open",
+              "open_by_api",
+              "risk_accepted_by_human"
+            ],
+            "example": "open"
+          },
+          "last-seen-time": {
+            "type": "string",
+            "description": "The date of the vulnerability was last seen in ISO 8601 format.",
+            "format": "date-time",
+            "example": "2021-02-04T21:47:50.000Z"
+          },
+          "fix-id": {
+            "type": "integer",
+            "description": "The fix ID of the vulnerability if there is one.",
+            "example": 1841225
+          },
+          "first-found-on": {
+            "type": "string",
+            "description": "The date the vulnerability was first found in ISO 8601 format.",
+            "format": "date-time",
+            "example": "2021-02-23T13:38:57Z"
+          },
+          "vulnerability-score": {
+            "type": "integer",
+            "description": "The vulnerability score from 0 to 100.",
+            "example": 100
+          },
+          "name": {
+            "type": "string",
+            "description": "The name on the vulnerability.",
+            "example": "CVE-2019-11043"
+          },
+          "cve-id": {
+            "type": "string",
+            "description": "The CVE ID.",
+            "example": "CVE-2019-11043"
+          },
+          "all-details-html": {
+            "type": "string",
+            "description": "Vulnerability details.",
+            "example": "&lt;h1&gt;Security Scorecard KDI&lt;/h1&gt;&lt;pre&gt;{ &amp;quot;parent_domain&amp;quot;: &amp;quot;thalesgroup.com&amp;quot;,&amp;quot;type&amp;quot;: &amp;quot;patching_cadence_medium&amp;quot; }&lt;/pre&gt;"
+          },
+          "lastest-scanner-id": {
+            "type": "integer",
+            "example": 39241
           }
         }
       },
@@ -5988,7 +6022,7 @@
               },
               "custom_fields": {
                 "type": "object",
-                "description": "The custom field ID and value to be updated. The key is the custom field ID, and the value is the desired value of the custom field.  Only one custom field can be updated at a time.",
+                "description": "The custom field ID and value to be updated. The key is the custom field ID, and the value is the desired value of the custom field.",
                 "additionalProperties": {
                   "type": "string"
                 }
@@ -8172,7 +8206,7 @@
     "/asset_groups/{id}": {
       "put": {
         "summary": "Update Asset Group",
-        "description": "Update a single asset group's attributes by ID. This will update the asset group's risk meter as well.",
+        "description": "<p>Update a single asset group's attributes by ID. This will update the asset group's risk meter as well.</p><p>This API converts all filters into a querystring that can't exceed 8,000 characters.</p>",
         "operationId": "update-asset-group",
         "security": [
           {
@@ -8205,6 +8239,25 @@
               "application/json": {
                 "examples": {
                   "example_0": {
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_0": {
+                    "value": {
+                      "error": "unprocessable_entity",
+                      "message": "Querystring is too long (maximum is 8000 characters)",
+                      "success": "false"
+                    }
                   }
                 },
                 "schema": {
@@ -9106,7 +9159,7 @@
                       "id": 5500,
                       "name": "A risk meter",
                       "risk_meter_scores": {
-                        "2021-08-21": 800,
+                        "2021-09-21": 800,
                         "2021-09-22": 400,
                         "2021-09-23": 300,
                         "2021-09-24": 200,
@@ -9759,7 +9812,7 @@
       },
       "post": {
         "summary": "Create Asset Group and Risk Meter",
-        "description": "Creates a new Asset Group and Risk Meter.",
+        "description": "<p>Creates a new Asset Group and Risk Meter.</p><p>This API converts all filters into a querystring that can't exceed 8,000 characters.</p>",
         "operationId": "create-asset-group-and-risk-meter",
         "security": [
           {
@@ -9834,6 +9887,25 @@
               "application/json": {
                 "examples": {
                   "example_0": {
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "invalid request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_0": {
+                    "value": {
+                      "error": "unprocessable_entity",
+                      "message": "Querystring is too long (maximum is 8000 characters)",
+                      "success": "false"
+                    }
                   }
                 },
                 "schema": {
@@ -10002,11 +10074,16 @@
             }
           },
           "400": {
-            "description": "400",
+            "description": "Bad Request",
             "content": {
               "application/json": {
                 "examples": {
-                  "example_0": {
+                  "asset_not_found": {
+                    "value": {
+                      "error": "Bad Request",
+                      "message": "Cannot find specified asset.",
+                      "success": "false"
+                    }
                   }
                 },
                 "schema": {
@@ -12434,7 +12511,7 @@
             "content": {
               "application/gzip": {
                 "examples": {
-                  "example_0": {
+                  "Assets OK": {
                     "value": {
                       "assets": [
                         {
@@ -12542,12 +12619,108 @@
                 }
               }
             }
+          },
+          "206": {
+            "description": "Partial Content",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "currently_enqueued": {
+                    "value": {
+                      "message": "The export is currently enqueued. Try again later.",
+                      "success": "true"
+                    }
+                  },
+                  "currently_processing": {
+                    "value": {
+                      "message": "The export is currently processing. Try again later.",
+                      "success": "true"
+                    }
+                  }
+                }
+              },
+              "application/gzip": {
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "export_not_found": {
+                    "value": {
+                      "error": "Bad Request",
+                      "message": "Export not found.",
+                      "success": "false"
+                    }
+                  },
+                  "failed_to_retrieve": {
+                    "value": {
+                      "error": "Bad Request",
+                      "message": "Cannot retrieve a failed or cancelled export.",
+                      "success": "false"
+                    }
+                  }
+                }
+              },
+              "application/gzip": {
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
+          },
+          "410": {
+            "description": "Resource not available",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "export_expired": {
+                    "value": {
+                      "error": "Resource gone",
+                      "message": "This search has expired and is no longer available",
+                      "success": "false"
+                    }
+                  }
+                }
+              },
+              "application/gzip": {
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "cannot_get_data": {
+                    "value": {
+                      "error": "Internal Server Error",
+                      "message": "There was an error getting your search data. Please contact tech support for more details.",
+                      "success": "false"
+                    }
+                  }
+                }
+              },
+              "application/gzip": {
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
           }
         }
       },
       "post": {
         "summary": "Request Data Export",
-        "description": "<p>Filters client data by a given set of parameters the exact same way the search endpoints do. The request is processed in the background.</p><p>User must specify the format of the data, including the model type (\"asset\", \"fix\", or \"vulnerability\"), and data format (\"json\", \"jsonl\", \"xml\").</p><p>Due to the async nature of the request, a search_id is returned which can be used to get the results of the search once the processing of the request is complete. Search IDs are valid for 30 days after the initial request is made.</p><p>The <code>model</code> field in <code>export_settings</code> is referred to as \"model\" in the filter body parameters below.  Each filter body parameter contains information on which model or models the filter body parameter is valid.</p>",
+        "description": "<p>Filters client data by a given set of parameters the exact same way the search endpoints do. The request is processed in the background.</p><p>User must specify the format of the data, including the model type (\"asset\", \"fix\", or \"vulnerability\"), and data format (\"json\", \"jsonl\", \"xml\").</p><p>User can also specify <code>fields</code> in <code>export_settings</code> to only return the fields that the user is interested in. Note that this feature is only available for asset exports. For asset exports, <code>id</code> field is always returned.</p><p>Due to the async nature of the request, a search_id is returned which can be used to get the results of the search once the processing of the request is complete. Search IDs are valid for 30 days after the initial request is made.</p><p>The <code>model</code> field in <code>export_settings</code> is referred to as \"model\" in the filter body parameters below.  Each filter body parameter contains information on which model or models the filter body parameter is valid.</p>",
         "operationId": "request-data-export",
         "security": [
           {
@@ -12586,7 +12759,17 @@
             "content": {
               "application/json": {
                 "examples": {
-                  "example_0": {
+                  "fields_with_slim": {
+                    "value": {
+                      "success": false,
+                      "message": "Picked fields should not be applied to slim exports. Please check API documentation."
+                    }
+                  },
+                  "badly_formed_fields": {
+                    "value": {
+                      "success": false,
+                      "message": "Requested fields should be an array. Please check API documentation."
+                    }
                   }
                 },
                 "schema": {
@@ -12600,11 +12783,16 @@
             "content": {
               "application/json": {
                 "examples": {
-                  "example_0": {
+                  "non_existent_field": {
                     "value": {
-                      "search_id": 1,
-                      "record_count": 94,
-                      "error_message": "A duplicate export exists that has not processed."
+                      "success": false,
+                      "message": "Unable to apply fields { non_existent_field } to assets model. Please check API documentation."
+                    }
+                  },
+                  "duplicate_fields": {
+                    "value": {
+                      "success": false,
+                      "message": "Duplicate fields { tags } found. Please check API documentation."
                     }
                   }
                 },
@@ -12744,7 +12932,7 @@
     "/data_exports/kill": {
       "put": {
         "summary": "Kill Running Data Export",
-        "description": "Kill a running export by specifying the export ID or the job UUID of the export.",
+        "description": "<p>Kill a running export by specifying the export ID.</p><p>The following messages are currently returned with the appropriate HTTP response status code:<table>  <tr>    <th>HTTP Status Code</th>    <th>Message</th>  </tr>  <tr>    <td>200</td>    <td>Terminating client data export.</td>  </tr>  <tr>    <td>400</td>    <td>Export not found.</td>  </tr>  <tr>    <td>400</td>    <td>Cannot kill an already cancelled, failed, or completed export.</td>  </tr>  <tr>    <td>500</td>    <td>There was an error while killing the export. Please contact tech support for more details.</td>  </tr></table>Error handling in client code should be based on the HTTP status code.</p>",
         "operationId": "kill-running-data-export",
         "security": [
           {
@@ -12791,6 +12979,26 @@
               "application/json": {
                 "examples": {
                   "example_0": {
+                    "value": {
+                      "message": "Export not found."
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "500",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_0": {
+                    "value": {
+                      "message": "There was an error while killing the export. Please contact tech support for more details."
+                    }
                   }
                 },
                 "schema": {
@@ -13051,7 +13259,7 @@
     "/findings": {
       "get": {
         "summary": "Search Findings",
-        "description": "<p>Filters findings by a given set of parameters and returns those filtered findings as well as the total number of findings in the filtered set.</p><p>If no filters are specified, then \"Search Findings\" is \"List Findings\".</p><p>Each unique parameter is combined using AND while each of values passed in a single array will be combined using OR. For example, if you search for all findings with <code>status=[\"new\", \"resolved\"]</code> and <code>sort_by=\"score\"</code>, you will receive all findings with either status \"new\" or \"resolved,\" sorted by score in the response.  </p><p><table>  <tr>    <th>Attribute</th>    <th>Value</th>  </tr>  <tr>    <td>Maximum Pages Allowed</td>    <td>2,000</td>  </tr>  <tr>    <td>Maximum Page Size</td>    <td>100</td>  </tr>  <tr>    <td>Default Page Size</td>    <td>100</td>  </tr>  <tr>    <td>Total Count Present in <code>meta</code> object</td>    <td>Yes</td>  </tr></table>See the <a href=\"https://apidocs.kennasecurity.com/reference/pagination\">Pagination Section</a> for more details. </p><p>To avoid ambiguity with regards to dates, this endpoint accepts strings formatted according to a stricter version of ISO 8601: \"YYYY-MM-DDThh:mm:ss.sssTZD\". All fields besides nanoseconds and timezone are required.  If time is omitted, UTC is used.See <a href=\"https://www.w3.org/TR/NOTE-datetime\">ISO 8601 formats</a> for more details.</p>",
+        "description": "<p>Filters findings by a given set of parameters and returns those filtered findings as well as the total number of findings in the filtered set.</p><p>If no filters are specified, then \"Search Findings\" is \"List Findings\".</p><p>Each unique parameter is combined using AND while each of values passed in a single array will be combined using OR. For example, if you search for all findings with <code>status=[\"new\", \"resolved\"]</code> and <code>sort_by=\"score\"</code>, you will receive all findings with either status \"new\" or \"resolved,\" sorted by score in the response.  </p><p><table>  <tr>    <th>Attribute</th>    <th>Value</th>  </tr>  <tr>    <td>Maximum Pages Allowed</td>    <td>2,000</td>  </tr>  <tr>    <td>Maximum Page Size</td>    <td>100</td>  </tr>  <tr>    <td>Default Page Size</td>    <td>100</td>  </tr>  <tr>    <td>Total Count Present in <code>meta</code> object</td>    <td>Yes</td>  </tr></table>See the <a href=\"https://apidocs.kennasecurity.com/reference/pagination\">Pagination Section</a> for more details. </p><p>To avoid ambiguity with regards to dates, this endpoint accepts strings formatted according to a stricter version of ISO 8601: \"YYYY-MM-DDThh:mm:ss.sssTZD\". All fields besides nanoseconds and timezone are required.  If time is omitted, UTC is used.  See <a href=\"https://www.w3.org/TR/NOTE-datetime\">ISO 8601 formats</a> for more details.</p>",
         "operationId": "search-findings",
         "security": [
           {
@@ -13065,18 +13273,39 @@
         ],
         "parameters": [
           {
-            "name": "status",
+            "name": "status[]",
             "in": "query",
+            "required": false,
+            "description": "An array of statuses.  Default: [\"open\", \"in_progress\", \"new\", \"triaged\"].",
             "schema": {
-              "$ref": "#/components/schemas/findings_request_search_status_schema"
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "closed",
+                  "duplicate",
+                  "false_positive",
+                  "in_progress",
+                  "new",
+                  "not_a_security_issue",
+                  "open",
+                  "resolved",
+                  "risk_accepted",
+                  "triaged"
+                ]
+              }
             }
           },
           {
-            "name": "identifier",
+            "name": "identifier[]",
             "in": "query",
             "schema": {
-              "$ref": "#/components/schemas/findings_request_search_identifier_schema"
-            }
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "description": "An array of CVE, CWE, or WASCs.  Example: [\"CWE-242\", \"CVE=2020-9524\"]."
           },
           {
             "name": "page",
@@ -13099,21 +13328,36 @@
           {
             "name": "sort_by",
             "in": "query",
-            "description": "The results will be sorted by this field. Must be one of [\"closed_at\", \"created_at\", \"due_date\", \"found_on\", \"last_found_on\", \"score\", \"updated_at\"].  Default: \"score\".",
+            "required": false,
+            "description": "The results will be sorted by this field.  Default: \"score\".",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "closed_at",
+                "created_at",
+                "due_date",
+                "found_on",
+                "last_found_on",
+                "score",
+                "updated_at"
+              ]
             }
           },
           {
             "name": "sort_direction",
             "in": "query",
-            "description": "Must be one of [\"asc\", \"desc\"]. Default: \"desc\".",
+            "required": false,
+            "description": "The sort direction of the field specified in \"sort_by\". Default: \"desc\".",
             "schema": {
-              "type": "string"
+              "type": "string",
+              "enum": [
+                "asc",
+                "desc"
+              ]
             }
           },
           {
-            "name": "earliset_closed_at",
+            "name": "earliest_closed_at",
             "in": "query",
             "schema": {
               "type": "string",
@@ -13663,7 +13907,7 @@
     "/fixes/search": {
       "get": {
         "summary": "Search Fixes",
-        "description": "<p>Filters fixes by a given set of vulnerability and asset parameters and returns the filtered fixes as well as the total number of fixes. By default, only fixes for open vulnerabilities with active assets are returned.</p><p>Each unique parameter is combined using AND while each of values passed in a single array will be combined using OR. For example, if you search for all fixes belonging to vulnerabilities with <code>status=[\"open\"]</code> and <code>port=[\"443\", \"80\"]</code> you will receive all fixes for open vulnerabilities that have either port 443 or port 80. <table>  <tr>    <th>Attribute</th>    <th>Value</th>  </tr>  <tr>    <td>Maximum Pages Allowed</td>    <td>&infin;</td>  </tr>  <tr>    <td>Maximum Page Size</td>    <td>5,000</td>  </tr>  <tr>    <td>Default Page Size</td>    <td>25</td>  </tr>  <tr>    <td>Total Count Present in <code>meta</code> object</td>    <td>Yes</td>  </tr></table>Large page sizes can cause performance issues.  See the <a href=\"https://apidocs.kennasecurity.com/reference/pagination\">Pagination Section</a> for more details. </p>",
+        "description": "<p>Filters fixes by a given set of vulnerability and asset parameters and returns the filtered fixes as well as the total number of fixes. By default, only fixes for open vulnerabilities with active assets are returned. Requests with search parameters relevant to over 30,000,000 vulnerabilities will be rejected.</p><p>Each unique parameter is combined using AND while each of values passed in a single array will be combined using OR. For example, if you search for all fixes belonging to vulnerabilities with <code>status=[\"open\"]</code> and <code>port=[\"443\", \"80\"]</code> you will receive all fixes for open vulnerabilities that have either port 443 or port 80. <table>  <tr>    <th>Attribute</th>    <th>Value</th>  </tr>  <tr>    <td>Maximum Pages Allowed</td>    <td>&infin;</td>  </tr>  <tr>    <td>Maximum Page Size</td>    <td>5,000</td>  </tr>  <tr>    <td>Default Page Size</td>    <td>25</td>  </tr>  <tr>    <td>Total Count Present in <code>meta</code> object</td>    <td>Yes</td>  </tr></table>Large page sizes can cause performance issues.  See the <a href=\"https://apidocs.kennasecurity.com/reference/pagination\">Pagination Section</a> for more details. </p>",
         "operationId": "search-fixes",
         "security": [
           {
@@ -13968,6 +14212,227 @@
                       "$ref": "#/components/schemas/page_metadata"
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/integrations/service_now/fixes.xml": {
+      "get": {
+        "summary": "ServiceNow List Fixes",
+        "description": "<p>List fixes in a ServiceNow format.</p><p><table>  <tr>    <th>Attribute</th>    <th>Value</th>  </tr>  <tr>    <td>Maximum Pages Allowed</td>    <td>&infin;</td>  </tr>  <tr>    <td>Maximum Page Size</td>    <td>1,000</td>  </tr>  <tr>    <td>Default Page Size</td>    <td>1,000</td>  </tr>  <tr>    <td>Total Count Present in <code>meta</code> object</td>    <td>Yes</td>  </tr></table>See the <a href=\"https://apidocs.kennasecurity.com/reference/pagination\">Pagination Section</a> for more details. </p><p><strong>Note:</strong> The functionality of this ServiceNow fix endpoint is intended to be migrated in the future. Updates and instructions on new endpoint will be provided in advance of any migration.</p>",
+        "operationId": "service-now-list-fixes",
+        "security": [
+          {
+            "X-Risk-Token": [
+
+            ]
+          }
+        ],
+        "tags": [
+          "INTEGRATIONS"
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The requested page number. Page 1 is the first page.",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "The page size up to 1,000.  Default is 1,000.",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/xml": {
+                "examples": {
+                  "example_0": {
+                    "value": "\n            <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n            <hash>\n              <fixes> type=\"array\">\n                <fix>\n                  <consequence>The OpenSSH server can crash</consequence>\n                  <diagnosis>This security vulnerability have been identified in OpenSSH: A race condition in OpenSSH before Version 4.4 can be exploited to cause a crash. (CVE-2006-5051)</diagnosis>\n                  <id type=\"integer\">1235813</id>\n                  <solution>Upgrade to OpenSSH 4.4 or later, available at &lt;a href=&quot;http://www.openssh.org/&quot;&gt;OpenSSH/&lt;/a&gt;. &lt;p&gt; Several vendors have issued fixes.</solution>\n                  <title>OpenSSH Signal Handling Vulnerability</title>\n                </fix>\n              </fixes>>\n              <meta>\n                <total-count type=\"integer\">30330</total-count>\n                <page type=\"integer\">1</page>\n                <pages type=\"integer\">4</pages>\n              </meta>\n            </hash>"
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "fixes": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/service_now_fix_get_response_schema"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer",
+                          "description": "The response current page number.",
+                          "default": 1
+                        },
+                        "pages": {
+                          "type": "integer",
+                          "description": "The total number of pages.",
+                          "default": 1
+                        },
+                        "total-count": {
+                          "type": "integer",
+                          "description": "The total number of items across all pages.",
+                          "default": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_0": {
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/integrations/service_now/vulnerabilities.xml": {
+      "get": {
+        "summary": "ServiceNow Search Vulnerabilities",
+        "description": "<p>Filters vulnerabilities by a given set of parameters and returns the filtered vulnerabilities as well as the total number of vulnerabilities in the filtered set.</p><p>By default, only open vulnerabilities with active assets are returned. Each unique parameter is combined using AND while each of values passed in a single array will be combined using OR. For example, if you search for all vulnerabilities with <code>status=[\"open\"]</code> and <code>classification[]=CVE</code> you will receive all open vulnerabilities that have CVEs.</p><p><table>  <tr>    <th>Attribute</th>    <th>Value</th>  </tr>  <tr>    <td>Maximum Pages Allowed</td>    <td>&infin;</td>  </tr>  <tr>    <td>Maximum Page Size</td>    <td>10,000</td>  </tr>  <tr>    <td>Default Page Size</td>    <td>10,000</td>  </tr>  <tr>    <td>Total Count Present in <code>meta</code> object</td>    <td>Yes</td>  </tr></table>See the <a href=\"https://apidocs.kennasecurity.com/reference/pagination\">Pagination Section</a> for more details. </p><p><strong>Note:</strong> The functionality of this ServiceNow vulnerability endpoint is intended to be migrated in the future. Updates and instructions on new endpoint will be provided in advance of any migration.</p>",
+        "operationId": "service-now-search-vulnerabilities",
+        "security": [
+          {
+            "X-Risk-Token": [
+
+            ]
+          }
+        ],
+        "tags": [
+          "INTEGRATIONS"
+        ],
+        "parameters": [
+          {
+            "name": "classification[]",
+            "in": "query",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Informational",
+                  "CVE",
+                  "CWE",
+                  "WASC"
+                ]
+              }
+            },
+            "description": "Find all vulnerabilities matching the specified classifications."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "The page number starting from 1.  Pages must be requested sequentially, in serial, for accurate results.",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "The page size from 500 to 10,000.  Default is 10,000.",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Additional text search parameters, as documented at: [Kenna Search Terms](https://help.kennasecurity.com/hc/en-us/articles/206280593-Kenna-Search-Terms), section \"Vulnerability Terms\".  Example q=tag:(mytag+AND+thetag).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "200",
+            "content": {
+              "application/xml": {
+                "examples": {
+                  "example_0": {
+                    "value": "\n            <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n            <hash>\n              <vulnerabilities type=\"array\">\n                <vulnerability>\n                  <primary-locator>hostname</primary-locator>\n                  <ec2-locator nil=\"true\"/>\n                  <url-locator nil=\"true\"/>\n                  <file-locator nil=\"true\"/>\n                  <fqdn-locator nil=\"true\"/>\n                  <external-id-locator nil=\"true\"/>\n                  <database-locator nil=\"true\"/>\n                  <application-locator nil=\"true\"/>\n                  <asset-id type=\"integer\">19550126</asset-id>\n                  <asset-score type=\"integer\">1000</asset-score>\n                  <ip-address-locator>10.7.1.27</ip-address-locator>\n                  <mac-address-locator nil=\"true\"/>\n                  <netbios-locator nil=\"true\"/>\n                  <hostname-locator>kemast-aws-win19-1</hostname-locator>\n                  <id type=\"integer\">3618408139</id>\n                  <status>open</status>\n                  <last-seen-time>2022-08-08T11:51:22.000Z</last-seen-time>\n                  <fix-id type=\"integer\">2147579</fix-id>\n                  <first-found-on>2022-11-16T00:17:56Z</first-found-on>\n                  <vulnerability-score type=\"integer\">100</vulnerability-score>\n                  <name>CVE-2021-40444</name>\n                  <cve-id>CVE-2021-40444</cve-id>\n                  <all-details-html></all-details-html>\n                  <latest-scanner-id nil=\"true\"/>\n                </vulnerability>\n              </vulnerabilities>\n              <meta>\n                <total-count type=\"integer\">30330</total-count>\n                <page type=\"integer\">1</page>\n                <pages type=\"integer\">4</pages>\n              </meta>\n            </hash>"
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "vulnerabilities": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/service_now_vulnerability_get_response_schema"
+                      }
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer",
+                          "description": "The response current page number.",
+                          "default": 1
+                        },
+                        "pages": {
+                          "type": "integer",
+                          "description": "The total number of pages.",
+                          "default": 1
+                        },
+                        "total-count": {
+                          "type": "integer",
+                          "description": "The total number of items across all pages.",
+                          "default": 1
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "400",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "example_0": {
+                  }
+                }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/error_response"
                 }
               }
             }
@@ -16273,7 +16738,7 @@
                 "type": "integer"
               }
             },
-            "description": "Search for vulnerabilities related to the specified asset ids."
+            "description": "Search for vulnerabilities related to the specified asset IDs."
           },
           {
             "name": "asset[max_priority]",
@@ -18873,7 +19338,7 @@
     "/vulnerability_definitions/with_significant_score_changes": {
       "get": {
         "summary": "Vulnerability Definitions With Significant Score Changes",
-        "description": "<p>Return one or more vulnerability definitions with significant score changes (more than 1 point of change up or down) by CVE ID. The `realtime_score` field is included and reflects the current score change, which can be compared to the less frequently more stable `risk_meter_score` field.</p><div class=\"pin\"><blockquote class=\"callout callout_warn\" theme=\"🚧\"><h3 class=\"callout-heading false\"><span class=\"callout-icon\">🚧</span><p>Restricted Access</p></h3><p>This API endpoint is a premium feature and requires access to the Kenna.VI+ API.</p></blockquote></div>",
+        "description": "<p>Returns vulnerability definitions with significant score changes (more than 1 point of change up or down) by CVE ID. An empty array is returned if there are no vulnerability defintions with significant score changes.The `realtime_score` field is included and reflects the current score change, which can be compared to the less frequently more stable `risk_meter_score` field.</p><div class=\"pin\"><blockquote class=\"callout callout_warn\" theme=\"🚧\"><h3 class=\"callout-heading false\"><span class=\"callout-icon\">🚧</span><p>Restricted Access</p></h3><p>This API endpoint is a premium feature and requires access to the Kenna.VI+ API.</p></blockquote></div>",
         "operationId": "vulnerability-definitions-with-significant-score-change",
         "security": [
           {

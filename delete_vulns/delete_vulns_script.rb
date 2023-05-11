@@ -16,7 +16,7 @@ require 'csv'
 # Change the base URL to match your environment
 @base_url = 'https://api.kennasecurity.com/'
 @api_endpoint = 'vulnerabilities/'
-@update_vuln_url = "#{@base_url}#{@api_endpoint}"
+@delete_vuln_url = "#{@base_url}#{@api_endpoint}"
 
 num_lines = CSV.read(@csv_file).length
 puts "Found #{num_lines - 1} vuln(s) for processing."
@@ -32,7 +32,7 @@ CSV.foreach(@csv_file, headers: true) do |row|
   # make the call to delete the vuln
 
   begin
-    api_call_url = "#{@update_vuln_url}#{vuln_id}"
+    api_call_url = "#{@delete_vuln_url}#{vuln_id}"
     RestClient::Request.execute(
       method: :delete,
       url: api_call_url,

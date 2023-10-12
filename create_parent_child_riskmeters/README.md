@@ -26,7 +26,7 @@ We have provided an additional csv metadata file which is intended to be used fo
 
 ### Usage
 
-`ruby create_parent_child_meters.rb <API_token> risk_meter_quickstart.csv`
+`ruby add_parent_child_risk_meters.rb <API_token> risk_meter_quickstart.csv`
 
 ## Requirements
 * ruby

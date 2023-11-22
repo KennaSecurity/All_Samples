@@ -9,7 +9,7 @@ This can help you validate the scanning from the respective scanner keeping the 
 
   
 ## Usage
-Python SVD_Information.py
+python SVD_Information.py
 
 
 ## Steps to perform before running the script

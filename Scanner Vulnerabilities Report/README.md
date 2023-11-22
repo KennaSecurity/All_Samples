@@ -34,7 +34,7 @@ Command to retrieve the file:
 #### Note: 
 export_DATE.json file will be read by the script. So, plugin the file name for the latest file identified by date in the SVD_Information.py-
 
-line 20 - with open('export_DATE.json') as file:
+line 20 - *with open('export_DATE.json') as file:*
 
 
 ### Step 3:

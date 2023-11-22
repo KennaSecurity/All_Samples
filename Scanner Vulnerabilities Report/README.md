@@ -29,7 +29,7 @@ Export vulnerabilities from data export endpoint - https://apidocs.kennasecurity
 ### Step 2:
 Retrieve the export and unzip the json.gz file to get the json which will be used to run the script.
 Command to retrieve the file:
-'https://ADD BASE URL HERE/data_exports?search_id=INSERT_EXPORT_ID_HERE' --header 'X-Risk-Token: INSTERT_API_TOKEN_HERE ' -o export_DATE.json.gz --header 'accept: application/gzip'
+'https:// BASE URL/data_exports?search_id=INSERT_EXPORT_ID_HERE' --header 'X-Risk-Token: INSTERT_API_TOKEN_HERE ' -o export_DATE.json.gz --header 'accept: application/gzip'
 
 #### Note: 
 export_DATE.json file will be read by the script. So, plugin the file name for the latest file identified by date in the SVD_Information.py -

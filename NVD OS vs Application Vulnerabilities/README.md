@@ -2,7 +2,7 @@
 
 ## Introduction
 Our customers wanted the ability to identify & filter vulnerabilities by their classification like OS & Application. 
-Full working process on how this can be done using the custom field option can be found documented in the attached Vulnerability Type Use case Word Document.
+Full working process on how this can be done using the custom field option can be found documented in the attached Vulnerability Type Use case Document.
 
 This script handles the step#2 listed on the document, where a CSV is required as an input with the CVEs and their classification. 
 NVD database was referenced to get this information by following the steps below:

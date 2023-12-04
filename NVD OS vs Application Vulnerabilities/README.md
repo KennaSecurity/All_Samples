@@ -1,4 +1,4 @@
-# Create CSV with CVEs, their Type (OS, Application, Hardware or Network based on NVD) and Vulnerability IDs from teh customer's environment and also tag the custom field with the type
+# Tag CVEs with the Vulnerability Type custom field
 
 ## Introduction
 Our customers wanted the ability to identify & filter vulnerabilities by their classification like OS & Application. 

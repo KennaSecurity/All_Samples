@@ -8,9 +8,10 @@ from collections import defaultdict
 import sys
 
 token_variable = 'API_KEY' # replace with your actual token
+base_url = "https://api.kennasecurity.com"
 
 def request_data_export(token_variable):
-    url = "https://api.kennasecurity.com/data_exports"
+    url = f"{base_url}/data_exports"
     headers = {
         'X-Risk-Token': token_variable,
         'accept': 'application/json',
@@ -40,7 +41,7 @@ def request_data_export(token_variable):
 
 def wait_for_data_export(search_id, token_variable, max_wait_time=1200, sleep_time=10):
     start_time = time.time()
-    status_url = f"https://api.kennasecurity.com/data_exports/status?search_id={search_id}"
+    status_url = f"{base_url}/data_exports/status?search_id={search_id}"
     headers = {
         'X-Risk-Token': token_variable,
         'accept': 'application/json'
@@ -48,7 +49,7 @@ def wait_for_data_export(search_id, token_variable, max_wait_time=1200, sleep_ti
     while True:
         status_response = requests.get(status_url, headers=headers)
         if status_response.status_code == 200 and status_response.json().get('message') == "Export ready for download":
-            url = f"https://api.kennasecurity.com/data_exports?search_id={search_id}"
+            url = f"{base_url}/data_exports?search_id={search_id}"
             headers = {
                 'X-Risk-Token': token_variable,
                 'accept': 'application/gzip'
@@ -70,7 +71,7 @@ def wait_for_data_export(search_id, token_variable, max_wait_time=1200, sleep_ti
     
 custom_field_id = 4 # replace with the custom field from your environmnet
 def send_bulk_updates(ids, app_or_os, custom_field_id, token_variable):
-    url = "https://api.kennasecurity.com/vulnerabilities/bulk"
+    url = f"{base_url}/vulnerabilities/bulk"
     headers = {
         'X-Risk-Token': token_variable,
         'accept': 'application/json',

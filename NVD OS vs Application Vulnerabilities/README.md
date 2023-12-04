@@ -1,4 +1,4 @@
-# Create CSV with CVEs, their Type (OS, Application, Hardware or Network based on NVD) and Vulnerability IDs from teh customer's environment and also tag the custom field with the type
+# Tag CVEs with Custom Field for Vulnerability Type (OS, Application, Hardware or Network)
 
 ## Introduction
 Our customers wanted the ability to identify & filter vulnerabilities by their classification like OS & Application. 
@@ -20,7 +20,7 @@ Types of product type:
 
   
 ## Usage
-python Export_Check_NVD.py
+python nvd_os_app_custom_field.py
 
 
 ## Updates/Edits needed to execute the script
@@ -29,7 +29,14 @@ python Export_Check_NVD.py
 By default, https://api.kennasecurity.com/ is being used. Update it to w.r.t the customer's environment.
 
 ### 2: API Key Token
-Update the *token_variable = 'API_KEY'* with the API KEY from customer's environment
+Set an environment variable named API_KEY with your actual API key as its value. The way you do this can vary depending on your operating system and the interface you're using (command line, graphical interface, etc.).
+#### Windows:
+You can set an environment variable in Windows using the setx command in the command prompt:
+*setx API_KEY "your-api-key"*
+
+#### Mac OS or Linux:
+In macOS or Linux, you can set an environment variable in the terminal using the export command:
+*export API_KEY=your-api-key*
 
 ### 3: Custom Field ID
 Update *custom_field_id = 4* with the custom field id from your customer's environment

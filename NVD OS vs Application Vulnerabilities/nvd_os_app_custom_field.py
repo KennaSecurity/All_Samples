@@ -4,10 +4,12 @@ import time
 import json
 import gzip
 import io
+import os
 from collections import defaultdict
 import sys
 
-token_variable = 'API_KEY' # replace with your actual token
+
+token_variable = os.environ.get('API_KEY')
 base_url = "https://api.kennasecurity.com"
 
 def request_data_export(token_variable):

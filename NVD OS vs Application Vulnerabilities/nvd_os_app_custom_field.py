@@ -4,10 +4,12 @@ import time
 import json
 import gzip
 import io
+import os
 from collections import defaultdict
 import sys
 
-token_variable = 'API_KEY' # replace with your actual token
+
+token_variable = os.environ.get('API_KEY')
 base_url = "https://api.kennasecurity.com"
 
 def request_data_export(token_variable):
@@ -70,6 +72,7 @@ def wait_for_data_export(search_id, token_variable, max_wait_time=1200, sleep_ti
             time.sleep(sleep_time)
     
 custom_field_id = 4 # replace with the custom field from your environmnet
+
 def send_bulk_updates(ids, app_or_os, custom_field_id, token_variable):
     url = f"{base_url}/vulnerabilities/bulk"
     headers = {

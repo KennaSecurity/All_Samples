@@ -29,14 +29,14 @@ python nvd_os_app_custom_field.py
 By default, https://api.kennasecurity.com/ is being used. Update it to w.r.t the customer's environment.
 
 ### 2: API Key Token
-Set an environment variable named API_KEY with your actual API key as its value. The way you do this can vary depending on your operating system and the interface you're using (command line, graphical interface, etc.).
+Set an environment variable named KENNA_API_KEY with your actual API key as its value. The way you do this can vary depending on your operating system and the interface you're using (command line, graphical interface, etc.).
 #### Windows:
 You can set an environment variable in Windows using the setx command in the command prompt:
-*setx API_KEY "your-api-key"*
+*setx KENNA_API_KEY "your-api-key"*
 
 #### Mac OS or Linux:
 In macOS or Linux, you can set an environment variable in the terminal using the export command:
-*export API_KEY=your-api-key*
+*export KENNA_API_KEY=your-api-key*
 
 ### 3: Custom Field ID
 Update *custom_field_id = 4* with the custom field id from your customer's environment

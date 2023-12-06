@@ -18,6 +18,8 @@ Types of product type:
 3.	h: (Hardware): This is used to denote that the component is a piece of hardware. An example would be cpe:2.3:h:dell:poweredge_2950:-:*:*:*:*:*:*:*.
 4.	n: (Network): This is used to denote that the component is network. An example would be cpe:2.3:n:tls:example_tls:-:*:*:*:*:*:*:*.
 
+#### Disclaimer: "This script uses the NVD API but is not endorsed or certified by the NVD."
+
   
 ## Usage
 python nvd_os_app_custom_field.py
@@ -44,7 +46,7 @@ Update *custom_field_id = 4* with the custom field id from your customer's envir
 ### 4: Wait time for Export
 By default the script waits for maximum time of 20 minutes to get the export from the customer's environment, in case your export is big and needs more time, 
 please update the *max_wait_time=1200* parameter (in seconds) to accomodate your export.
-Note: The scipt was tested with 1200 seconds (20 minutes) with record count of ~8M and it executed successfully.
+Note: The scipt was tested with 1200 seconds (20 minutes) with record count of ~2M and it executed successfully.
 
 ## Requirements
 * python

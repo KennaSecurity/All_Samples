@@ -9,7 +9,7 @@ from collections import defaultdict
 import sys
 
 
-token_variable = os.environ.get('API_KEY')
+token_variable = os.environ.get('KENNA_API_KEY')
 base_url = "https://api.kennasecurity.com"
 
 def request_data_export(token_variable):

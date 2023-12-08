@@ -27,10 +27,13 @@ python nvd_os_app_custom_field.py
 
 ## Updates/Edits needed to execute the script
 
-### 1: Update the base_url 
-By default, https://api.kennasecurity.com/ is being used. Update it to w.r.t the customer's environment.
+### 1: Create Custom Field  
+Create a custom field with name *Vuln Type* in your platform and note the ID to be used in step #4. Details on 'How' to create custom field can be found in the attached *Vulnerability Type Custom Field.pdf*
 
-### 2: API Key Token
+### 2: Update the base_url 
+By default, https://api.kennasecurity.com/ is being used. Update it to w.r.t your environment.
+
+### 3: API Key Token
 Set an environment variable named KENNA_API_KEY with your actual API key as its value. The way you do this can vary depending on your operating system and the interface you're using (command line, graphical interface, etc.).
 #### Windows:
 You can set an environment variable in Windows using the setx command in the command prompt:
@@ -40,10 +43,10 @@ You can set an environment variable in Windows using the setx command in the com
 In macOS or Linux, you can set an environment variable in the terminal using the export command:
 *export KENNA_API_KEY=your-api-key*
 
-### 3: Custom Field ID
-Update *custom_field_id = 4* with the custom field id from your customer's environment
+### 4: Custom Field ID
+Update *custom_field_id = 4* with the custom field id from your environment
 
-### 4: Wait time for Export
+### 5: Wait time for Export
 By default the script waits for maximum time of 20 minutes to get the export from the customer's environment, in case your export is big and needs more time, 
 please update the *max_wait_time=1200* parameter (in seconds) to accomodate your export.
 Note: The scipt was tested with 1200 seconds (20 minutes) with record count of ~2M and it executed successfully.

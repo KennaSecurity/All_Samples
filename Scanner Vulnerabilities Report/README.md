@@ -7,41 +7,33 @@ In order to close the vulnerability in Kenna, scanner vulnerability from all the
 This script helps to create a list of vulnerabilities which are kept open by one of the connector but closed by the other connector(s). 
 This can help you validate the scanning from the respective scanner keeping the detection open.
 
+### Note:
+The script does an export of vulnerabilities in "open", "risk accepted" and "false positive" status from your environment to determine which connector is keeping them open.
   
 ## Usage
 python SVD_Information.py
 
+## Updates/Edits needed to execute the script
 
-## Steps to perform before running the script
+### 1: Update the base_url 
+By default, https://api.kennasecurity.com/ is being used. Update it to w.r.t your environment.
 
-### Step 1:
-Export vulnerabilities from data export endpoint - https://apidocs.kennasecurity.com/reference/request-data-export using the following fields/options:
+### 2: API Key Token
+Set an environment variable named KENNA_API_KEY with your actual API key as its value. The way you do this can vary depending on your operating system and the interface you're using (command line, graphical interface, etc.).
+#### Windows:
+You can set an environment variable in Windows using the setx command in the command prompt:
+*setx KENNA_API_KEY "your-api-key"*
 
-    "format": "json",
-    "model": "vulnerability",
-    "slim": false,
-    "fields": 
-      "details",
-      "scanner_vulnerabilities",
-      "connectors",
-      "cve_id"
+#### Mac OS or Linux:
+In macOS or Linux, you can set an environment variable in the terminal using the export command:
+*export KENNA_API_KEY=your-api-key*
 
-### Step 2:
-Retrieve the export and unzip the json.gz file to get the json which will be used to run the script.
-Command to retrieve the file:
-'https:// BASE URL/data_exports?search_id=INSERT_EXPORT_ID_HERE' --header 'X-Risk-Token: INSTERT_API_TOKEN_HERE ' -o export_DATE.json.gz --header 'accept: application/gzip'
-
-#### Note: 
-export_DATE.json file will be read by the script. So, plugin the file name for the latest file identified by date in the SVD_Information.py-
-
-line 20 - *with open('export_DATE.json') as file:*
-
-
-### Step 3:
-Run the Script as mentioned in the usage section.
+### 3: Wait time for Export
+By default the script waits for maximum time of 90 minutes to get the export from the customer's environment, in case your export is big and needs more time, 
+please update the *max_wait_time=5400*  (in seconds) parameter on line #52 to accomodate your export.
+Note: The scipt was tested with maximum time of 5400 seconds (90 minutes) with record count of ~24M and it executed successfully in 44 minutes.
 
 ## Requirements
 * python
-* rest-client
 * ijson
 * csv

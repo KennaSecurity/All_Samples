@@ -9,7 +9,7 @@ This can help you validate the scanning from the respective scanner keeping the 
 
   
 ## Usage
-python SVD_Information.py
+python scanner_vuln_information.py
 
 
 ## Steps to perform before running the script

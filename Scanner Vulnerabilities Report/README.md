@@ -11,7 +11,7 @@ This can help you validate the scanning from the respective scanner keeping the 
 The script does an export of vulnerabilities in "open", "risk accepted" and "false positive" status from your environment to determine which connector is keeping them open.
   
 ## Usage
-python SVD_Information.py
+python scanner_vuln_information.py
 
 ## Updates/Edits needed to execute the script
 

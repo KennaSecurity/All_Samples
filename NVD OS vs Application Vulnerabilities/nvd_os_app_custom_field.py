@@ -32,7 +32,8 @@ def request_data_export(token_variable):
         "open",
         "risk accepted",
         "false positive"
-      ]
+      ],
+      "custom_fields:Vuln Type": ["none"]
     }
     response = requests.post(url, headers=headers, json=data)
     if response.status_code == 200:

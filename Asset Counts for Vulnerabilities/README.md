@@ -53,3 +53,4 @@ this time can be increased and/or decreased on Line#39 based on user experience 
 ## Requirements
 * python
 * requests
+* pandas

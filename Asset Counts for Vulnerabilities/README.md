@@ -13,7 +13,9 @@ with their score and asset counts.
 The script does an export of vulnerabilities in "open" by default.
   
 ## Usage
-python vulns_and_assets.py
+```python vulns_and_assets.py```
+
+
 
 >>Script prompt - Enter '1' to use Risk Meter ID or '2' to use CVE List: 1
 

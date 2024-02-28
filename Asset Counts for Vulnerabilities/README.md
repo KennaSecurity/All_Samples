@@ -16,21 +16,24 @@ The script does an export of vulnerabilities in "open" by default.
 ```python vulns_and_assets.py```
 
 
+Sample script run with Risk Meter ID as input:
+```
+Script prompt - Enter '1' to use Risk Meter ID or '2' to use CVE List: 1
 
->>Script prompt - Enter '1' to use Risk Meter ID or '2' to use CVE List: 1
+Script prompt - Enter the Risk Meter ID: 1234
 
->>Script prompt - Enter the Risk Meter ID: 1234
-
->>Data export initiated...
-
+Data export initiated...
+```
 
 
+Sample script run with list of CVEs as input:
+```
+Script prompt - Enter '1' to use Risk Meter ID or '2' to use CVE List: 2
 
->>Script prompt - Enter '1' to use Risk Meter ID or '2' to use CVE List: 2
+Script prompt - Enter the CVEs in a comma separated format (if more than one): CVE-2014-0781,CVE-2014-0782
 
->>Script prompt - Enter the CVEs in a comma separated format (if more than one): CVE-2014-0781,CVE-2014-0782
-
->>Data export initiated...
+Data export initiated...
+```
 
 
 ## Updates/Edits needed to execute the script

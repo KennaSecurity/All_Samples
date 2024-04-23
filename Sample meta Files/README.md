@@ -1,5 +1,5 @@
 # Meta Files Repository
-The Cisco Vulnerability Management platform is able to ingest data from any strucutured dataset in CSV format into the platform. it uses a converter utility to transform such data into a JSON file in a specified format that can allow customers to import asset and vulnerabilities data into the platform. A meta file is needed for this conversion and needs to be done one time for each data set being ingested. 
+The Cisco Vulnerability Management platform is capable of ingesting data from any structured dataset in CSV format. It utilizes a converter utility to transform this data into a JSON file, formatted specifically to enable customers to import asset and vulnerability data into the platform. A meta file is needed for this conversion and needs to be done once for each data set being ingested. 
 
-This directory is created to serve as a repository where customers can have access to files that may have been created for various scanning platforms. While care has been made to present these files in a way that can be used as is where applicable, customers may need to make tweaks in order to match data from their environment or their particular use case. 
+The purpose of this directory is to act as a repository, providing customers with access to conversion files that have been developed for various scanning platforms. Although these files are designed to be used directly where possible, some customers may find that adjustments are necessary to align with the particulars of their environment or their unique use case.
 

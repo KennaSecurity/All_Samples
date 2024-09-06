@@ -30,7 +30,7 @@ In macOS or Linux, you can set an environment variable in the terminal using the
 *export API_KEY=your-api-key*
 
 ### 4: Custom Field ID
-Update *vuln_age* on line #19 and *uln_age_range* on Line #20 in the code, with custom field id numbers from your environment as created in step #1 above. 
+Update *vuln_age* on line #19 and *vuln_age_range* on Line #20 in the code, with custom field id numbers from your environment as created in step #1 above. 
 
 ### 5: Wait time for Export
 By default the script waits for maximum time of 120 minutes to get the export from the customer's environment, in case your export is big and needs more time, 

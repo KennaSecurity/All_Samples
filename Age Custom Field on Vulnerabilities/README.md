@@ -10,7 +10,7 @@ python age_custom_field.py
 
 ### 1: Create Custom Field 
 Create two custom fields in Cisco Vulnerability Management:
-1) Create a *numeric* custom field to populate the exact # of days . This field is named as *vuln_age* in the script. 
+1) Create a *Numeric* custom field to populate the exact # of days . This field is named as *vuln_age* in the script. 
 2) Create a *String (long)* custom field to populate the range of days . This field is named as *vuln_age_range* in the script.
 
 *Note: It is recommended to select faceted search option for second custom field that is the range of days, to see range options under the vulnerability filters. 

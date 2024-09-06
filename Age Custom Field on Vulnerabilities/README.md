@@ -1,8 +1,7 @@
 # Add a Custom Field for Age on vulnerabilities
 
 ## Introduction
-Our customers wanted to see the number of days and a range of date on the vulnerability since it was open from first found date. 
-This script calculates the number of days since the vulnerability is open from first found date until today and is displayed in the UI on vulnerabilities tab and also under the vulnerability filters.
+Some customers may want to see the number of days since a vulnerability was first found. This script calculates the number of days a vulnerability has been open at the point of script execution and categorizes the calculated duration into pre-configured date ranges. This README also provides guidance on how the custom field can be configured so that the date ranges can be shown as vulnerability filters for easy filtering and possibly grouping within the CVM platform.
   
 ## Usage
 python age_custom_field.py
@@ -10,9 +9,12 @@ python age_custom_field.py
 ## Updates/Edits needed to execute the script
 
 ### 1: Create Custom Field 
-Create two custom fields in Cisco Vulnerability Management and select faceted search option to show these as filter option  :
-1) *custom_field_id* ; This field populates the exact # of days
-2) *custom_field_id_range* ; This field shows the range of days
+Create two custom fields in Cisco Vulnerability Management:
+1) Create a *numeric* custom field to populate the exact # of days . This field is named as *vuln_age* in the script 
+2) Create a *String (long)* custom field to populate the range of days . This field is named as *vuln_age_range* in the script
+
+*Note: It is recommended to select faceted search option for second custom field that is the range of days, to see range options under the vulnerability filters. 
+If faceted search is enabled for first custom field then it will be cumbersome to scroll through all the individual vuln ages that show up.*
 
 ### 2: Update the base_url 
 By default, https://api.kennasecurity.com/ is being used on line #18. Update it to w.r.t your environment.

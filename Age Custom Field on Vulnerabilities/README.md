@@ -39,10 +39,15 @@ Note: The scipt was tested with 1200 seconds (20 minutes) with record count of ~
 
 ### 6: Date Range for Reporting
 By default the script has the following ranges listed below, but these can be edited & customized to meet customer's reporting requirement.
+  
   "<= 30 days"
+  
   "31 - 60 days"
+  
   "61 - 90 days"
+  
   "91 - 180 days"
+  
   "> 180 days"
 
 ## Requirements

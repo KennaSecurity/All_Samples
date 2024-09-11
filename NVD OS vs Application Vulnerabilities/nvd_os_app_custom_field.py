@@ -7,7 +7,13 @@ import io
 import os
 from collections import defaultdict
 import sys
+import argparse
 
+# Parse command-line arguments
+parser = argparse.ArgumentParser(description='Process CVE data and update vulnerabilities.')
+parser.add_argument('--multi', action='store_true', help='Enable "multi" option for multiple product types')
+parser.add_argument('--preference', choices=['a', 'o'], help='Preference for Application (a) or OS (o) when both are present')
+args = parser.parse_args()
 
 token_variable = os.environ.get('KENNA_API_KEY')
 base_url = "https://api.kennasecurity.com"
@@ -72,7 +78,7 @@ def wait_for_data_export(search_id, token_variable, max_wait_time=1200, sleep_ti
             print(f"Data export is still in progress. Waiting for {sleep_time} seconds before trying again.")
             time.sleep(sleep_time)
     
-custom_field_id = 4 # replace with the custom field from your environmnet
+custom_field_id = 39 # replace with the custom field from your environment
 
 def send_bulk_updates(ids, app_or_os, custom_field_id, token_variable):
     url = f"{base_url}/vulnerabilities/bulk"
@@ -105,7 +111,6 @@ if search_id:
         print("Failed to fetch data export.")
         sys.exit(1)
 
-
 if vulns_data:
     vulns_cves = set(vuln['cve_id'] for vuln in vulns_data['vulnerabilities'] if vuln['cve_id'].startswith('CVE-'))
 
@@ -134,7 +139,7 @@ start_time = time.time()
 cve_data = {}
 fetch_failed = False  # Initialize fetch_failed
 
-while True:
+while  True:
     response = requests.get(url, params=parameters)
 
     if response.status_code == 200:
@@ -155,15 +160,33 @@ while True:
                                     if product_type and product_type not in types:
                                         types.append(product_type)
 
-                    # Check for the specific combinations and update types accordingly
-                    if ('Application' in types and 'Hardware' in types) or \
-                        ('OS' in types and 'Hardware' in types) or \
-                        ('OS' in types and 'Network' in types) or \
-                        ('Application' in types and 'Network' in types):
-                        types = [t for t in types if t not in ['Hardware', 'Network']]
-
-                    if 'Application' in types and 'OS' in types:
-                        types = [types[0]]  # Keep only the first product type
+                    # Apply the rules for selecting the product type
+                    if args.multi and len(types) > 1:
+                        types = [f"multi ({', '.join(sorted(types))})"]
+                    else:
+                        if 'Application' in types and 'OS' in types:
+                            if args.preference == 'a':
+                                types = ['Application']
+                            elif args.preference == 'o':
+                                types = ['OS']
+                        elif 'Application' in types:
+                            types = ['Application']
+                        elif 'OS' in types:
+                            types = ['OS']
+                        elif 'Hardware' in types:
+                            types = ['Hardware']
+                        elif 'Network' in types:
+                            types = ['Network']
+                        elif 'OS' in types and 'Hardware' in types:
+                            types = ['OS']
+                        elif 'OS' in types and 'Network' in types:
+                            types = ['OS']
+                        elif 'Application' in types and 'Network' in types:
+                            types = ['Application']
+                        elif 'Application' in types and 'Hardware' in types:
+                            types = ['Application']
+                        elif 'Hardware' in types and 'Network' in types:
+                            types = []
 
                     # Initialize the dictionary for this cve_id if it doesn't exist
                     if cve_id not in cve_data:
@@ -206,6 +229,8 @@ with open('output_nvd_cve_vuln_ids.csv', 'w', newline='') as csvfile:
         })
         # Increment the count for each type in this row
         for product_type in cve_data[cve_id]['Type']:
+            if product_type not in type_counts:
+                type_counts[product_type] = 0
             type_counts[product_type] += 1
             id_counts[product_type].update(cve_data[cve_id]['id'])
 
@@ -220,31 +245,26 @@ print(f'Time taken: {int(hours)} hours, {int(minutes)} minutes, {round(seconds, 
 for type_name in type_counts.keys():
      print(f'{type_name}: {type_counts[type_name]} CVEs, {len(id_counts[type_name])} IDs')
 
-# Create sets for app, os, and hardware
+# Create sets for app, os, hardware, and multi types
 app_set = set()
 os_set = set()
 hardware_set = set()
 network_set = set()
+multi_sets = defaultdict(set)
 
 # Go through the cve_data and add IDs to the appropriate sets
 for cve_id in cve_data:
-    if 'Application' in cve_data[cve_id]['Type']:
-        app_set.update(cve_data[cve_id]['id'])
-    if 'OS' in cve_data[cve_id]['Type']:
-        os_set.update(cve_data[cve_id]['id'])
-    if 'Hardware' in cve_data[cve_id]['Type']:
-        hardware_set.update(cve_data[cve_id]['id'])
-    if 'Network' in cve_data[cve_id]['Type']:
-        network_set.update(cve_data[cve_id]['id'])
-
-# Print the application, os & hardware set results
-#print('Application set:')
-#print(app_set)
-#print('\nOS set:')
-#print(os_set)
-#print('\nHardware set:')
-#print(hardware_set)
-
+    for type_name in cve_data[cve_id]['Type']:
+        if type_name == 'Application':
+            app_set.update(cve_data[cve_id]['id'])
+        elif type_name == 'OS':
+            os_set.update(cve_data[cve_id]['id'])
+        elif type_name == 'Hardware':
+            hardware_set.update(cve_data[cve_id]['id'])
+        elif type_name ==  'Network':
+            network_set.update(cve_data[cve_id]['id'])
+        else:
+            multi_sets[type_name].update(cve_data[cve_id]['id'])
 
 # Set your threshold number for grouping IDs
 thresh_num = 25000       # Threshold for how many IDs you want to send in each request. Max possible is 30k as per API docs
@@ -252,11 +272,16 @@ thresh_num = 25000       # Threshold for how many IDs you want to send in each r
 # The sets with the IDs
 sets = {'application': list(app_set), 'os': list(os_set), 'hardware': list(hardware_set), 'network': list(network_set)}
 
+# Add multi sets if the flag is enabled
+if args.multi:
+    for multi_type, ids in multi_sets.items():
+        sets[multi_type] = list(ids)
+
 for set_type, ids in sets.items():
+    print(f"Processing {set_type} with {len(ids)} IDs")  # Debugging line
     while len(ids) > 0:
         batch = ids[:thresh_num]
         custom_field_value = set_type
         send_bulk_updates(batch, custom_field_value, custom_field_id, token_variable)
         time.sleep(0.2)  # Add a delay of 0.2 seconds between each request
         ids = ids[thresh_num:]
-        

@@ -1,11 +1,7 @@
-Vulnerability ID,Details Connector Name,Details Value,CVE
-12345,Nexpose,"Vulnerable OS: Microsoft Windows 10 22H2
-		
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion
-				
-UBR - contains 1889",CVE-2022-37975
-67890,Crowdstrike,"Vulnerable OS: Microsoft Windows 10 22H2
-		
-HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion
-				
-UBR - contains 1889",CVE-2022-38041
+Vulnerability ID,Details Connector Name,Details Value,CVE,Asset ID,IP Address,Hostname,FQDN,Asset Groups
+5500,KDI Dconnector,"Risk ID: 129
+SA ID: BSA-2023-1809
+Summary: Potential privilege escalation by embedding shell commands in a mountpoint name.
+Impact: An attacker with the ability to mount a filesystem with custom mount points may execute arbitrary commands on behalf of the user who triggers the umount autocompletion.
+Vulnerable version: v9.0.1e1
+Resolving version: 9.1.1c",CVE-2018-7738,900,1.4.1.7,swstest01,,"Network Segmentation, Internal Network"

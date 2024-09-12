@@ -8,7 +8,7 @@ This script helps to create a list of vulnerabilities & the related assets which
 This can help you validate the scanning from the respective scanner keeping the detection open.
 
 ### Note:
-The script does an export of vulnerabilities in "open", "risk accepted" and "false positive" status from your environment to determine which connector is keeping them open.
+The script does an export of vulnerabilities in "open", "risk accepted" and "false positive" status along with their asset information from your environment to determine which connector is keeping them open. 
   
 ## Usage
 python scanner_vuln_information.py

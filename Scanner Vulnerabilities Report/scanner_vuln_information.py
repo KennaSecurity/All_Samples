@@ -7,6 +7,7 @@ import sys
 import os
 import requests
 from datetime import datetime
+from requests.exceptions import ChunkedEncodingError, ConnectionError, Timeout
 
 # Ensure the KENNA_API_KEY environment variable is set
 token_variable = os.environ.get('KENNA_API_KEY')
@@ -59,7 +60,7 @@ def request_data_export(token_variable, model, ids=None):
         print(f"Failed to send POST request. Status Code: {response.status_code}. Response Text: {response.text}")
         return None
 
-def wait_for_data_export(search_id, token_variable, model, max_wait_time=12000, sleep_time=90):
+def wait_for_data_export(search_id, token_variable, model, max_wait_time=12000, sleep_time=90, max_retries=5):
     """Wait for the data export to be ready and download it."""
     start_time = time.time()
     status_url = f"{base_url}/data_exports/status?search_id={search_id}"
@@ -67,6 +68,8 @@ def wait_for_data_export(search_id, token_variable, model, max_wait_time=12000, 
         'X-Risk-Token': token_variable,
         'accept': 'application/json'
     }
+    retries = 0
+
     while True:
         status_response = requests.get(status_url, headers=headers)
         if status_response.status_code == 200 and status_response.json().get('message') == "Export ready for download":
@@ -76,13 +79,21 @@ def wait_for_data_export(search_id, token_variable, model, max_wait_time=12000, 
                 'X-Risk-Token': token_variable,
                 'accept': 'application/gzip'
             }
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                decompressed_file = gzip.GzipFile(fileobj=io.BytesIO(response.content))
-                return decompressed_file
-            else:
-                print(f"Failed to fetch {model} data. Status Code: {response.status_code}. Response Text: {response.text}")
-                return None
+            while retries < max_retries:
+                try:
+                    response = requests.get(url, headers=headers, timeout=60)
+                    if response.status_code == 200:
+                        decompressed_file = gzip.GzipFile(fileobj=io.BytesIO(response.content))
+                        return decompressed_file
+                    else:
+                        print(f"Failed to fetch {model} data. Status Code: {response.status_code}. Response Text: {response.text}")
+                        return None
+                except (ChunkedEncodingError, ConnectionError, Timeout) as e:
+                    retries += 1
+                    print(f"Error occurred: {e}. Retrying {retries}/{max_retries}...")
+                    time.sleep(5)
+            print(f"Failed to fetch {model} data after {max_retries} retries.")
+            return None
         elif time.time() - start_time > max_wait_time:
             print(f"Timed out after waiting for {max_wait_time} seconds.")
             return None
@@ -126,17 +137,22 @@ for line in vuln_data:
         })
         asset_ids.add(a_id)
 
-# Request asset data export for each asset_id
+# Batch asset IDs for export requests
+batch_size = 25000  # Adjust batch size as needed
+asset_id_batches = [list(asset_ids)[i:i + batch_size] for i in range(0, len(asset_ids), batch_size)]
+
+# Request asset data export for each batch of asset_ids
 asset_data = {}
-for a_id in asset_ids:
-    asset_search_id = request_data_export(token_variable, "asset", [a_id])
+for batch in asset_id_batches:
+    asset_search_id = request_data_export(token_variable, "asset", batch)
     if asset_search_id:
         asset_export = wait_for_data_export(asset_search_id, token_variable, "asset")
         if asset_export:
             for line in asset_export:
                 asset = json.loads(line)
+                a_id = asset['id']
                 asset_data[a_id] = {
-                    'ip_address': asset.get('ip_address', ''),
+                    'ip_address':  asset.get('ip_address', ''),
                     'hostname': asset.get('hostname', ''),
                     'fqdn': asset.get('fqdn', ''),
                     'asset_groups': [group['name'] for group in asset.get('asset_groups', [])]

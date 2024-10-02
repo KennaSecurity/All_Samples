@@ -50,7 +50,6 @@ while True:
     # do this once
     if 'meta' in users_response and pages == -1:
         pages = users_response['meta']['pages']
-    print("Page", page, "of", pages)
     if page >= pages:
         break
     page += 1

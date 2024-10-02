@@ -14,7 +14,6 @@ def flatten_json(nested_json, exclude=['roles']):
             The flattened json object if successful, None otherwise.
     """
     out = {}
-
     def flatten(x, name='', exclude=exclude):
         if type(x) is dict:
             for a in x:
@@ -31,19 +30,34 @@ def flatten_json(nested_json, exclude=['roles']):
     return out
 
 token = sys.argv[1]
-base_url = "https://api.kennasecurity.com"
-users_url= base_url + "/users"
+# increase per_page to get more data per request
+per_page = 500
+base_url = "http://api.stg1.us.kennasecurity.com"
+users_url= base_url + "/users?per_page=" + str(per_page)
 roles_url = base_url + "/roles"
 
 #print(users_url)
 
-headers = {"Accept": "application/json", "X-Risk-Token":token, "User-Agent": 'user_audit/1.0.0 (Kenna Security)'}
-
-users_response = requests.get(users_url, headers=headers).json()
+headers = {"Accept": "*/*", "X-Risk-Token":token, "User-Agent": 'PostmanRuntime/7.42.0'}
 
 #print(users_response)
+writer = pd.ExcelWriter('kenna_user_audit.xlsx', engine='xlsxwriter', date_format='m/d/yyyy')
+pages = -1
+page = 1
+users_df = pd.DataFrame()
 
-users_df = pd.DataFrame(json_normalize([flatten_json(x) for x in users_response['users']]))
+while True:
+    paged_url = users_url + "&page=" + str(page)
+    print("Requesting data from", paged_url)
+    users_response = requests.get(paged_url, headers=headers).json()
+    users_df = pd.concat([users_df, pd.DataFrame(json_normalize([flatten_json(x) for x in users_response['users']]))], ignore_index=True)   
+    # do this once
+    if 'meta' in users_response and pages == -1:
+        pages = users_response['meta']['pages'] + 1
+    if page > pages:
+        break
+    page += 1
+
 users_df = users_df.rename(columns={"id":"user_id","created_at":"user_created_at","updated_at":"user_updated_at"})
 
 users_df['user_created_at'] = pd.to_datetime(users_df['user_created_at'], format='%Y-%m-%d', errors='coerce').dt.date
@@ -51,7 +65,7 @@ users_df['last_sign_in_at'] = pd.to_datetime(users_df['last_sign_in_at'], format
 
 print('Printing Users data sample:')
 print(users_df.head(2))
-
+users_df.to_excel(writer, sheet_name='Users')
 #remove comments to troubleshoot columns
 #for col in users_df.columns:
     #print(col)
@@ -70,11 +84,8 @@ print(roles_df.head(2))
 #for col in roles_df.columns:
     #print(col)
 
-writer = pd.ExcelWriter('kenna_user_audit.xlsx', engine='xlsxwriter', date_format='m/d/yyyy')
-
 workbook = writer.book
 
-users_df.to_excel(writer, sheet_name='Users')
 roles_df.to_excel(writer, sheet_name='Roles')
 
 red_format = workbook.add_format({'bg_color': '#FFC7CE','font_color': '#9C0006'})
@@ -89,7 +100,7 @@ users_sheet = writer.sheets['Users']
 users_sheet.conditional_format('$J$2:$J$99999', {'type': 'blanks', 'format': red_format})
 users_sheet.conditional_format('$J$2:$J$99999', {'type': 'formula', 'criteria': '=J2<TODAY()-30', 'format': yellow_format})
 
-writer.save()
+writer.close()
 
 print('User and role data has been saved to the file kenna_user_audit.xlsx.')
 print('Users that have never logged in are highlighted in red. Users that have not logged in for over 30 days are highlighted in yellow.')

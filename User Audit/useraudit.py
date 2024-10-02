@@ -31,8 +31,8 @@ def flatten_json(nested_json, exclude=['roles']):
 
 token = sys.argv[1]
 # increase per_page to get more data per request
-per_page = 500
-base_url = "http://api.stg1.us.kennasecurity.com"
+per_page = 10
+base_url = "http://api.kennasecurity.com"
 users_url= base_url + "/users?per_page=" + str(per_page)
 roles_url = base_url + "/roles"
 
@@ -53,8 +53,8 @@ while True:
     users_df = pd.concat([users_df, pd.DataFrame(json_normalize([flatten_json(x) for x in users_response['users']]))], ignore_index=True)   
     # do this once
     if 'meta' in users_response and pages == -1:
-        pages = users_response['meta']['pages'] + 1
-    if page > pages:
+        pages = users_response['meta']['pages']
+    if page >= pages:
         break
     page += 1
 

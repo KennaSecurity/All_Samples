@@ -32,15 +32,29 @@ def flatten_json(nested_json, exclude=['roles']):
 
 token = os.environ.get('API_KEY')
 base_url = "https://api.kennasecurity.com"
-users_url= base_url + "/users"
+per_page = 10
+users_url= base_url + "/users?per_page=" + str(per_page)
 roles_url = base_url + "/roles"
 audit_logs_url = base_url + "/audit_logs/"
 
 headers = {"Accept": "application/json", "X-Risk-Token":token}
+pages = -1
+page = 1
+users_df = pd.DataFrame()
 
-users_response = requests.get(users_url, headers=headers).json()
+while True:
+    paged_url = users_url + "&page=" + str(page)
+    print("Requesting data from", paged_url)
+    users_response = requests.get(paged_url, headers=headers).json()
+    users_df = pd.concat([users_df, pd.DataFrame(json_normalize([flatten_json(x) for x in users_response['users']]))], ignore_index=True)   
+    # do this once
+    if 'meta' in users_response and pages == -1:
+        pages = users_response['meta']['pages']
+    print("Page", page, "of", pages)
+    if page >= pages:
+        break
+    page += 1
 
-users_df = pd.DataFrame(json_normalize([flatten_json(x) for x in users_response['users']]))
 users_df = users_df.rename(columns={"id":"user_id","created_at":"user_created_at","updated_at":"user_updated_at"})
 
 users_df['user_created_at'] = pd.to_datetime(users_df['user_created_at'], format='%Y-%m-%d', errors='coerce').dt.date
@@ -126,36 +140,33 @@ for log in audit_logs:
     audit_logs_processed.append(event_data)
 
 audit_df = pd.DataFrame(audit_logs_processed)
-
-# Open the existing workbook with 'openpyxl'
 wb = load_workbook('cvm_user_audit.xlsx')
+users_sheet = wb['Users']
+
+# Define a fill for highlighting cells
+green_fill = PatternFill(start_color='00FF00', end_color='00FF00', fill_type='solid')
+
+# Get emails from audit logs data with 'source' as 'API'
+api_emails = [log['user_email'] for log in audit_logs_processed if log['source'] == 'API']
+
+# Iterate over the rows in the 'Users' DataFrame
+for i, row in users_df.iterrows():
+    email = row['email']  # Assuming 'email' is a column in your DataFrame
+    # Check if the email is in api_emails
+    if email in api_emails:
+        # If it is, highlight the entire row
+        for j in range(1, len(row) + 1):
+            print("Highlighting")
+            users_sheet.cell(row=i+2, column=j).fill = green_fill  # i+2 because DataFrame is 0-indexed and Worksheet is 1-indexed, and we have a header row
+
+# Save the workbook
+wb.save('cvm_user_audit.xlsx')
 
 # Write the 'Audit Logs' DataFrame to the workbook
-with pd.ExcelWriter('cvm_user_audit.xlsx', engine='openpyxl') as writer:
-    writer.book = wb
+with pd.ExcelWriter('cvm_user_audit.xlsx', engine='openpyxl', mode='a') as writer:
     merged_df = pd.merge(users_df, audit_df, left_on="user_id", right_on="kenna_user_id", how="inner")
     merged_df.to_excel(writer, sheet_name='Audit Logs')
 
-    # Get the 'Users' sheet
-    users_sheet = wb['Users']
-
-    # Define a fill for highlighting cells
-    green_fill = PatternFill(start_color='00FF00', end_color='00FF00', fill_type='solid')
-
-    # Get emails from audit logs data with 'source' as 'API'
-    api_emails = [log['user_email'] for log in audit_logs_processed if log['source'] == 'API']
-
-    # Iterate over the rows in the 'Users' DataFrame
-    for i, row in users_df.iterrows():
-        email = row['email']  # Assuming 'email' is a column in your DataFrame
-        # Check if the email is in api_emails
-        if email in api_emails:
-            # If it is, highlight the entire row
-            for j in range(1, len(row) + 1):
-                users_sheet.cell(row=i+2, column=j).fill = green_fill  # i+2 because DataFrame is 0-indexed and Worksheet is 1-indexed, and we have a header row
-
-    # Save the workbook
-    wb.save('cvm_user_audit.xlsx')
 
 print('User, role, and audit log data has been saved to the file cvm_user_audit.xlsx.')
 print('Users that have never logged in are highlighted in red. Users that have not logged in for over 30 days are highlighted in yellow.')

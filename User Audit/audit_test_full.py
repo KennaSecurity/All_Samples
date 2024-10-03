@@ -32,7 +32,7 @@ def flatten_json(nested_json, exclude=['roles']):
 
 token = os.environ.get('API_KEY')
 base_url = "https://api.kennasecurity.com"
-per_page = 10
+per_page = 500
 users_url= base_url + "/users?per_page=" + str(per_page)
 roles_url = base_url + "/roles"
 audit_logs_url = base_url + "/audit_logs/"

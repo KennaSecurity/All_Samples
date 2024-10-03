@@ -33,5 +33,8 @@ You can set an environment variable in Windows using the setx command in the com
 In macOS or Linux, you can set an environment variable in the terminal using the export command:
 *export API_KEY=your-api-key*
 
+### 4. Pagination Size
+List Users endpoint is paginated. Pagination size is set to 500 in both the scripts. If you want a higher or lower pagination size please change `per_page` variable's value in the script.
+
 ### 3: Fetch Audit Logs 
 Update the start_date (Line #70) and end_date (Line #71) in the script as per the time period you want to pull the logs for. Based on this time period, the script will check which user used their API keys in that time frame.

@@ -8,32 +8,43 @@ import datetime
 #adjust base_url value if your account is on a different platform
 base_url = "https://api.kennasecurity.com"
 fixes_url = base_url + "/fixes"
+api_key = os.getenv("kenna_api_key")
 
-headers = {"Accept": "application/json", "X-Risk-Token":os.environ.get("kenna_api_key"), "User-Agent": 'sorted_fixes/1.0.0 (Kenna Security)'}
+if api_key is None:
+    print("Environment variable KENNA_API_KEY is non-existent")
+    sys.exit(1)
+
+headers = {"Accept": "application/json", "X-Risk-Token":api_key, "User-Agent": 'sorted_fixes/1.0.0 (Kenna Security)'}
 
 sorted_fixes = pd.DataFrame()
 
 try:
-    first_page = requests.get(fixes_url, headers=headers).json()
-except ConnectionError:
-    print(f"Connection error detected. Please try again.")
+    first_page = requests.get(fixes_url, headers=headers)
+    first_page.raise_for_status()
+except requests.exceptions.HTTPError as err:
+    print(err)
     sys.exit(1)
+
+first_page = first_page.json()
 
 total_count = first_page['meta']['total_count']
 total_count = int(total_count)
 page = 1
 pages = int(first_page['meta']['pages'])
 
-print(f'{total_count} fixes found.')
+print(f'{total_count} fixes found over {pages} pages.')
 
 while page <= pages:
     fixes_loop_url = fixes_url + "?page=" + str(page)
-    
+
     try:
-        response = requests.get(fixes_loop_url, headers=headers).json()
-    except ConnectionError:
-        print(f"Connection error detected. Please try again.")
+        response = requests.get(fixes_loop_url, headers=headers)
+        response.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        print(err)
         sys.exit(1)
+
+    response = response.json()
 
     print(f'Grabbing page #{page}...')
     fix_group = response['fixes']
